@@ -1,13 +1,21 @@
 import 'package:collection/collection.dart';
 
-Map<String, List<String>> _freshTags() => {
-  'tags': ['a', 'b'],
-};
+const _tagEquality = DeepCollectionEquality();
 
-({bool list, bool set, bool map, bool deep, bool unorderedList}) contentEquality() => (
-  list: const ListEquality<int>().equals([1, 2], [1, 2]),
-  set: const SetEquality<int>().equals({1, 2}, {2, 1}),
-  map: const MapEquality<String, int>().equals({'a': 1}, {'a': 1}),
-  deep: const DeepCollectionEquality().equals(_freshTags(), _freshTags()),
-  unorderedList: const DeepCollectionEquality.unordered().equals([1, 2], [2, 1]),
-);
+final class Profile {
+  Profile(this.name, this.tags);
+
+  final String name;
+  final Map<String, List<String>> tags;
+
+  @override
+  bool operator ==(Object other) =>
+      other is Profile && other.name == name && _tagEquality.equals(other.tags, tags);
+
+  // hashCode must match ==, so it uses the same Equality.
+  @override
+  int get hashCode => Object.hash(name, _tagEquality.hash(tags));
+}
+
+bool sameQuery(Map<String, List<String>> a, Map<String, List<String>> b) =>
+    const DeepCollectionEquality.unordered().equals(a, b);

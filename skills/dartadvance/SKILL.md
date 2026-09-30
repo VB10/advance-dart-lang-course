@@ -5,18 +5,47 @@ description: "Advanced Dart language guidance — what each feature does, when t
 
 # dartadvance
 
-İleri seviye Dart: her özelliğin **ne olduğu, ne zaman kullanıldığı (ve ne zaman gerekmediği)**
-ve katmanlı bir uygulamada **hangi problemi çözdüğü**. Her kod bloğu testli bir örnekten gelir.
+İleri seviye Dart dili + Dart ekibinin core paketleri (collection, async, characters, meta). Her özellik için:
+**ne olduğu, ne zaman kullanılacağı, ne zaman gerekmediği** ve testli **tek dosyalık** bir model.
+State management ve framework konu dışı.
 
-Kapsam **yalnızca Dart dili** ve onu tamamlayan Dart ekibi core paketleri (`dart-lang/core`: collection, async, characters, meta…). Hangi API'nin SDK'dan, hangisinin paketten geldiği her zaman belirtilir. State management (Riverpod, bloc…) konu dışı; "state sınıfı" = state tutan düz Dart sınıfı.
+## Nasıl çalışır
 
-## 0. Her görevde önce: SDK kontrolü
+Kullanıcı bir özelliği gösterdiyse ya da "bunu advance kurala göre geliştir / yaz" dediyse:
 
-1. Hedef paketin `pubspec.yaml` → `environment: sdk:` **alt sınırını** oku
-   (`^3.8.0` → 3.8, `'>=3.0.0 <4.0.0'` → 3.0). Monorepo'da her paket ayrı
-   bakılır; kodun yazılacağı paketin sınırı geçerlidir.
-2. Aşağıdaki tablodan alt sınırın **üstündeki** özellikleri önerme. Kullanıcı
-   isterse "SDK alt sınırını X'e çekmek gerekir" diye belirt.
+1. **SDK kontrolü:** hedef paketin `pubspec.yaml` → `environment: sdk:` alt sınırını oku; aşağıdaki tabloda
+   alt sınırın üstündeki özelliği önerme.
+2. **Kuralı bul:** konuyu [dizinden](#dizin) seç; o dosyada yalnız ilgili `## N.` bölümünü oku
+   (`grep -n "^## " rules/NN-*.md`, sonra o bölümü). Dosyanın tamamını okuma.
+3. **Modeli uyarla:** bölümdeki kod bloğu modeldir; kullanıcının alanına uyarla, isimleri kopyalama.
+4. **Yaz:** bir dosya = bir kavram, ≤ 50 satır, yorum en az, iç içe en fazla 3 seviye, metinler kullanıcının dilinde.
+   `dart create` şablon dosyalarına dokunma.
+5. **Kanıtla:** bölümdeki **Kabul** satırını test eder. Kabul bir derleme hatasıysa geçici olarak ihlal et,
+   `dart analyze` hatasını göster, geri al.
+6. `dart format` · `dart analyze` (sıfır sorun) · `dart test`; çıktıyı göster. Sonunda 3 satır özet:
+   hangi kural, hangi dosyalar, min. sürüm.
+
+Daha basit yapı yetiyorsa ileri özelliği zorlama; her bölümdeki **Gerekmez** satırına uy.
+Kural dosyası yoksa tahmin etme; dart.dev sayfasını oku
+(`https://raw.githubusercontent.com/dart-lang/site-www/main/src/content/<yol>.md`).
+
+## Dizin
+
+| # | Kural dosyası | Konu |
+| --- | --- | --- |
+| 01 | [rules/01-builtin-types.md](rules/01-builtin-types.md) | String uzunluğu, int/double, final/const/late, `_`, `?..` |
+| 02 | [rules/02-typedefs.md](rules/02-typedefs.md) | Typedef ve yeni tip olmadığı |
+| 03 | [rules/03-class-modifiers.md](rules/03-class-modifiers.md) | `sealed`, `final`, `base`, `interface`, `mixin class` |
+| 04 | [rules/04-libraries-metadata.md](rules/04-libraries-metadata.md) | Library gizliliği, `export`, `part`, `@immutable`/`@useResult` |
+| 05 | [rules/05-collection.md](rules/05-collection.md) | `dart:collection` ve `package:collection` |
+| 06 | [rules/06-event-loop-future.md](rules/06-event-loop-future.md) | Event loop, `Future.wait`, timeout |
+| 07 | [rules/07-streams.md](rules/07-streams.md) | Stream, broadcast, `async*`, abonelik |
+| 08 | [rules/08-async-package.md](rules/08-async-package.md) | `CancelableOperation`, `AsyncMemoizer`, `AsyncCache`, `StreamQueue` |
+| 09 | [rules/09-isolates.md](rules/09-isolates.md) | `Isolate.run`, port'lar |
+
+Yeni konu sıradaki numarayı alır, boşluk bırakılmaz.
+
+## SDK tablosu
 
 | Özellik | Min. dil sürümü | Kaynak |
 | --- | --- | --- |
@@ -35,10 +64,10 @@ Kapsam **yalnızca Dart dili** ve onu tamamlayan Dart ekibi core paketleri (`dar
 | `>>>` triple-shift | 2.14 | dart.dev/language/operators |
 | Enhanced enums, super parameters | 2.17 | dart.dev/language/enums |
 
-## 1. Mimari kararlar (sabit)
+## Hata modeli (ortak)
 
-**Hata modeli: `sealed class Result<T>`** (dartz `Either` kullanılmaz). UseCase ve
-Repository `Future<Result<T>>` döner; tüketici `switch` ile exhaustive işler.
+Bir kural hata döndürmeyi gerektiriyorsa `Result<T>` kullan (dartz yok). Projede yoksa `lib/core/result.dart`
+dosyasına ekle; `Failure`'ın yalnız kullanılan alt tiplerini yaz.
 
 <!-- snippet: 00_architecture/result#result -->
 ```dart
@@ -86,121 +115,10 @@ final class UnexpectedFailure extends Failure {
 }
 ```
 
-<!-- snippet: 00_architecture/describe_user -->
-```dart
-import 'result.dart';
-import 'user.dart';
+Union/state hiyerarşisi → native `sealed`. `copyWith`/JSON gereken veri sınıfı → `freezed` 3
+(sürümü `pubspec.lock`'tan doğrula). 1–3 alanlı davranışsız veri → record. Tek değerli ID → extension type.
 
-String describe(Result<User> result) => switch (result) {
-  Ok(value: User(:final name)) => 'Hello, $name',
-  Err(failure: ServerFailure(:final statusCode)) => 'Server said $statusCode',
-  Err(:final failure) => failure.message,
-};
-```
+## Kaynak
 
-**freezed vs native `sealed`: kural**
-
-| Durum | Kullan |
-| --- | --- |
-| Union / state hiyerarşisi / Failure (varyantlar arası `switch`) | native `sealed class` + `final class` alt tipler |
-| `copyWith`, value equality ve/veya JSON gereken veri sınıfı (Model, büyük state) | `freezed` 3 (+ `json_serializable`) |
-| 1–3 alanlı, davranışsız iç veri | record |
-| Tek değeri saran ID / value object | extension type |
-
-Projedeki freezed sürümünü `pubspec.lock`'tan doğrula; freezed 2.x ile 3.x'in
-davranışı farklı. Emin değilsen freezed'in pub.dev sayfasını oku, tahmin etme.
-
-**UseCase:** `final class`, tek public `call()` metodu, abstract repository'ye bağlı.
-
-<!-- snippet: 00_architecture/get_user -->
-```dart
-import 'result.dart';
-import 'user.dart';
-import 'user_repository.dart';
-
-final class GetUser {
-  const GetUser(this._repository);
-  final UserRepository _repository;
-
-  Future<Result<User>> call(UserId id) => _repository.getUser(id);
-}
-```
-
-## 2. Katman × Dart özelliği → reference
-
-Görevdeki katmanı bul, ilgili reference'ı **oku**, sonra yaz. "ileride" = henüz yazılmadı (§3).
-
-| Katman | Özellikler | Reference |
-| --- | --- | --- |
-| Tüm katmanlar (temel) | int/double/num, String vs grapheme, `final`/`const`/`late`, `?..`, `Never`, keyword türleri | 01 |
-| Domain / Entity | sealed state/Failure, `final`/`interface`; extension type ID'ler, enhanced enum (ileride) | 03 |
-| Domain / Repository arayüzü | `abstract interface class`, typedef; generics (ileride) | 03 · 02 |
-| Domain / UseCase | `final class` + `call()`; records, callable (ileride) | 03 |
-| Data / Model | `typedef Json`, mapper typedef; patterns ile JSON doğrulama (ileride) | 02 |
-| Data / DataSource | streams (WebSocket, `async*`), `StreamController`, `StreamGroup`, isolate ile ağır parse | 07 · 08 · 09 |
-| Data / RepositoryImpl | Future hataları, paralel istek + timeout, `firstWhereOrNull` → `Result` | 06 · 05 |
-| Application / state sınıfı (düz Dart) | sealed UI state, stream abonelik/iptal, `CancelableOperation` | 03 · 07 · 08 |
-| Presentation | typedef callback, grapheme ile metin kırpma; dot shorthands (ileride) | 02 · 01 |
-| Koleksiyonlar | `dart:collection` + `package:collection` (Equality, groupBy, PriorityQueue, değiştirilemez görünüm) | 05 |
-| Paket / modül sınırı | library privacy, `export` barrel, `part`, metadata, language versioning | 04 |
-
-## 3. Reference dizini
-
-Numara = öğrenme sırası. Yeni konu yazıldıkça **sıradaki numarayı** alır (boşluk bırakılmaz).
-
-| # | Reference | Konu |
-| --- | --- | --- |
-| 00 | (ortak iskelet; kodu §1'de gömülü) | `Result<T>`, `Failure`, UseCase, Repository |
-| 01 | [references/01-builtin-types.md](references/01-builtin-types.md) | Built-in types ve sık atlanan temeller |
-| 02 | [references/02-typedefs.md](references/02-typedefs.md) | Typedefs |
-| 03 | [references/03-class-modifiers.md](references/03-class-modifiers.md) | Class modifiers |
-| 04 | [references/04-libraries-metadata.md](references/04-libraries-metadata.md) | Libraries, imports, `part`, metadata |
-| 05 | [references/05-collection.md](references/05-collection.md) | `dart:collection` + `package:collection` |
-| 06 | [references/06-event-loop-future.md](references/06-event-loop-future.md) | Event loop ve Future |
-| 07 | [references/07-streams.md](references/07-streams.md) | Streams |
-| 08 | [references/08-async-package.md](references/08-async-package.md) | `package:async` |
-| 09 | [references/09-isolates.md](references/09-isolates.md) | Isolates ve compute |
-
-**İleride (henüz reference yok):** Generics ve tip sistemi · Null safety ve type promotion ·
-Records · Patterns · Enhanced enums · Extension methods · Extension types · Callable objects ve mixins ·
-Constructors ve modern sözdizimi (dot shorthands, primary constructors) · Hata yönetimi ·
-Iterables ve `sync*` · Effective Dart: Design · `dart:convert` codec'leri + `typed_data` ·
-Zones + `package:stack_trace` · `dart:core` araçları (Uri, DateTime, RegExp) · diğer core paketler.
-
-**Reference yoksa** (durum ≠ hazır): tahmin etme. İlgili dart.dev sayfasını
-çek (`https://raw.githubusercontent.com/dart-lang/site-www/main/src/content/<path>.md`)
-ve oradaki kurala göre yaz.
-
-## 4. Görev modu: kullanıcı bir şey YAPTIRMAK istediğinde
-
-1. §0 SDK kontrolü.
-2. **Tarifi bul:** ilgili reference'ta yalnız `## Skill ile üret` bölümünü oku (dosyanın tamamını okuma).
-3. **Modeli bul:** tarifteki model dosya adı `x.dart` ise aynı reference'ta `snippet: NN_konu/x` satırını ara
-   (`grep -n "snippet: NN_konu/x"`); hemen altındaki kod bloğu modelin tamamıdır. Model başka bir tipe
-   dayanıyorsa (ör. entity) onun snippet'ini de aynı yolla bul. `examples/lib/...` yolları yalnız bu repoda
-   geçerlidir, başka projede o dosyaları arama.
-4. **Ortak tipler:** kod `Result` / `Failure` gerektiriyorsa önce projede ara (`sealed class Result`,
-   `sealed class Failure`). Yoksa §1'deki tanımları `lib/core/result.dart` dosyasına ekle; `Failure`'ın yalnız
-   kodun ve testin kullandığı alt tiplerini yaz.
-   **Eksik katmanlar:** model başka katmanlara dayanıyorsa (entity, repository, UseCase) ve projede yoksa yalnız
-   domain tiplerini yaz (entity + `abstract interface` repository + gerekiyorsa UseCase). Data katmanını
-   (DataSource, RepositoryImpl) istenmedikçe yazma; kaynağı testte fake ile ver.
-5. **Yaz:** kullanıcının alanına uyarla (modeldeki isimleri kopyalama):
-   - bir dosya = bir kavram, ≤ 50 satır; özellik klasörü (`lib/<özellik>/`);
-   - yorum yalnız public API'de tek satır `///`;
-   - iç içe en fazla 3 seviye; erken `return`, switch expression;
-   - kullanıcıya görünen metinler kullanıcının yazdığı dilde.
-   - Proje şablon dosyalarına (`dart create` çıktısı) dokunma.
-6. **Test:** tarifin kabul kriterini kanıtlayan testi `test/<özellik>/` altına yaz. Kriter bir **derleme hatası**
-   ise (ör. "yeni alt tip eklenince switch derlenmez") geçici olarak alt tipi ekle, `dart analyze` hatasını göster,
-   sonra geri al; bunu raporda belirt.
-7. `dart format`, `dart analyze` (sıfır sorun) ve `dart test` çalıştır; çıktıyı göster.
-8. Kısa özet: seçilen tarif, oluşturulan dosyalar, katman, min. dil sürümü.
-
-## 5. Kurallar
-
-- API detayları için hafızaya güvenme; dart.dev ve api.dart.dev resmi kaynaktır.
-- "Flutter'da gerçek kullanım" iddiaları reference'taki permalink'lere dayanır
-  (flutter/flutter, sabit stable tag). Uydurma örnek framework kodu yazma.
-- Daha basit yapı yetiyorsa ileri özelliği zorlama; her reference'ta
-  "ne zaman **gerekmez**" bölümü vardır, ona uy.
+API detayı için hafızaya güvenme: dart.dev ve api.dart.dev. "Flutter'da gerçek kullanım" iddiaları kural
+dosyasındaki sabit tag'li permalink'lere dayanır.

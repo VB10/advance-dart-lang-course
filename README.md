@@ -1,34 +1,31 @@
 # dartadvance
 
-İleri seviye Dart: dil + Dart ekibinin core paketleri. Her konu bir agent skill reference'ı
-(`skills/dartadvance`) ve bir YouTube bölümü. Her kod bloğu testli bir örnekten gelir; her konu pekiştirme
-alıştırmalarıyla biter.
-
-- Konular ve kapsam: [docs/CURRICULUM.md](docs/CURRICULUM.md)
-- Video serisi ve çekim rehberi: [docs/SERIES.md](docs/SERIES.md)
-- **Teknik Çekim Kartı (Cheat-Sheet):** [docs/YOUTUBE_CHEAT_SHEET.md](docs/YOUTUBE_CHEAT_SHEET.md)
-- Bölüm çekim kartları: [docs/episodes/](docs/episodes/README.md)
-- İzleyici alıştırma rehberi: [docs/PRACTICE.md](docs/PRACTICE.md)
-
-## Kurulum
-
-```sh
-dart --version                                            # 3.13.x
-dart pub get                                              # tüm workspace
-dart run dartadvance_tool:dartadvance flutter-src sync    # flutter/flutter@3.47.5 sparse clone → .cache/flutter
-ln -sfn "$PWD/skills/dartadvance" ~/.claude/skills/dartadvance   # skill'i her projede kullan
-```
+İleri seviye Dart: dil + Dart ekibinin core paketleri (collection, async, characters, meta).
+Her özellik için **tek bir Dart dosyası** (ekranda gösterilir), kısa bir **kural** ve bir **skill**:
+örneği gösterip anlatırsın, sonra skill aynı kuralı başka bir alanda sıfırdan yazar.
 
 ## Yapı
 
 | Yol | Ne |
 | --- | --- |
-| `skills/dartadvance/SKILL.md` | Router: SDK kontrolü, sabit kararlar, katman → konu haritası |
-| `skills/dartadvance/references/NN-*.md` | Konu anlatımı (numara = öğrenme sırası) |
-| `examples/lib/NN_*/` | Konunun kodu (dosya başına tek kavram); `practice/` = alıştırma çözümleri |
-| `examples/test/NN_*/` | Konunun testleri |
-| `examples/lib/00_architecture/` | Ortak iskelet: `Result<T>`, `Failure`, UseCase, Repository |
-| `tool/` | `dartadvance` CLI |
+| `examples/lib/NN_konu/özellik.dart` | Gösterilen dosya: tek kavram, bağımsız, ≤ 35 satır |
+| `examples/test/NN_konu/` | Konunun testi (her iddia testle kanıtlı) |
+| `skills/dartadvance/rules/NN-konu.md` | Kural: ne, ne zaman, ne zaman gerekmez, tuzak, skill promptu, kabul kriteri |
+| `skills/dartadvance/SKILL.md` | Skill'in girişi: SDK kontrolü, nasıl çalışır, dizin |
+| `docs/FILMING.md` | Çekim notları: bölüm bölüm aç → söyle → skill'e ver → kıyasla |
+| `tool/` | Kural dosyalarındaki kodu `examples/`'tan dolduran ve doğrulayan CLI |
+
+## Konular
+
+01 Built-in types · 02 Typedefs · 03 Class modifiers · 04 Libraries ve metadata · 05 Koleksiyonlar ·
+06 Event loop ve Future · 07 Streams · 08 package:async · 09 Isolates
+
+## Kurulum
+
+```sh
+dart pub get
+ln -sfn "$PWD/skills/dartadvance" ~/.claude/skills/dartadvance   # skill her projede kullanılabilir
+```
 
 ## Komutlar
 
@@ -36,16 +33,16 @@ ln -sfn "$PWD/skills/dartadvance" ~/.claude/skills/dartadvance   # skill'i her p
 
 | Komut | Ne yapar |
 | --- | --- |
-| `snippets [--check]` | Reference'lardaki `<!-- snippet: id -->` bloklarını `examples/`'tan doldurur / kontrol eder |
-| `verify <NN_konu>` / `verify --all` | format · `analyze --fatal-infos` · test · snippet'ler güncel mi |
-| `links` | Skill'deki her `https://dart.dev/...#anchor` canlı sayfada var mı |
-| `flutter-src sync` / `grep [--json\|--count] <regex>` | Flutter kaynağında gerçek kullanım + sabit tag'li permalink |
+| `snippets [--check]` | Kural dosyalarındaki `<!-- snippet: id -->` bloklarını `examples/`'tan doldurur / kontrol eder |
+| `verify <NN_konu>` / `verify --all` | format · analyze · test · snippet'ler güncel mi |
+| `links` | Kural dosyalarındaki dart.dev `#anchor` linkleri canlı sayfada var mı |
 
 ## Yeni konu ekleme
 
-1. Sıradaki numarayı al (boşluk bırakma): `NN`.
-2. dart.dev'in raw markdown'ını oku (`dart-lang/site-www/src/content`); API için api.dart.dev.
-3. `examples/lib/NN_konu/<kavram>.dart` (dosya başına tek kavram, ≤50 satır, az yorum) + `examples/test/NN_konu/`.
-4. `skills/dartadvance/references/NN-konu.md`: `02-typedefs.md` iskeletini izle. Kod blokları yalnız snippet marker'ıyla.
-5. **Skill ile üret** tarifleri (her yapı için) ve **Pekiştirme** (3 alıştırma; çözümler `practice/exN_*.dart` + testleri).
-6. `snippets` → `verify NN_konu` → `links`; SKILL.md §3 ve CURRICULUM.md §1'e ekle.
+1. Sıradaki numarayı al (boşluk yok).
+2. dart.dev sayfasını oku; her özellik için `examples/lib/NN_konu/<özellik>.dart` yaz (bağımsız, ≤ 35 satır) ve tek test dosyası.
+3. `rules/NN-konu.md` yaz; mevcut bir kural dosyasının iskeletini izle; kod yalnız snippet marker'ıyla.
+4. `snippets` → `verify NN_konu` → `links`; SKILL.md dizinine ve `docs/FILMING.md`'ye ekle.
+
+Sonraki konular: Generics · Null safety · Records · Patterns · Enhanced enums · Extension types · Constructors ·
+Hata yönetimi · Iterables ve `sync*` · diğer core paketler.

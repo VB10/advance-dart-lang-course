@@ -1,5 +1,8 @@
-mixin class Both {}
+// `mixin class` works both as `with Auditable` and as `extends Auditable`.
+mixin class Auditable {
+  final List<String> _entries = [];
 
-class UseAsMixin with Both {}
+  List<String> get auditLog => List.unmodifiable(_entries);
 
-class UseAsSuperclass extends Both {}
+  void audit(String entry) => _entries.add(entry);
+}
