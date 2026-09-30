@@ -1,0 +1,16 @@
+name: dartadvance_examples
+description: Verified examples behind every dartadvance reference — one folder per topic.
+publish_to: none
+
+environment:
+  sdk: '>=3.13.0 <3.14.0'
+resolution: workspace
+
+dependencies:
+  async: ^2.13.0
+  characters: ^1.4.0
+  collection: ^1.19.0
+  meta: ^1.16.0
+
+dev_dependencies:
+  test: ^1.26.0

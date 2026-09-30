@@ -1,0 +1,14 @@
+# Dart / pub
+.dart_tool/
+**/build/
+*.log
+
+# Local caches (flutter/flutter sparse clone, tool outputs)
+.cache/
+
+
+# OS / IDE
+.DS_Store
+.idea/
+*.iml
+

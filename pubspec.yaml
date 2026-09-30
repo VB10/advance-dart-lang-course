@@ -1,0 +1,13 @@
+name: dartadvance
+description: dartadvance — advanced Dart skill for Clean Architecture Flutter projects, with verified examples.
+publish_to: none
+
+environment:
+  sdk: '>=3.13.0 <3.14.0'
+
+workspace:
+  - examples
+  - tool
+
+dev_dependencies:
+  lints: ^6.1.0
