@@ -1,13 +1,16 @@
+// Skill'e ver: "Projemde `first`/`firstWhere`/`try-catch StateError` ile arama yapan
+// yerleri bul, `firstOrNull`/`firstWhereOrNull` ile düzelt, her biri için test yaz."
 import 'package:collection/collection.dart';
 
 typedef Product = ({String name, int stock});
 
-// Core (Dart 3.0): no import needed for the OrNull helpers.
-Product? cheapest(List<Product> sortedByPrice) => sortedByPrice.firstOrNull;
+Product naiveFirst(List<Product> products) => products.first; // empty: StateError
 
-// Package: the predicate version still lives in package:collection.
+Product? cheapest(List<Product> sortedByPrice) => sortedByPrice.firstOrNull; // empty: null
+
+Product naiveInStock(List<Product> products) => products.firstWhere((product) => product.stock > 0);
+
 Product? firstInStock(List<Product> products) =>
-    products.firstWhereOrNull((product) => product.stock > 0);
+    products.firstWhereOrNull((product) => product.stock > 0); // no match: null
 
-// Two or more elements gives null, not an error.
 Product? onlyProduct(List<Product> products) => products.singleOrNull;

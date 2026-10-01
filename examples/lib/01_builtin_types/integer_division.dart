@@ -1,13 +1,15 @@
-({int pages, int lastPageItems}) paginate(int itemCount, int pageSize) => (
-  // `~/` truncates toward zero and returns an int, unlike `/`.
-  pages: (itemCount + pageSize - 1) ~/ pageSize,
-  lastPageItems: itemCount % pageSize == 0 ? pageSize : itemCount % pageSize,
-);
+// Skill'e ver: "Projemde `/` sonucunu `toInt()`/`ceil()` ile tamsayıya çeviren ve
+// negatif değerde `%` kullanan yerleri bul, `~/` ve `remainder` ile düzelt, test yaz."
 
-/// `%` is never negative; `remainder` keeps the dividend's sign.
-({int modulo, int remainder}) wrapOffset(int offset, int length) => (
-  modulo: offset % length,
-  remainder: offset.remainder(length),
-);
+// Naive: goes through double just to get an int back.
+int pagesNaive(int items, int size) => (items / size).ceil();
 
-int truncatedHalf(int value) => value ~/ 2;
+int pages(int items, int size) => (items + size - 1) ~/ size;
+
+int truncatedHalf(int value) => value ~/ 2; // -7: -3
+
+/// `%` is never negative, so it wraps a cyclic index.
+int wrapIndex(int offset, int length) => offset % length; // (-1, 5): 4
+
+/// `remainder` keeps the sign of the dividend.
+int signedRemainder(int offset, int length) => offset.remainder(length); // (-1, 5): -1

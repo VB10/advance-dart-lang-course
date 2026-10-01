@@ -1,16 +1,19 @@
+// Skill'e ver: "Projemde her tuş vuruşunda istek atan arama yerlerini bul,
+// CancelableOperation (package:async) ile son sorgu kazansın, her biri için test yaz."
 import 'package:async/async.dart' hide Result;
 
-/// Search-as-you-type: only the latest query may deliver results.
 final class ProductSearch {
   ProductSearch(this._fetch);
   final Future<List<String>> Function(String query) _fetch;
   CancelableOperation<List<String>>? _running;
 
+  /// Naive: every reply is delivered, so a slow old reply can land last.
+  Future<List<String>> searchNaive(String query) => _fetch(query); // stale: delivered
+
   Future<List<String>?> search(String query) {
     _running?.cancel();
     final operation = CancelableOperation.fromFuture(_fetch(query));
     _running = operation;
-    // null means this query was replaced by a newer one.
-    return operation.valueOrCancellation();
+    return operation.valueOrCancellation(); // replaced query: null
   }
 }

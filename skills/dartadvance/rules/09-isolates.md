@@ -1,5 +1,6 @@
 # 09 · Isolates
 > Kaynak: https://dart.dev/language/concurrency#isolates · https://dart.dev/language/isolates · https://dart.dev/language/isolates#robust-ports-example · https://dart.dev/language/concurrency#isolates-arent-threads · https://dart.dev/language/concurrency#message-types · Min. sürüm: Dart 2.19 (`Isolate.run`), 3.0 (record kullanan worker)
+Neden bu konu: Flutter'da JSON/parse işi frame kaçırtır; `compute` ve `Isolate.run` closure'ın ne yakaladığına bakmadan yazılınca sessizce yavaşlar ya da patlar.
 
 Isolate, ana isolate'i bloklayan ağır CPU işini ayrı bir belleğe taşır; Data katmanında (RepositoryImpl/parser/servis) yaşar, Domain ve UI isolate bilmez. Isolate thread değildir: paylaşılan durum yok, tek yol mesajdır. Web'de `dart:isolate` yoktur; Flutter `compute` native'de `Isolate.run` ile aynıdır, web'de aynı event loop'ta çalışır (paralellik yok). Bu kural dosyası Dart VM hedefi içindir.
 
@@ -7,6 +8,8 @@ Isolate, ana isolate'i bloklayan ağır CPU işini ayrı bir belleğe taşır; D
 **Ne:** Büyük gövde `Isolate.run` ile çözülür, küçük gövde inline kalır. **Ne zaman:** frame kaçıracak senkron CPU işi (büyük JSON, sıkıştırma, büyük liste filtresi). **Gerekmez:** I/O beklemek (düz `await` yeter) ve küçük payload; Flutter `loadString` de 50 KB altını inline çözer.
 <!-- snippet: 09_isolates/decode_orders -->
 ```dart
+// Skill'e ver: "Projemde ana isolate'te büyük JSON/CSV/GPX çözen yerleri bul, eşikli
+// `Isolate.run` ile taşı, her biri için test yaz."
 import 'dart:convert';
 import 'dart:isolate';
 
@@ -32,41 +35,44 @@ List<Order> parseOrders(String body) {
 }
 ```
 **Tuzak:** `Isolate.run` içinde fırlayan hata aynı tipte ana isolate'e gelir (`FormatException` testte tipiyle yakalanır); `Result`'a çevirmeyi RepositoryImpl yapar. Parse fonksiyonu top-level ve saf olmalı.
-**Skill'e ver:** > "Büyük bir GPX rota dosyasını nokta listesine çeviren `decodeRoute(String gpx)` yaz: 100 KB altında ana isolate'te, üstünde `Isolate.run` ile çalışsın; eşik parametre olsun, closure yalnızca `gpx`'i yakalasın."
-**Kabul:** Eşik 1 ve eşik büyük iken aynı sonucu verir; bozuk girdide `FormatException` tipiyle fırlar; parse fonksiyonu top-level; `dart analyze` temiz.
+**Skill'e ver:** > "Projemde ana isolate'te büyük JSON/CSV/GPX çözen yerleri bul, eşikli `Isolate.run` ile taşı, her biri için test yaz."
+**Kabul:** Her bulunan yerde eşik 1 ve büyük eşik aynı sonucu verir; bozuk girdide `FormatException` tipiyle fırlar; parse fonksiyonu top-level ve saf; `dart analyze` temiz.
 
 ## 2. Ne gönderilir, closure ne yakalar (2.19)
 **Ne:** Mesajlar kopyalanır, global değişken isolate'te ayrı kopyadır, bazı nesneler hiç gönderilemez. **Ne zaman:** `Isolate.run`/`Isolate.spawn` closure'ı yazarken. **Gerekmez:** paylaşılan mutable durum bekleme; isolate bunu veremez, sonucu mesaj olarak döndür.
 <!-- snippet: 09_isolates/capture_rules -->
 ```dart
+// Skill'e ver: "Projemde `Isolate.run`/`compute` closure'larını bul, ne yakaladıklarını
+// ve global duruma bağımlılığı `dart:isolate` kurallarıyla düzelt, her biri için test yaz."
 import 'dart:isolate';
 
 int loadedOrderCount = 0;
 
-/// The list is copied into the isolate: the caller's list stays unsorted.
+// The list is copied into the isolate: the caller's list stays unsorted.
 Future<List<int>> sortedTotals(List<int> totals) => Isolate.run(() => totals..sort());
 
-/// A global is a separate variable inside the new isolate.
-Future<int> countInIsolate() => Isolate.run(() => ++loadedOrderCount);
+// A global is a separate variable in the new isolate.
+Future<int> countInIsolate() => Isolate.run(() => ++loadedOrderCount); // 1, main stays 0
 
 Future<int> captureReceivePort() async {
   final port = ReceivePort();
   try {
-    // The closure captures a ReceivePort, which cannot be sent: this fails.
-    return await Isolate.run(() => port.hashCode);
+    return await Isolate.run(() => port.hashCode); // ArgumentError: unsendable
   } finally {
     port.close();
   }
 }
 ```
 **Tuzak:** `ReceivePort`, `Socket`, `Pointer`, `Finalizer` gibi nesneyi yakalayan closure `ArgumentError` ile patlar (testli). API dokümanı (dartbug 36983): closure gerekenden fazla durum yakalayabilir; instance metodu içinde closure yazmak `this`'i taşıyabilir. Çözüm: gereken durumu parametre alan ayrı bir fonksiyonda closure kur (testi yok, API notudur).
-**Skill'e ver:** > "Bir kullanıcı profilinin paylaşım kartı için piksel verisini (`List<int>`) `Isolate.run` ile gri tonlamaya çeviren `Future<List<int>> toGrayscale(List<int> pixels)` yaz; çağıranın listesi değişmemeli ve closure başka hiçbir alan yakalamamalı."
-**Kabul:** Dönen liste dönüşmüş, çağıranın listesi aynı; closure yalnızca parametreyi yakalıyor; global mutable duruma bağımlılık yok.
+**Skill'e ver:** > "Projemde `Isolate.run`/`compute` closure'larını bul, ne yakaladıklarını ve global duruma bağımlılığı `dart:isolate` kurallarıyla düzelt, her biri için test yaz."
+**Kabul:** Her closure yalnızca gereken parametreyi yakalar; çağıranın verisi değişmez (testli); global mutable duruma bağımlılık kalmaz; `ReceivePort`/`Socket` yakalayan closure yok.
 
 ## 3. Sağlam worker: ports, hata ve çıkış (3.0)
 **Ne:** Tekrar eden işi, `onExit` ve ports ile kurulan uzun ömürlü bir isolate'e verir. **Ne zaman:** aynı hesap sürekli tekrarlanıyor (her mesajı parse eden akış). **Gerekmez:** tek seferlik iş; `Isolate.run` yeter, her seferinde spawn maliyeti kabul edilir.
 <!-- snippet: 09_isolates/price_worker -->
 ```dart
+// Skill'e ver: "Projemde her mesaj/satır için tekrar tekrar isolate açan yerleri bul,
+// ports ve `onExit` ile uzun ömürlü worker'a çevir, her biri için test yaz."
 import 'dart:isolate';
 
 final class PriceWorker {
@@ -104,8 +110,8 @@ void _serve(SendPort ready) {
 }
 ```
 **Tuzak:** Ölü worker asla yanıt vermez; isteği `exited` ile yarıştırmazsan çağıran sonsuza kadar bekler. Worker'daki hata `RemoteError` değeri olarak döner; `close()` sonrası istek `StateError` verir (üçü de testli).
-**Skill'e ver:** > "Log satırlarını `LogEntry`'ye çeviren uzun ömürlü bir `LogWorker` yaz: `spawn()`, `parse(String line)`, `close()`; bozuk satır `RemoteError` olarak gelsin, worker kapanınca bekleyen/yeni istek `StateError` alsın."
-**Kabul:** Sıralı ve eşzamanlı istekler doğru cevabı alır; bozuk satır `RemoteError`; `close()` sonrası `exited` tamamlanır ve yeni istek `StateError` verir.
+**Skill'e ver:** > "Projemde her mesaj/satır için tekrar tekrar isolate açan yerleri bul, ports ve `onExit` ile uzun ömürlü worker'a çevir, her biri için test yaz."
+**Kabul:** Her dönüştürülen yerde sıralı ve eşzamanlı istekler doğru cevaplanır; hata `RemoteError` gelir; `close()` sonrası `exited` tamamlanır ve yeni istek `StateError` verir.
 
 ## Flutter'da kanıt
 - `compute` native'de `Isolate.run` çağırır: [`_isolates_io.dart#L22`](https://github.com/flutter/flutter/blob/3.47.5/packages/flutter/lib/src/foundation/_isolates_io.dart#L22); web'de `await null; return callback(message);`: [`_isolates_web.dart#L11`](https://github.com/flutter/flutter/blob/3.47.5/packages/flutter/lib/src/foundation/_isolates_web.dart#L11).

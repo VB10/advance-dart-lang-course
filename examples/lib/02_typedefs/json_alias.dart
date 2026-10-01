@@ -1,6 +1,8 @@
+// Skill'e ver: "Projemde `Map<String, dynamic>` tipini tekrar eden Data katmanı yerlerini
+// bul, `typedef` alias ile düzelt, her biri için test yaz."
 typedef Json = Map<String, Object?>;
 typedef JsonList = List<Json>;
-typedef Cache<T> = Map<String, List<T>>; // Generic alias: Cache<int> is a Map.
+typedef Cache<T> = Map<String, List<T>>; // Cache<int> == Map<String, List<int>>
 
 class Product {
   const Product(this.name, this.price);
@@ -9,7 +11,7 @@ class Product {
 }
 
 Product productFromJson(Json json) =>
-    Product(json['name']! as String, (json['price']! as num).toDouble());
+    Product(json['name']! as String, (json['price']! as num).toDouble()); // 4 -> 4.0
 
 List<Product> productsFromJson(JsonList rows) => [
   for (final row in rows) productFromJson(row),

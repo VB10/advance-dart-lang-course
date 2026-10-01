@@ -1,3 +1,5 @@
+// Skill'e ver: "Projemde durumları `_` ya da default ile eşleyen switch'leri bul, `sealed`
+// aile + `_`'siz switch ile düzelt, her biri için test yaz."
 sealed class OrderState {
   const OrderState();
 }
@@ -16,7 +18,11 @@ final class OrderCancelled extends OrderState {
   final String reason;
 }
 
-// No `_` case: adding a subtype makes this switch a compile error.
+String lazyText(OrderState state) => switch (state) {
+  OrderPlaced() => 'Preparing your order',
+  _ => 'Unknown', // cancelled order: 'Unknown'
+};
+
 String statusText(OrderState state) => switch (state) {
   OrderPlaced() => 'Preparing your order',
   OrderShipped(:final trackingCode) => 'On the way: $trackingCode',

@@ -1,3 +1,5 @@
+// Skill'e ver: "Projemde ana isolate'te büyük JSON/CSV/GPX çözen yerleri bul, eşikli
+// `Isolate.run` ile taşı, her biri için test yaz."
 import 'dart:convert';
 import 'dart:isolate';
 

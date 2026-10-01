@@ -1,5 +1,6 @@
 # 03 · Class modifiers
 > Kaynak: https://dart.dev/language/class-modifiers · https://dart.dev/language/class-modifiers-for-apis · https://dart.dev/language/modifier-reference · https://dart.dev/language/mixins#class-mixin-or-mixin-class · https://dart.dev/language/branches#exhaustiveness-checking · Min. sürüm: 3.0
+Neden bu konu: Flutter'da state ve repository tiplerini kapatmak, yeni bir durum eklendiğinde derleyicinin seni uyarmasını sağlar; `_` ile yazılmış switch bu uyarıyı sessizce yutar.
 
 Class modifier'lar bir sınıfın **başka library'lerden** construct / extend / implement / mix in edilip edilemeyeceğini belirler; Domain'de kapalı aileler (state, hata), Data'da sözleşmeler ve değer sınıfları için kullanılır. Kısıtlar tanımlandığı library'nin (tek `.dart` dosyası) içinde geçerli değildir.
 
@@ -8,6 +9,8 @@ Class modifier'lar bir sınıfın **başka library'lerden** construct / extend /
 **Ne zaman:** Sınırlı varyantlı aile (UI state, hata türleri, ödeme yöntemi). **Gerekmez:** Alt tipi olmayan tek sınıf (`final class` yeter); dışarıdan genişlemesi istenen hiyerarşi.
 <!-- snippet: 03_class_modifiers/sealed_order_state -->
 ```dart
+// Skill'e ver: "Projemde durumları `_` ya da default ile eşleyen switch'leri bul, `sealed`
+// aile + `_`'siz switch ile düzelt, her biri için test yaz."
 sealed class OrderState {
   const OrderState();
 }
@@ -26,7 +29,11 @@ final class OrderCancelled extends OrderState {
   final String reason;
 }
 
-// No `_` case: adding a subtype makes this switch a compile error.
+String lazyText(OrderState state) => switch (state) {
+  OrderPlaced() => 'Preparing your order',
+  _ => 'Unknown', // cancelled order: 'Unknown'
+};
+
 String statusText(OrderState state) => switch (state) {
   OrderPlaced() => 'Preparing your order',
   OrderShipped(:final trackingCode) => 'On the way: $trackingCode',
@@ -34,15 +41,18 @@ String statusText(OrderState state) => switch (state) {
 };
 ```
 **Tuzak:** `_` eklersen yeni alt tip eklendiğinde switch sessizce ona düşer, hata vermez; `_` yazma. `sealed` geçişli değildir: alt tipi `final` yapmazsan dışarıdan extend edilir (analyzer buna itiraz etmez).
-**Skill'e ver:** > "Kargo takibi için bekliyor, yolda (kurye adıyla) ve teslim edildi (tarihle) durumlarını taşıyan bir sealed aile ve her durumu metne çeviren, `_` kullanmayan bir fonksiyon yaz."
-**Kabul:** Kök `sealed`, her alt tip `final class`, switch'te `_` yok; test her alt tip için ayrı metni doğrular.
+**Skill'e ver:** > "Projemde durumları `_` ya da default ile eşleyen switch'leri bul, `sealed` aile + `_`'siz switch ile düzelt, her biri için test yaz."
+**Kabul:** Kök `sealed`, her alt tip `final class`, projedeki switch'lerde `_` yok; test her alt tip için ayrı metni doğrular ve `dart analyze` temiz.
 
 ## 2. final (3.0)
 **Ne:** `final class` başka library'den construct edilir ama extend / implement edilemez (analyzer reddeder).
 **Ne zaman:** Değer sınıfı, UseCase, entity: alt tiplenmemesi gereken somut sınıf. **Gerekmez:** Testte sahteleyeceğin sözleşme (onu `abstract interface class` yap).
 <!-- snippet: 03_class_modifiers/final_money -->
 ```dart
-// `final`: other libraries can construct it but cannot extend or implement it.
+// Skill'e ver: "Projemde alt tiplenmemesi gereken değer sınıflarını bul, `final class`
+// + `==`/`hashCode` ile düzelt, her biri için test yaz."
+
+// `final`: others can construct it; `extends`/`implements` is an analyzer error.
 final class Money {
   const Money(this.cents, this.currency);
 
@@ -53,7 +63,7 @@ final class Money {
     if (other.currency != currency) {
       throw ArgumentError('Currency mismatch: $currency vs ${other.currency}');
     }
-    return Money(cents + other.cents, currency);
+    return Money(cents + other.cents, currency); // 100 + 250 TRY: 350
   }
 
   @override
@@ -65,27 +75,30 @@ final class Money {
 }
 ```
 **Tuzak:** `final` aynı library'de hiçbir şeyi kısıtlamaz ve `implements`'i de kapatır; mock gereken sınıfı `final` yaparsan test yazamazsın (bkz. bölüm 3). Testte yalnızca "dışarıdan construct edilir ve eşitlik çalışır" kanıtlanır; extend/implement reddi analyzer'dadır.
-**Skill'e ver:** > "Ürün profili için `Email` adında, geçersiz adresi constructor'da reddeden, değer eşitliği olan ve dışarıdan alt tiplenemeyen bir sınıf yaz."
-**Kabul:** Sınıf `final`, `==` ve `hashCode` birlikte override edilmiş, test eşit/eşit olmayan durumları doğrular.
+**Skill'e ver:** > "Projemde alt tiplenmemesi gereken değer sınıflarını bul, `final class` + `==`/`hashCode` ile düzelt, her biri için test yaz."
+**Kabul:** Bulunan sınıflar `final`, `==` ve `hashCode` birlikte override edilmiş; test eşit/eşit olmayan durumları doğrular.
 
 ## 3. interface vs base (3.0)
 **Ne:** `abstract interface class` dışarıda yalnızca `implements` edilir; `abstract base class` yalnızca `extends` edilir ve **base transitivity** uygulanır: alt tip `base`, `final` veya `sealed` olmak zorunda (düz `class` analyzer'da hata).
 **Ne zaman:** Repository sözleşmesi = `abstract interface class`; ortak mantık (cache, listener listesi) = `abstract base class`. **Gerekmez:** Tek metotlu sözleşme, fonksiyon tipi yeter.
 <!-- snippet: 03_class_modifiers/interface_vs_base -->
 ```dart
+// Skill'e ver: "Projemde repository sözleşmelerini ve ortak mantıklı tabanları bul,
+// `abstract interface class` / `abstract base class` ile ayır, her biri için test yaz."
+
 // Pure contract: outside code can only `implements` it (e.g. a test fake).
 abstract interface class ProductRepository {
   Future<String?> findName(String productId);
 }
 
-// Shared logic: outside code can `extends` it but never `implements` it.
+// Shared logic: outside `extends` works, `implements` is an analyzer error.
 abstract base class CachedProductRepository implements ProductRepository {
   final Map<String, String> _cache = {};
 
   @override
   Future<String?> findName(String productId) async {
     final cached = _cache[productId];
-    if (cached != null) return cached;
+    if (cached != null) return cached; // 2nd call: no fetch
     final fetched = await fetchName(productId);
     if (fetched != null) _cache[productId] = fetched;
     return fetched;
@@ -95,7 +108,7 @@ abstract base class CachedProductRepository implements ProductRepository {
 }
 ```
 **Tuzak:** `base` sınıfı başka library'de düz `class` ile extend edemezsin; alt tipi `final class` yaz (testteki `_CountingRepository`). Interface'i ise test library'sinde sahte olarak implement edebilirsin (`_FakeRepository`).
-**Skill'e ver:** > "Fatura modülü için `abstract interface class InvoiceRepository`, hesaplanan toplamları bellekte tutan `abstract base class` bir taban ve onu extend eden `final` bir sınıf yaz."
+**Skill'e ver:** > "Projemde repository sözleşmelerini ve ortak mantıklı tabanları bul, `abstract interface class` / `abstract base class` ile ayır, her biri için test yaz."
 **Kabul:** Test, interface'i `implements` ile sahteler; base'i `final class ... extends` ile kullanır; paylaşılan mantık test edilir.
 
 ## 4. mixin class (3.0)
@@ -103,17 +116,20 @@ abstract base class CachedProductRepository implements ProductRepository {
 **Ne zaman:** Eski bir sınıfı mixin olarak da açmak gerekiyorsa (Flutter'da `ChangeNotifier`). **Gerekmez:** Yeni kodda saf `mixin` veya saf `class` tercih et (Effective Dart); `mixin class` ikisini birden taahhüt eder.
 <!-- snippet: 03_class_modifiers/mixin_class -->
 ```dart
+// Skill'e ver: "Projemde hem `with` hem `extends` ile kullanılan ortak sınıfları bul,
+// `mixin class` ile birleştir, her biri için test yaz."
+
 // `mixin class` works both as `with Auditable` and as `extends Auditable`.
 mixin class Auditable {
   final List<String> _entries = [];
 
-  List<String> get auditLog => List.unmodifiable(_entries);
+  List<String> get auditLog => List.unmodifiable(_entries); // add() throws
 
   void audit(String entry) => _entries.add(entry);
 }
 ```
 **Tuzak:** Mixin gibi kullanılan sınıfın `extends` / `implements` yapması ya da constructor parametresi olması `mixin class` bildirimini geçersiz kılar (analyzer reddeder); state'i private tut, dışarıya kopya ver (`List.unmodifiable`).
-**Skill'e ver:** > "Sepet ve ödeme sınıflarının ikisinde de işlem geçmişi tutmak için hem `with` hem `extends` ile kullanılabilen bir `mixin class` yaz."
+**Skill'e ver:** > "Projemde hem `with` hem `extends` ile kullanılan ortak sınıfları bul, `mixin class` ile birleştir, her biri için test yaz."
 **Kabul:** Test aynı sınıfı `with` ve `extends` ile kullanır; dışarıdan dönen liste değiştirilemez.
 
 ## Flutter'da kanıt

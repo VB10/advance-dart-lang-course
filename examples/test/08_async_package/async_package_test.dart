@@ -23,6 +23,19 @@ void main() {
       expect(await latest, ['shoe']);
     });
 
+    test('naive search delivers the stale reply too', () async {
+      final requests = <String, Completer<List<String>>>{};
+      final search = ProductSearch((query) => (requests[query] = Completer()).future);
+
+      final old = search.searchNaive('sh');
+      final latest = search.searchNaive('shoe');
+      requests['shoe']!.complete(['shoe']);
+      requests['sh']!.complete(['shirt', 'shoe']);
+
+      expect(await old, ['shirt', 'shoe']);
+      expect(await latest, ['shoe']);
+    });
+
     test('cancel after completion does nothing', () async {
       final operation = CancelableOperation.fromFuture(Future.value('done'));
       expect(await operation.value, 'done');
@@ -64,6 +77,17 @@ void main() {
       expect(loads, 1);
     });
 
+    test('naive getter loads once per caller', () async {
+      var loads = 0;
+      final loader = ConfigLoader(() async {
+        loads++;
+        return {'env': 'prod'};
+      });
+      await Future.wait([loader.configNaive, loader.configNaive, loader.configNaive]);
+      expect(loads, 3);
+      expect(loader.hasLoaded, isFalse);
+    });
+
     test('memoizes an error too, without retry', () async {
       var loads = 0;
       final loader = ConfigLoader(() async {
@@ -86,6 +110,14 @@ void main() {
 
       cache.refresh();
       expect(await cache.rate, 2.0);
+      expect(fetches, 2);
+    });
+
+    test('naive getter fetches on every read', () async {
+      var fetches = 0;
+      final cache = RatesCache(() async => ++fetches * 1.0, ttl: const Duration(hours: 1));
+      await cache.rateNaive;
+      await cache.rateNaive;
       expect(fetches, 2);
     });
 
@@ -115,6 +147,11 @@ void main() {
       final message = await readMessage(lines);
       expect(message.title, 'ORDER');
       expect(message.items, ['apple', 'pear']);
+    });
+
+    test('naive first-then-take listens twice and fails', () async {
+      final lines = StreamController<String>()..add('ORDER 2');
+      await expectLater(readItemsNaive(lines.stream), throwsStateError);
     });
 
     test('peek does not consume and rest closes the queue', () async {
@@ -150,6 +187,14 @@ void main() {
       expect(await queue.next, 'd2', reason: 'still open: device has not closed');
       unawaited(device.close());
       expect(await queue.hasNext, isFalse);
+    });
+
+    test('naive count and total listens twice and fails', () async {
+      final prices = StreamController<int>()
+        ..add(1)
+        ..add(2)
+        ..close();
+      await expectLater(countAndTotalNaive(prices.stream), throwsStateError);
     });
 
     test('every splitter branch sees every event', () async {

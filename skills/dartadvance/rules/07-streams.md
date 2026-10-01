@@ -1,5 +1,6 @@
 # 07 · Streams
 > Kaynak: https://dart.dev/libraries/async/using-streams#two-kinds-of-streams · https://dart.dev/libraries/async/creating-streams#using-a-streamcontroller · https://dart.dev/libraries/async/creating-streams#honoring-the-pause-state · https://dart.dev/language/async#handling-streams · https://dart.dev/language/functions#generators · Min. sürüm: Dart 3.0
+Neden bu konu: Flutter'da sızan `listen`, ikinci dinleyicide `StateError` ve dinlenmeden açılan kaynak en sık görülen stream hatalarıdır; bu beş desen hepsini kapatır.
 
 `Future` tek sonuçtur, `Stream` zaman içinde gelen olayların dizisidir; Data katmanı kaynağı (socket, sensör) açar, State katmanı `listen` edip `dispose`'da bırakır, UI sonucu gösterir.
 
@@ -8,39 +9,40 @@
 **Ne zaman:** Sıralı, eksiksiz veri (dosya, geçmiş) için single; UI olayları ve durum değişimi için broadcast. **Gerekmez:** Tek değer için `Future` yeter.
 <!-- snippet: 07_streams/stream_kinds -->
 ```dart
+// Skill'e ver: "Projemde aynı stream'i birden çok yerde dinleyen yerleri bul,
+// single-subscription/broadcast ayrımıyla düzelt, her biri için test yaz."
 import 'dart:async';
 
-final class OrderStatusFeed {
-  final _controller = StreamController<String>.broadcast();
-
-  // Broadcast: many listeners, events nobody hears are dropped.
-  Stream<String> get statusChanges => _controller.stream;
-
-  void publish(String status) => _controller.add(status);
-
-  Future<void> close() => _controller.close();
-}
-
-// Single-subscription (the default): one listener for the stream's whole life.
 Stream<String> orderHistory(List<String> statuses) async* {
   for (final status in statuses) {
     yield status;
   }
-}
+} // single-subscription: a 2nd listen throws StateError
 
-// A single-subscription stream becomes shareable with asBroadcastStream.
-Stream<String> shareable(Stream<String> source) => source.asBroadcastStream();
+Stream<String> shareable(Stream<String> source) => source.asBroadcastStream(); // 2 listeners: ok
+
+final class OrderStatusFeed {
+  final _controller = StreamController<String>.broadcast();
+
+  Stream<String> get statusChanges => _controller.stream;
+
+  void publish(String status) => _controller.add(status); // no listener: event dropped
+
+  Future<void> close() => _controller.close();
+}
 ```
 **Tuzak:** Single-subscription'a ikinci `listen` `StateError` atar, ilk abonelik cancel edilse bile (test kanıtlıyor).
-**Skill'e ver:** > "Kargo takibinde konum güncellemelerini birden çok ekrana dağıtan bir `ShipmentLocationFeed` yaz; kimse dinlemezken gelen konum düşsün."
-**Kabul:** `isBroadcast` true; iki dinleyici aynı olayı aldı; dinleyicisiz olay kayboldu.
+**Skill'e ver:** > "Projemde aynı stream'i birden çok yerde dinleyen yerleri bul, single-subscription/broadcast ayrımıyla düzelt, her biri için test yaz."
+**Kabul:** Çoklu dinlenen akış `isBroadcast`; iki dinleyici aynı olayı aldı; ikinci `listen` `StateError` atmıyor; mevcut testler ve `dart analyze` yeşil.
 
 ## 2. `async*` generator (2.x)
 **Ne:** `async*` + `yield` ile tembel stream üretir; dinleyici durunca `finally` çalışır ve sonraki sayfa istenmez.
 **Ne zaman:** Olaylar başka kaynaktan (sayfa, stream) türetiliyorsa. **Gerekmez:** Olaylar kodun farklı yerlerinden geliyorsa `StreamController`. `sync*` aynı fikrin senkron hali: `Iterable` döner, stream değildir.
 <!-- snippet: 07_streams/async_generator -->
 ```dart
-/// Pages are fetched lazily; an early stop (`take`, `cancel`) asks for no more.
+// Skill'e ver: "Projemde sayfaları hepsini çekip listeye dönen yerleri bul, `async*` ile
+// tembel Stream'e çevir, erken iptalde temizliği de kapsayan test yaz."
+
 Stream<int> orderIds(
   Future<List<int>> Function(int page) fetchPage, {
   required void Function() onReleased,
@@ -49,40 +51,38 @@ Stream<int> orderIds(
     for (var page = 0; ; page++) {
       final ids = await fetchPage(page);
       if (ids.isEmpty) return;
-      yield* Stream.fromIterable(ids);
+      yield* Stream.fromIterable(ids); // take(3) over 2-id pages: only pages 0, 1 fetched
     }
   } finally {
-    onReleased();
+    onReleased(); // runs once, even on early stop
   }
 }
 ```
 **Tuzak:** `take(3)` gibi erken durma sonraki sayfayı çağırmaz ve `finally` bir kez çalışır (test kanıtlıyor).
-**Skill'e ver:** > "Ürün kataloğunu sayfa sayfa çeken `Stream<Product> products(fetchPage)` yaz; boş sayfada bitsin, erken iptalde temizlik callback'i çalışsın."
-**Kabul:** Sayfalar sırayla geldi; `take(n)` sonrası fazladan sayfa istenmedi; `onReleased` bir kez çağrıldı.
+**Skill'e ver:** > "Projemde sayfaları hepsini çekip listeye dönen yerleri bul, `async*` ile tembel Stream'e çevir, erken iptalde temizliği de kapsayan test yaz."
+**Kabul:** Dönüştürülen her yerde sayfalar sırayla geldi; `take(n)` sonrası fazladan sayfa istenmedi; temizlik bir kez çalıştı; analyze temiz.
 
 ## 3. StreamController callback'leri (2.x)
 **Ne:** `onListen`, `onPause`, `onResume`, `onCancel` ile kaynak yalnız birisi dinlerken çalışır.
 **Ne zaman:** Zamanlayıcı, bağlantı, sensör gibi pahalı kaynak. **Gerekmez:** Kaynak zaten stream ise `async*` veya `map` yeter.
 <!-- snippet: 07_streams/controller_callbacks -->
 ```dart
+// Skill'e ver: "Projemde Timer, soket veya sensörü stream dinlenmeden başlatan yerleri
+// bul, `StreamController` onListen/onCancel ile düzelt, her biri için test yaz."
 import 'dart:async';
 
-/// Tracking starts on listen, stops on pause/cancel, resumes on resume.
 Stream<int> courierPositions({required void Function(String event) log}) {
   late final StreamController<int> controller;
   Timer? timer;
   var position = 0;
 
   void start(String event) {
-    log(event);
-    timer = Timer.periodic(
-      const Duration(milliseconds: 10),
-      (_) => controller.add(++position),
-    );
+    log(event); // nobody listening: log stays empty, no timer
+    timer = Timer.periodic(const Duration(milliseconds: 10), (_) => controller.add(++position));
   }
 
   void stop(String event) {
-    log(event);
+    log(event); // pause and cancel both stop the source
     timer?.cancel();
   }
 
@@ -96,33 +96,36 @@ Stream<int> courierPositions({required void Function(String event) log}) {
 }
 ```
 **Tuzak:** Dinleyici gelene kadar `onListen` çalışmaz; kaynak kapalı kalır (test kanıtlıyor).
-**Skill'e ver:** > "Her saniye pil yüzdesi yayan bir `Stream<int> batteryLevels` yaz; dinleyici gelince ölçüm başlasın, pause ve cancel'da dursun."
-**Kabul:** Log sırası `onListen`, `onPause`, `onResume`, `onCancel`; cancel sonrası yeni olay gelmedi.
+**Skill'e ver:** > "Projemde Timer, soket veya sensörü stream dinlenmeden başlatan yerleri bul, `StreamController` onListen/onCancel ile düzelt, her biri için test yaz."
+**Kabul:** Dinleyici gelmeden kaynak açılmıyor; log sırası `onListen`, `onPause`, `onResume`, `onCancel`; cancel sonrası yeni olay yok.
 
 ## 4. `StreamTransformer` (2.x)
 **Ne:** `transform()` ile stream'i yeniden biçimlendirir; `fromHandlers` olay başına sink'e 0..n çıktı yazar.
 **Ne zaman:** Olayı süzüp dönüştürmek gerekiyorsa. **Gerekmez:** Olay başına tek çıktı için `map()`.
 <!-- snippet: 07_streams/message_transformer -->
 ```dart
+// Skill'e ver: "Projemde stream olaylarını döngüyle süzüp dönüştüren yerleri bul,
+// `StreamTransformer.fromHandlers` ile dönüştür, her biri için test yaz."
 import 'dart:async';
 
-/// Trims each chat message and drops the empty ones.
 final trimMessages = StreamTransformer<String, String>.fromHandlers(
   handleData: (message, sink) {
     final trimmed = message.trim();
-    if (trimmed.isNotEmpty) sink.add(trimmed);
+    if (trimmed.isNotEmpty) sink.add(trimmed); // ['  hi ', '   ', 'yo'] -> ['hi', 'yo']
   },
 );
 ```
 **Tuzak:** Sink'e eklemediğin olay sessizce düşer; kırpılan boş mesaj çıktıda yoktur (test kanıtlıyor).
-**Skill'e ver:** > "Sipariş notlarını küçük harfe çevirip 3 karakterden kısa olanları atan bir `StreamTransformer<String, String>` yaz."
-**Kabul:** `transform` sonrası beklenen olaylar sırayla geldi, kısa not düştü.
+**Skill'e ver:** > "Projemde stream olaylarını döngüyle süzüp dönüştüren yerleri bul, `StreamTransformer.fromHandlers` ile dönüştür, her biri için test yaz."
+**Kabul:** Dönüşen her akışta davranış aynı: beklenen olaylar sırayla geldi, süzülenler düştü; testler yeşil.
 
 ## 5. Dinleyen state sınıfı ve dispose (2.x)
 **Ne:** Subscription alanda tutulur, `dispose()`'da `await cancel()` ve `null` yapılır; düz Dart, kütüphane yok.
 **Ne zaman:** Bir state sınıfı stream'i ömrü boyunca dinliyorsa. **Gerekmez:** Tek seferlik okuma için `await for` / `first`.
 <!-- snippet: 07_streams/price_watcher -->
 ```dart
+// Skill'e ver: "Projemde stream dinleyip dispose'da cancel etmeyen state'leri bul,
+// subscription'ı alanda tutup `await cancel()` ile düzelt, her biri için test yaz."
 import 'dart:async';
 
 final class PriceWatcher {
@@ -133,19 +136,18 @@ final class PriceWatcher {
   double? latestPrice;
 
   void start() {
-    _subscription ??= _prices.listen((price) => latestPrice = price);
+    _subscription ??= _prices.listen((price) => latestPrice = price); // start twice: one listener
   }
 
-  /// Awaiting `cancel()` waits until the source has finished its cleanup.
   Future<void> dispose() async {
-    await _subscription?.cancel();
+    await _subscription?.cancel(); // after this, source onCancel ran
     _subscription = null;
   }
 }
 ```
 **Tuzak:** `dispose` sonrası gelen olay state'i değiştirmez; `start` iki kez çağrılsa tek abonelik olur (`??=`) (test kanıtlıyor).
-**Skill'e ver:** > "Profil çevrimiçi durumunu dinleyen `PresenceWatcher` state sınıfı yaz; `start`, `dispose` ve son durumu tutsun."
-**Kabul:** `dispose` sonrası kaynağın `onCancel`'ı çalıştı; geç gelen olay değeri değiştirmedi.
+**Skill'e ver:** > "Projemde stream dinleyip dispose'da cancel etmeyen state'leri bul, subscription'ı alanda tutup `await cancel()` ile düzelt, her biri için test yaz."
+**Kabul:** Bulunan her state sınıfında `dispose` sonrası kaynağın `onCancel`'ı çalıştı; geç gelen olay state'i değiştirmedi.
 
 ## Flutter'da kanıt
 - `StreamBuilder` state'inde subscription alan olarak tutulur, `dispose()`'da `cancel()`: [widgets/async.dart#L100](https://github.com/flutter/flutter/blob/3.47.5/packages/flutter/lib/src/widgets/async.dart#L100)

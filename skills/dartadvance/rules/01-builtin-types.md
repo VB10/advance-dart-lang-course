@@ -1,16 +1,21 @@
 # 01 · Built-in types
 > Kaynak: https://dart.dev/language/built-in-types · https://dart.dev/language/variables · https://dart.dev/language/operators · https://dart.dev/libraries/dart-core#numbers · https://dart.dev/effective-dart/usage#avoid-late-variables-if-you-need-to-check-whether-they-are-initialized · Min. sürüm: 3.7 (wildcard `_`), diğerleri her sürüm
 
-Dart'ın temel tipleri sessiz hatalara açıktır (metin uzunluğu, bölme, değişmezlik); bu konu UI'da gösterilen metin, State'teki sayaçlar ve Domain sabitleri katmanlarında bu hataları önler.
+Neden bu konu: Dart'ın temel tipleri sessiz hatalara açıktır (metin uzunluğu, bölme, değişmezlik); bu konu UI'da gösterilen metin, State'teki sayaçlar ve Domain sabitleri katmanlarında bu hataları önler.
 
 ## 1. Grapheme uzunluğu (`package:characters`)
 **Ne:** `String.length` UTF-16 kod birimi sayar; kullanıcının gördüğü karakter için `characters` kullanılır. **Ne zaman:** karakter sınırı, kırpma, sayaç gösteren her UI metni. **Gerekmez:** yalnızca ASCII olduğu kesin olan kimlikler/kodlar.
 <!-- snippet: 01_builtin_types/grapheme_length -->
 ```dart
+// Skill'e ver: "Projemde kullanıcıya görünen metni `length` ya da `substring` ile
+// sayan veya kesen yerleri bul, `characters` ile düzelt, her biri için test yaz."
 import 'package:characters/characters.dart';
 
-/// What the user sees, not UTF-16 code units: '👋🏽'.length is 4.
-int visibleLength(String text) => text.characters.length;
+const wave = '👋🏽';
+
+int codeUnitLength(String text) => text.length; // wave: 4
+
+int visibleLength(String text) => text.characters.length; // wave: 1
 
 String truncateBio(String bio, int maxCharacters) {
   final characters = bio.characters;
@@ -19,46 +24,53 @@ String truncateBio(String bio, int maxCharacters) {
 }
 ```
 **Tuzak:** `'👋🏽'.length` 4'tür, `substring` emojiyi ortadan bölüp yalnız bir surrogate bırakır (test: "substring by code units splits...").
-**Skill'e ver:** > "Bir ürün yorumu için 280 karakterlik sınır koyan `remainingCharacters(String review)` ve sınırı aşınca emoji bölmeden kesen `clipReview` yaz."
+**Skill'e ver:** > "Projemde kullanıcıya görünen metni `length` ya da `substring` ile sayan veya kesen yerleri bul, `characters` ile düzelt, her biri için test yaz."
 **Kabul:** `length`/`runes`/`substring` kullanılmaz; `'👨‍👩‍👦'` 1 karakter sayılır; `dart analyze` temiz.
 
 ## 2. Tamsayı bölme ve kalan
 **Ne:** `~/` `int` döndürür ve sıfıra doğru keser; `%` asla negatif olmaz, `remainder` bölünenin işaretini korur. **Ne zaman:** sayfalama, döngüsel indeks, saat/dakika hesabı. **Gerekmez:** ondalıklı sonuç isteniyorsa `/`.
 <!-- snippet: 01_builtin_types/integer_division -->
 ```dart
-({int pages, int lastPageItems}) paginate(int itemCount, int pageSize) => (
-  // `~/` truncates toward zero and returns an int, unlike `/`.
-  pages: (itemCount + pageSize - 1) ~/ pageSize,
-  lastPageItems: itemCount % pageSize == 0 ? pageSize : itemCount % pageSize,
-);
+// Skill'e ver: "Projemde `/` sonucunu `toInt()`/`ceil()` ile tamsayıya çeviren ve
+// negatif değerde `%` kullanan yerleri bul, `~/` ve `remainder` ile düzelt, test yaz."
 
-/// `%` is never negative; `remainder` keeps the dividend's sign.
-({int modulo, int remainder}) wrapOffset(int offset, int length) => (
-  modulo: offset % length,
-  remainder: offset.remainder(length),
-);
+// Naive: goes through double just to get an int back.
+int pagesNaive(int items, int size) => (items / size).ceil();
 
-int truncatedHalf(int value) => value ~/ 2;
+int pages(int items, int size) => (items + size - 1) ~/ size;
+
+int truncatedHalf(int value) => value ~/ 2; // -7: -3
+
+/// `%` is never negative, so it wraps a cyclic index.
+int wrapIndex(int offset, int length) => offset % length; // (-1, 5): 4
+
+/// `remainder` keeps the sign of the dividend.
+int signedRemainder(int offset, int length) => offset.remainder(length); // (-1, 5): -1
 ```
 **Tuzak:** `-7 ~/ 2` değeri -3'tür (Python'daki gibi -4 değil) ve `(-1).remainder(5)` -1 verirken `-1 % 5` 4 verir (testler: "~/ truncates toward zero...", "% is never negative...").
-**Skill'e ver:** > "Bir sepetteki ürünleri kutulara `boxSize` adetlik gruplayan `boxesNeeded(int items, int boxSize)` yaz; `double` ve `.ceil()` kullanma."
-**Kabul:** sonuç `int`; 0 ürün 0 kutu, 25 ürün ve 10'luk kutu 3 kutu verir; `dart analyze` temiz.
+**Skill'e ver:** > "Projemde `/` sonucunu `toInt()`/`ceil()` ile tamsayıya çeviren ve negatif değerde `%` kullanan yerleri bul, `~/` ve `remainder` ile düzelt, test yaz."
+**Kabul:** `double` dönüşümü kalmaz; `-7 ~/ 2` -3, `(-1) % 5` 4, `(-1).remainder(5)` -1 testle doğrulanır; `dart analyze` temiz.
 
 ## 3. `final` / `const` / `late final`
 **Ne:** `final` bir kez atanır ama nesne değişebilir; `const` derleme zamanı sabiti ve derin değişmezdir; `late final` ilk okumada hesaplanır. **Ne zaman:** sabit liste/model için `const`, pahalı türetilmiş veri için `late final`. **Gerekmez:** `late`, constructor initializer list ile çözülebiliyorsa.
 <!-- snippet: 01_builtin_types/variable_kinds -->
 ```dart
-final recentSearches = <String>['dart'];
+// Skill'e ver: "Projemde değişmemesi gereken listeleri ve her okumada yeniden
+// hesaplanan getter'ları bul, `const` ve `late final` ile düzelt, her biri için test yaz."
 
-const supportedLocales = ['en', 'tr'];
+final recentSearches = <String>['dart']; // add works: final is not deep
+
+const supportedLocales = ['en', 'tr']; // add throws UnsupportedError
 
 final class ProductCatalog {
   ProductCatalog(this.names);
   final List<String> names;
   int indexBuilds = 0;
 
-  // Runs once, on first read, because it is `late`.
-  late final Set<String> lowercaseIndex = _buildIndex();
+  // Naive: rebuilds the index on every read.
+  Set<String> get indexEveryRead => _buildIndex();
+
+  late final Set<String> lowercaseIndex = _buildIndex(); // builds once
 
   Set<String> _buildIndex() {
     indexBuilds++;
@@ -69,38 +81,38 @@ final class ProductCatalog {
 }
 ```
 **Tuzak:** `final` liste `add` kabul eder, `const` liste `UnsupportedError` fırlatır (test: "a final list can still be mutated...").
-**Skill'e ver:** > "Bir `Invoice` sınıfı yaz: KDV oranı `const`, satırlardan hesaplanan `total` ilk okumada bir kez hesaplanan `late final` olsun."
-**Kabul:** hesaplama sayacı iki okumadan sonra 1; `const` liste değiştirilemez; `dart analyze` temiz.
+**Skill'e ver:** > "Projemde değişmemesi gereken listeleri ve her okumada yeniden hesaplanan getter'ları bul, `const` ve `late final` ile düzelt, her biri için test yaz."
+**Kabul:** sabit liste `add`'de `UnsupportedError` verir; `late final` alanın hesaplama sayacı iki okumadan sonra 1; `dart analyze` temiz.
 
 ## 4. Wildcard `_` ve null-aware cascade (3.7)
 **Ne:** `_` kullanılmayan değeri yok sayar ve artık birden fazla olabilir; `?..` cascade'i yalnızca alıcı null değilse çalıştırır; `...?` null listeyi boş sayar. **Ne zaman:** kullanılmayan callback parametreleri, opsiyonel nesneyi yapılandırma, opsiyonel liste birleştirme. **Gerekmez:** değer gerçekten kullanılıyorsa anlamlı isim ver.
 <!-- snippet: 01_builtin_types/wildcards_and_null_aware -->
 ```dart
+// Skill'e ver: "Projemde `if (x != null)` ile null kontrolü yapıp atama veya liste
+// birleştirme yapan yerleri bul, `?..` ve `...?` ile sadeleştir, her biri için test yaz."
+
 final class Cart {
-  final List<String> items = [];
   String? note;
 }
 
-// `?..` runs the cascade only when the cart is not null.
-Cart? withNote(Cart? cart, String note) => cart?..note = note;
-
-// `...?` spreads nothing when the list is null.
-List<String> allTags(List<String> base, List<String>? extra) => [...base, ...?extra];
-
-int countItems(List<Cart> carts) {
-  var count = 0;
-  for (final _ in carts) {
-    count++;
-  }
-  return count;
+Cart? withNoteVerbose(Cart? cart, String note) {
+  if (cart != null) cart.note = note;
+  return cart;
 }
+
+Cart? withNote(Cart? cart, String note) => cart?..note = note; // null in: null out
+
+List<String> allTags(List<String> base, List<String>? extra) => [
+  ...base,
+  ...?extra, // null extra adds nothing
+];
 
 // Since Dart 3.7, several `_` parameters can coexist.
 void Function(int, String) ignoreBoth = (_, _) {};
 ```
 **Tuzak:** `cart?..note = x` null alıcıda null döner, yeni nesne üretmez (test: "?.. skips the cascade on null...").
-**Skill'e ver:** > "Nullable bir `UserProfile?` alıp `?..` ile `displayName` atayan ve `(_, _)` kullanan bir `onTap` callback'i yazan küçük bir örnek üret."
-**Kabul:** null girdide sonuç null; `for (final _ in ...)` ve `(_, _)` derlenir; `dart analyze` temiz.
+**Skill'e ver:** > "Projemde `if (x != null)` ile null kontrolü yapıp atama veya liste birleştirme yapan yerleri bul, `?..` ve `...?` ile sadeleştir, her biri için test yaz."
+**Kabul:** null girdide sonuç null, null liste boş sayılır; kullanılmayan parametreler `_` olur; `dart analyze` temiz.
 
 ## Flutter'da kanıt
 - `TextField` uzunluğu `text.characters.length` ile sayar: [material/text_field.dart#L1185](https://github.com/flutter/flutter/blob/3.47.5/packages/flutter/lib/src/material/text_field.dart#L1185)

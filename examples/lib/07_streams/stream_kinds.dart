@@ -1,22 +1,21 @@
+// Skill'e ver: "Projemde aynı stream'i birden çok yerde dinleyen yerleri bul,
+// single-subscription/broadcast ayrımıyla düzelt, her biri için test yaz."
 import 'dart:async';
 
-final class OrderStatusFeed {
-  final _controller = StreamController<String>.broadcast();
-
-  // Broadcast: many listeners, events nobody hears are dropped.
-  Stream<String> get statusChanges => _controller.stream;
-
-  void publish(String status) => _controller.add(status);
-
-  Future<void> close() => _controller.close();
-}
-
-// Single-subscription (the default): one listener for the stream's whole life.
 Stream<String> orderHistory(List<String> statuses) async* {
   for (final status in statuses) {
     yield status;
   }
-}
+} // single-subscription: a 2nd listen throws StateError
 
-// A single-subscription stream becomes shareable with asBroadcastStream.
-Stream<String> shareable(Stream<String> source) => source.asBroadcastStream();
+Stream<String> shareable(Stream<String> source) => source.asBroadcastStream(); // 2 listeners: ok
+
+final class OrderStatusFeed {
+  final _controller = StreamController<String>.broadcast();
+
+  Stream<String> get statusChanges => _controller.stream;
+
+  void publish(String status) => _controller.add(status); // no listener: event dropped
+
+  Future<void> close() => _controller.close();
+}

@@ -1,21 +1,19 @@
+// Skill'e ver: "Projemde Timer, soket veya sensörü stream dinlenmeden başlatan yerleri
+// bul, `StreamController` onListen/onCancel ile düzelt, her biri için test yaz."
 import 'dart:async';
 
-/// Tracking starts on listen, stops on pause/cancel, resumes on resume.
 Stream<int> courierPositions({required void Function(String event) log}) {
   late final StreamController<int> controller;
   Timer? timer;
   var position = 0;
 
   void start(String event) {
-    log(event);
-    timer = Timer.periodic(
-      const Duration(milliseconds: 10),
-      (_) => controller.add(++position),
-    );
+    log(event); // nobody listening: log stays empty, no timer
+    timer = Timer.periodic(const Duration(milliseconds: 10), (_) => controller.add(++position));
   }
 
   void stop(String event) {
-    log(event);
+    log(event); // pause and cancel both stop the source
     timer?.cancel();
   }
 

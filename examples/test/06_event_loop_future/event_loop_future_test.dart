@@ -53,14 +53,35 @@ void main() {
   });
 
   group('parallel_wait', () {
-    test('record wait returns a record where each field keeps its type', () async {
-      expect(await loadDashboard(Future.value(3), Future.value('Ada')), 'Ada has 3 unread');
+    final log = <String>[];
+    Future<int> unread() async {
+      log.add('unread start');
+      await Future<void>.delayed(const Duration(milliseconds: 5));
+      log.add('unread end');
+      return 3;
+    }
+
+    Future<String> name() async {
+      log.add('name start');
+      return 'Ada';
+    }
+
+    setUp(log.clear);
+
+    test('sequential awaits start the second request only after the first ends', () async {
+      expect(await loadSequential(unread, name), 'Ada has 3 unread');
+      expect(log, ['unread start', 'unread end', 'name start']);
+    });
+
+    test('record wait starts both requests together and keeps each field type', () async {
+      expect(await loadParallel(unread, name), 'Ada has 3 unread');
+      expect(log, ['unread start', 'name start', 'unread end']);
     });
 
     test('ParallelWaitError still carries the successful values', () async {
       expect(
-        await loadDashboard(Future<int>.error(StateError('offline')), Future.value('Ada')),
-        'partial: name=Ada count=null countError=Bad state: offline',
+        await loadParallel(() => Future<int>.error(StateError('offline')), () async => 'Ada'),
+        'partial: name=Ada count=null',
       );
     });
 
@@ -77,6 +98,13 @@ void main() {
   });
 
   group('timeout_completer', () {
+    test('without a limit a silent client stays pending forever', () async {
+      var done = false;
+      unawaited(cityForever(_SilentClient()).then((_) => done = true));
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(done, isFalse);
+    });
+
     test('a Completer ignores callbacks after the first one', () async {
       expect(await currentCity(_ChattyClient()), 'Ankara');
     });

@@ -1,3 +1,5 @@
+// Skill'e ver: "Projemde taban store sınıflarında alt sınıfa ait metotları ve dispose
+// zincirini bul, `@protected` ve `@mustCallSuper` ekle, her biri için test yaz."
 import 'package:meta/meta.dart';
 
 abstract base class CartStore<S> {

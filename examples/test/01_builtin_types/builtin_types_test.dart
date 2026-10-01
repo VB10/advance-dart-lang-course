@@ -7,8 +7,8 @@ import 'package:test/test.dart';
 void main() {
   group('grapheme_length', () {
     test('String.length counts UTF-16 code units, characters counts what the user sees', () {
-      expect('👋🏽'.length, 4);
-      expect(visibleLength('👋🏽'), 1);
+      expect(codeUnitLength(wave), 4);
+      expect(visibleLength(wave), 1);
       expect(visibleLength('Hi 🇩🇰'), 4);
     });
 
@@ -26,9 +26,11 @@ void main() {
   });
 
   group('integer_division', () {
-    test('~/ returns an int', () {
-      expect(paginate(25, 10), (pages: 3, lastPageItems: 5));
-      expect(paginate(20, 10), (pages: 2, lastPageItems: 10));
+    test('~/ gives the same page count as the double detour, without doubles', () {
+      expect(pages(25, 10), 3);
+      expect(pages(20, 10), 2);
+      expect(pages(0, 10), 0);
+      expect(pagesNaive(25, 10), pages(25, 10));
     });
 
     test('~/ truncates toward zero, not toward negative infinity', () {
@@ -37,8 +39,8 @@ void main() {
     });
 
     test('% is never negative while remainder keeps the dividend sign', () {
-      expect(wrapOffset(-1, 5), (modulo: 4, remainder: -1));
-      expect(wrapOffset(6, 5), (modulo: 1, remainder: 1));
+      expect(wrapIndex(-1, 5), 4);
+      expect(signedRemainder(-1, 5), -1);
     });
   });
 
@@ -59,6 +61,15 @@ void main() {
       expect(catalog.contains('SHOE'), isTrue);
       expect(catalog.contains('hat'), isTrue);
       expect(catalog.indexBuilds, 1);
+      catalog.contains('hat');
+      expect(catalog.indexBuilds, 1);
+    });
+
+    test('a getter rebuilds on every read, late final does not', () {
+      final catalog = ProductCatalog(['Shoe']);
+      catalog.indexEveryRead;
+      catalog.indexEveryRead;
+      expect(catalog.indexBuilds, 2);
     });
   });
 
@@ -73,8 +84,12 @@ void main() {
       expect(allTags(['a'], ['b']), ['a', 'b']);
     });
 
-    test('_ ignores a loop variable and two _ parameters coexist', () {
-      expect(countItems([Cart(), Cart()]), 2);
+    test('the verbose null check behaves like ?..', () {
+      expect(withNoteVerbose(null, 'gift'), isNull);
+      expect(withNoteVerbose(Cart(), 'gift')?.note, 'gift');
+    });
+
+    test('two _ parameters coexist', () {
       expect(() => ignoreBoth(1, 'x'), returnsNormally);
     });
   });

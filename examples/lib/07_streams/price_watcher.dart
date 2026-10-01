@@ -1,3 +1,5 @@
+// Skill'e ver: "Projemde stream dinleyip dispose'da cancel etmeyen state'leri bul,
+// subscription'ı alanda tutup `await cancel()` ile düzelt, her biri için test yaz."
 import 'dart:async';
 
 final class PriceWatcher {
@@ -8,12 +10,11 @@ final class PriceWatcher {
   double? latestPrice;
 
   void start() {
-    _subscription ??= _prices.listen((price) => latestPrice = price);
+    _subscription ??= _prices.listen((price) => latestPrice = price); // start twice: one listener
   }
 
-  /// Awaiting `cancel()` waits until the source has finished its cleanup.
   Future<void> dispose() async {
-    await _subscription?.cancel();
+    await _subscription?.cancel(); // after this, source onCancel ran
     _subscription = null;
   }
 }

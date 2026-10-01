@@ -7,12 +7,12 @@ import 'package:dartadvance_examples/02_typedefs/json_alias.dart';
 void main() {
   group('function_typedefs', () {
     test('a plain function fits the Mapper typedef', () {
-      expect(orderFromDto, isA<Mapper<OrderDto, Order>>());
+      expect(wordCount, isA<Mapper<String, int>>());
     });
 
-    test('mapAll converts every item and keeps the order', () {
-      final orders = mapAll([const OrderDto(1, 9.5), const OrderDto(2, 3)], orderFromDto);
-      expect(orders.map((order) => order.id), [1, 2]);
+    test('mapAll and the inline version give the same result', () {
+      expect(mapAll(['a b', 'c'], wordCount), [2, 1]);
+      expect(mapInline(['a b', 'c'], wordCount), [2, 1]);
     });
 
     test('a validator function fits the Validator typedef', () {
@@ -58,11 +58,11 @@ void main() {
     });
 
     test('the alias accepts any int, even a product count', () {
-      expect(loadProfileWithAlias(), 'user #42');
+      expect(loadWithAlias(), 'user #42');
     });
 
     test('the extension type wraps the int behind its own name', () {
-      expect(loadProfileWithTyped(), 'user #7');
+      expect(loadWithTyped(), 'user #7');
       expect(const UserId(7).value, 7);
     });
   });

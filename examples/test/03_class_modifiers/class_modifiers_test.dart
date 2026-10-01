@@ -36,6 +36,11 @@ void main() {
       );
     });
 
+    test('a `_` fallback hides new states behind a generic text', () {
+      expect(lazyText(const OrderCancelled('no stock')), 'Unknown');
+      expect(lazyText(const OrderPlaced()), 'Preparing your order');
+    });
+
     test('subtypes are usable as the sealed root type', () {
       const OrderState state = OrderPlaced();
       expect(state, isA<OrderState>());

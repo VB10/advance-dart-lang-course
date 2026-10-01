@@ -8,11 +8,12 @@ Her özellik için **tek bir Dart dosyası** (ekranda gösterilir), kısa bir **
 
 | Yol | Ne |
 | --- | --- |
-| `examples/lib/NN_konu/özellik.dart` | Gösterilen dosya: tek kavram, bağımsız, ≤ 35 satır |
+| `examples/lib/NN_konu/özellik.dart` | Gösterilen dosya: başında kendi projende kullanılacak prompt, sürpriz ekranda, bağımsız, ≤ 38 satır |
 | `examples/test/NN_konu/` | Konunun testi (her iddia testle kanıtlı) |
 | `skills/dartadvance/rules/NN-konu.md` | Kural: ne, ne zaman, ne zaman gerekmez, tuzak, skill promptu, kabul kriteri |
 | `skills/dartadvance/SKILL.md` | Skill'in girişi: SDK kontrolü, nasıl çalışır, dizin |
-| `docs/FILMING.md` | Çekim notları: bölüm bölüm aç → söyle → skill'e ver → kıyasla |
+| `docs/KONULAR.md` | Neden bu konular, neden bu sırada |
+| `docs/FILMING.md` | Çekim notları: bölüm bölüm aç → söyle → izleyiciye prompt → kıyasla |
 | `tool/` | Kural dosyalarındaki kodu `examples/`'tan dolduran ve doğrulayan CLI |
 
 ## Konular

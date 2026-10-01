@@ -1,5 +1,6 @@
 # 05 · Koleksiyonlar
 > Kaynak: https://dart.dev/libraries/dart-core#collections · https://dart.dev/resources/useful-packages#packages-that-correspond-to-sdk-libraries · https://dart.dev/libraries/dart-core#implementing-map-keys · https://dart.dev/effective-dart/design#do-override-hashcode-if-you-override · https://dart.dev/effective-dart/design#avoid-defining-custom-equality-for-mutable-classes · Min. sürüm: Dart 3.0 (`firstOrNull`), `package:collection` 1.19
+Neden bu konu: Flutter'da boş listede `first` ile çöken ekranlar, yerinde `sort()` ile bozulan state ve identity `==` yüzünden gereksiz rebuild'ler en sık koleksiyon hatalarıdır.
 
 Liste, map ve kuyruk işlerini (arama, gruplama, sıralama, eşitlik, değişmezlik) kısa ve güvenli yazmayı öğretir; Domain'de entity alanları, State'te değişmez liste, UI'da hazır gruplanmış veri olarak durur.
 
@@ -7,28 +8,33 @@ Liste, map ve kuyruk işlerini (arama, gruplama, sıralama, eşitlik, değişmez
 **Ne:** `firstOrNull`/`lastOrNull`/`singleOrNull`/`elementAtOrNull` core'da; predicate'li `firstWhereOrNull` hâlâ `package:collection`'da. **Ne zaman:** "belki yok" aramasında `StateError` yerine null istediğinde. **Gerekmez:** Eleman kesin varsa düz `first`.
 <!-- snippet: 05_collection/first_or_null -->
 ```dart
+// Skill'e ver: "Projemde `first`/`firstWhere`/`try-catch StateError` ile arama yapan
+// yerleri bul, `firstOrNull`/`firstWhereOrNull` ile düzelt, her biri için test yaz."
 import 'package:collection/collection.dart';
 
 typedef Product = ({String name, int stock});
 
-// Core (Dart 3.0): no import needed for the OrNull helpers.
-Product? cheapest(List<Product> sortedByPrice) => sortedByPrice.firstOrNull;
+Product naiveFirst(List<Product> products) => products.first; // empty: StateError
 
-// Package: the predicate version still lives in package:collection.
+Product? cheapest(List<Product> sortedByPrice) => sortedByPrice.firstOrNull; // empty: null
+
+Product naiveInStock(List<Product> products) => products.firstWhere((product) => product.stock > 0);
+
 Product? firstInStock(List<Product> products) =>
-    products.firstWhereOrNull((product) => product.stock > 0);
+    products.firstWhereOrNull((product) => product.stock > 0); // no match: null
 
-// Two or more elements gives null, not an error.
 Product? onlyProduct(List<Product> products) => products.singleOrNull;
 ```
-**Tuzak:** `singleOrNull` iki veya daha fazla elemanda da null döner, hata vermez (test: "singleOrNull is null for zero and for two or more elements").
-**Skill'e ver:** > "Bir kullanıcının kayıtlı adresleri listesinde varsayılan adresi bulan, yoksa null dönen fonksiyon yaz; listenin ilk elemanını da yazmadan null güvenli al."
-**Kabul:** Boş listede exception atmaz; `firstOrNull` için paket import'u yok, predicate'li arama için var; `dart analyze` temiz.
+**Tuzak:** `first`/`firstWhere` boşta `StateError` atar (test: "first and firstWhere throw StateError ..."); `singleOrNull` iki veya daha fazla elemanda da null döner, hata vermez (test: "singleOrNull is null for zero and for two or more elements").
+**Skill'e ver:** > "Projemde `first`/`firstWhere`/`try-catch StateError` ile arama yapan yerleri bul, `firstOrNull`/`firstWhereOrNull` ile düzelt, her biri için test yaz."
+**Kabul:** Boş listede ve eşleşme yokta exception atmıyor; `first`/`firstWhere`/`StateError` yakalama kalmadı; `firstOrNull` için paket import'u yok, predicate'li arama için var; her değişiklik için test, `dart analyze` temiz.
 
 ## 2. Gruplama ve sıralama (package:collection)
 **Ne:** `groupListsBy`, `sortedBy`/`sortedByCompare`, `mapIndexed`, `compareNatural`. **Ne zaman:** Listeyi ekran için gruplarken veya yeni sıralı kopya gerektiğinde. **Gerekmez:** Yerinde sıralama yeterliyse `List.sort`.
 <!-- snippet: 05_collection/group_and_sort -->
 ```dart
+// Skill'e ver: "Projemde `list.sort()` ile yerinde sıralayan veya elle gruplayan
+// yerleri bul, `sortedBy`/`groupListsBy` ile düzelt, her biri için test yaz."
 import 'package:collection/collection.dart';
 
 typedef Order = ({String city, String sku, int amount});
@@ -36,26 +42,37 @@ typedef Order = ({String city, String sku, int amount});
 Map<String, List<Order>> ordersByCity(Iterable<Order> orders) =>
     orders.groupListsBy((order) => order.city);
 
-// Returns a new list; core List.sort sorts in place and returns void.
+List<Order> sortInPlace(List<Order> orders) =>
+    orders..sort((a, b) => b.amount.compareTo(a.amount)); // mutates the input
+
 List<Order> biggestFirst(Iterable<Order> orders) =>
-    orders.sortedByCompare((order) => order.amount, (a, b) => b.compareTo(a));
+    orders.sortedByCompare((order) => order.amount, (a, b) => b.compareTo(a)); // input untouched
 
 List<String> numberedLines(List<Order> orders) =>
     orders.mapIndexed((index, order) => '${index + 1}. ${order.sku}').toList();
 
-List<String> versionsInOrder(Iterable<String> versions) => versions.sorted(compareNatural);
+List<String> versionsInOrder(Iterable<String> versions) =>
+    versions.sorted(compareNatural); // v2 before v10
 ```
-**Tuzak:** `sort()` yerinde çalışır ve `void` döner; `sorted*` yeni liste verir, kaynak değişmez (test: "sorting helpers return a new list and leave the source alone").
-**Skill'e ver:** > "Bir kütüphane uygulamasında kitapları yazara göre grupla, her grubu yayın yılına göre yeniden eskiye sırala ve satırları '1. Başlık' diye numarala."
-**Kabul:** Grup anahtarları ilk görülme sırasında; kaynak liste değişmemiş; numara 1'den başlıyor.
+**Tuzak:** `sort()` girdi listesini değiştirir (test: "sort() mutates the input ..."); `sort()` yerinde çalışır ve `void` döner; `sorted*` yeni liste verir, kaynak değişmez (test: "sorting helpers return a new list and leave the source alone").
+**Skill'e ver:** > "Projemde `list.sort()` ile yerinde sıralayan veya elle gruplayan yerleri bul, `sortedBy`/`groupListsBy` ile düzelt, her biri için test yaz."
+**Kabul:** Gruplar ilk görülme sırasında; kaynak liste `sort()` ile değişmiyor (yerinde sıralama kalmadı); her değişen yer için test, `dart analyze` temiz.
 
 ## 3. İçerik eşitliği
 **Ne:** `List`/`Map`/`Set` `==` ile identity karşılaştırır; içerik için `ListEquality`, `DeepCollectionEquality` kullanılır. **Ne zaman:** Koleksiyon alanı olan sınıfta `==`/`hashCode` yazarken. **Gerekmez:** Alanlar `String`/`int`/record ise `Object.hash` yeter.
 <!-- snippet: 05_collection/content_equality -->
 ```dart
+// Skill'e ver: "Projemde `List`/`Map` alanlı sınıflarda `==`/`hashCode` yazan yerleri
+// bul, `DeepCollectionEquality` ile düzelt, her biri için test yaz."
 import 'package:collection/collection.dart';
 
 const _tagEquality = DeepCollectionEquality();
+
+bool naiveSame(Map<String, List<String>> a, Map<String, List<String>> b) =>
+    a == b; // same content: false
+
+bool deepSame(Map<String, List<String>> a, Map<String, List<String>> b) =>
+    _tagEquality.equals(a, b); // same content: true
 
 final class Profile {
   Profile(this.name, this.tags);
@@ -67,7 +84,6 @@ final class Profile {
   bool operator ==(Object other) =>
       other is Profile && other.name == name && _tagEquality.equals(other.tags, tags);
 
-  // hashCode must match ==, so it uses the same Equality.
   @override
   int get hashCode => Object.hash(name, _tagEquality.hash(tags));
 }
@@ -75,21 +91,28 @@ final class Profile {
 bool sameQuery(Map<String, List<String>> a, Map<String, List<String>> b) =>
     const DeepCollectionEquality.unordered().equals(a, b);
 ```
-**Tuzak:** `ListEquality<List<int>>` iç listeleri identity ile karşılaştırır; iç içe veri için `DeepCollectionEquality` gerekir (test: "ListEquality without deep support ..."). `hashCode` da aynı Equality ile üretilmeli.
-**Skill'e ver:** > "Bir `Invoice` sınıfı yaz: `lines` (`List<Map<String, int>>`) alanı olsun; iki fatura içerik olarak aynıysa eşit, hashCode'ları da aynı olsun."
-**Kabul:** `==` ve `hashCode` aynı `DeepCollectionEquality` örneğini kullanıyor; iki ayrı ama aynı içerikli nesne için eşitlik ve hash testi geçiyor.
+**Tuzak:** `Map`/`List` üzerinde `==` aynı içerikte bile false'tur (test: "== on maps is false ..."); `ListEquality<List<int>>` iç listeleri identity ile karşılaştırır; iç içe veri için `DeepCollectionEquality` gerekir (test: "ListEquality without deep support ..."). `hashCode` da aynı Equality ile üretilmeli.
+**Skill'e ver:** > "Projemde `List`/`Map` alanlı sınıflarda `==`/`hashCode` yazan yerleri bul, `DeepCollectionEquality` ile düzelt, her biri için test yaz."
+**Kabul:** `==` ve `hashCode` aynı `DeepCollectionEquality` örneğini kullanıyor; aynı içerikli iki ayrı nesne için eşitlik ve hash testi geçiyor; koleksiyon alanlarında çıplak `==` kalmadı.
 
 ## 4. Değişmez state: kopya mı görünüm mü
 **Ne:** `List.unmodifiable` kopya alır; `UnmodifiableListView` canlı, salt-okunur görünümdür. **Ne zaman:** State nesnesinde kopya, ViewModel'in iç listesini dışarı açarken görünüm. **Gerekmez:** Liste zaten dışarı sızmıyorsa.
 <!-- snippet: 05_collection/immutable_state -->
 ```dart
+// Skill'e ver: "Projemde state/ViewModel'de `List` alanını doğrudan saklayan ya da
+// açan yerleri bul, `List.unmodifiable`/`UnmodifiableListView` ile düzelt, test yaz."
 import 'dart:collection';
+
+final class LeakyCart {
+  LeakyCart(this.skus);
+
+  final List<String> skus; // caller's later add() changes this state
+}
 
 final class CartState {
   CartState(List<String> skus) : skus = List.unmodifiable(skus);
 
-  // A copy: later changes to the caller's list do not leak in.
-  final List<String> skus;
+  final List<String> skus; // a copy: nothing leaks in
 
   CartState add(String sku) => CartState([...skus, sku]);
 }
@@ -97,32 +120,39 @@ final class CartState {
 final class CartViewModel {
   final List<String> _skus = [];
 
-  // A live view: read-only for callers, but follows _skus.
-  List<String> get skus => UnmodifiableListView(_skus);
+  List<String> get skus => UnmodifiableListView(_skus); // live read-only view
 
   void add(String sku) => _skus.add(sku);
 }
 ```
-**Tuzak:** `UnmodifiableListView` kopya değildir; sahibi listeyi değiştirirse görünüm de değişir (test: "the view rejects changes but follows the owner").
-**Skill'e ver:** > "Bir oynatma listesi ekranı için `PlaylistState` (değişmez, `add` yeni state döner) ve iç listeyi salt-okunur açan bir `PlaylistViewModel` yaz."
-**Kabul:** State'e verilen kaynak liste sonradan değişse state değişmiyor; dışarı açılan listeye `add` `UnsupportedError` atıyor.
+**Tuzak:** Listeyi doğrudan saklamak çağıranın değişikliğini state'e sızdırır (test: "the leaky state follows the caller list"); `UnmodifiableListView` kopya değildir; sahibi listeyi değiştirirse görünüm de değişir (test: "the view rejects changes but follows the owner").
+**Skill'e ver:** > "Projemde state/ViewModel'de `List` alanını doğrudan saklayan ya da açan yerleri bul, `List.unmodifiable`/`UnmodifiableListView` ile düzelt, test yaz."
+**Kabul:** State'e verilen kaynak liste sonradan değişse state değişmiyor; dışarı açılan listeye `add` `UnsupportedError` atıyor; her değişen yer için test, `dart analyze` temiz.
 
 ## 5. Öncelik kuyruğu
 **Ne:** `HeapPriorityQueue` en küçük (karşılaştırıcıya göre ilk) elemanı verir. **Ne zaman:** Öncelikli iş/görev sırası. **Gerekmez:** Sıra yalnızca geliş sırasıysa `Queue`/`QueueList`.
 <!-- snippet: 05_collection/task_scheduler -->
 ```dart
+// Skill'e ver: "Projemde öncelikli işi `sort()` ya da tek ölçütlü karşılaştırıcıyla
+// sıralayan yerleri bul, `HeapPriorityQueue` + sıra numarası ile düzelt, test yaz."
 import 'package:collection/collection.dart';
 
 typedef _Task = ({int priority, int sequence, String name});
 
-int _highestFirstThenFifo(_Task a, _Task b) => switch (b.priority.compareTo(a.priority)) {
+int _byPriorityOnly(_Task a, _Task b) => b.priority.compareTo(a.priority);
+
+int _highestFirstThenFifo(_Task a, _Task b) => switch (_byPriorityOnly(a, b)) {
   0 => a.sequence.compareTo(b.sequence),
   final byPriority => byPriority,
 };
 
 final class TaskScheduler {
+  TaskScheduler() : _queue = HeapPriorityQueue(_highestFirstThenFifo);
+
+  TaskScheduler.priorityOnly() : _queue = HeapPriorityQueue(_byPriorityOnly); // ties: not FIFO
+
   int _sequence = 0;
-  final _queue = HeapPriorityQueue<_Task>(_highestFirstThenFifo);
+  final HeapPriorityQueue<_Task> _queue;
 
   void schedule(String name, {required int priority}) =>
       _queue.add((priority: priority, sequence: _sequence++, name: name));
@@ -136,9 +166,9 @@ final class TaskScheduler {
   }
 }
 ```
-**Tuzak:** Eşit öncelikte FIFO garanti edilmez; `sequence` alanı ile karşılaştırıcıya ikinci ölçüt eklenir (test: "runs the highest priority first and FIFO within a priority").
-**Skill'e ver:** > "Bir bildirim servisinde acil bildirimler önce, aynı aciliyette olanlar geliş sırasıyla gönderilen bir `NotificationScheduler` yaz."
-**Kabul:** Karşılaştırıcı öncelik sonra sıra numarasına bakıyor; `drain()` sonrası kuyruk boş.
+**Tuzak:** Eşit öncelikte FIFO garanti edilmez (test: "priority-only comparator does not keep FIFO on ties"); `sequence` alanı ile karşılaştırıcıya ikinci ölçüt eklenir (test: "runs the highest priority first and FIFO within a priority").
+**Skill'e ver:** > "Projemde öncelikli işi `sort()` ya da tek ölçütlü karşılaştırıcıyla sıralayan yerleri bul, `HeapPriorityQueue` + sıra numarası ile düzelt, test yaz."
+**Kabul:** Karşılaştırıcı önce öncelik sonra sıra numarasına bakıyor; aynı öncelikte geliş sırası testle kanıtlı; `drain()` sonrası kuyruk boş.
 
 ## Flutter'da kanıt
 - `SchedulerBinding._taskQueue = HeapPriorityQueue<_TaskEntry<dynamic>>(_taskSorter)`: [scheduler/binding.dart#L439](https://github.com/flutter/flutter/blob/3.47.5/packages/flutter/lib/src/scheduler/binding.dart#L439)

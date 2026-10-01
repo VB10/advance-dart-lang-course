@@ -64,56 +64,7 @@ Yeni konu sıradaki numarayı alır, boşluk bırakılmaz.
 | `>>>` triple-shift | 2.14 | dart.dev/language/operators |
 | Enhanced enums, super parameters | 2.17 | dart.dev/language/enums |
 
-## Hata modeli (ortak)
-
-Bir kural hata döndürmeyi gerektiriyorsa `Result<T>` kullan (dartz yok). Projede yoksa `lib/core/result.dart`
-dosyasına ekle; `Failure`'ın yalnız kullanılan alt tiplerini yaz.
-
-<!-- snippet: 00_architecture/result#result -->
-```dart
-/// Outcome of an operation that can fail with a domain [Failure].
-///
-/// `sealed` makes `switch` over a `Result` exhaustive: the compiler rejects a
-/// switch that forgets `Err`.
-sealed class Result<T> {
-  const Result();
-}
-
-final class Ok<T> extends Result<T> {
-  const Ok(this.value);
-  final T value;
-}
-
-final class Err<T> extends Result<T> {
-  const Err(this.failure);
-  final Failure failure;
-}
-```
-
-<!-- snippet: 00_architecture/result#failure -->
-```dart
-/// Every failure the domain layer knows about. New subtypes must be handled
-/// by every exhaustive `switch` — that is the point of `sealed`.
-sealed class Failure {
-  const Failure(this.message);
-  final String message;
-}
-
-final class NetworkFailure extends Failure {
-  const NetworkFailure() : super('No connection');
-}
-
-final class ServerFailure extends Failure {
-  const ServerFailure(this.statusCode) : super('Server error');
-  final int statusCode;
-}
-
-final class UnexpectedFailure extends Failure {
-  const UnexpectedFailure(this.error, this.stackTrace) : super('Unexpected error');
-  final Object error;
-  final StackTrace stackTrace;
-}
-```
+## Veri tipi seçimi
 
 Union/state hiyerarşisi → native `sealed`. `copyWith`/JSON gereken veri sınıfı → `freezed` 3
 (sürümü `pubspec.lock`'tan doğrula). 1–3 alanlı davranışsız veri → record. Tek değerli ID → extension type.

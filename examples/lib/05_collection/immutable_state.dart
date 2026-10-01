@@ -1,10 +1,17 @@
+// Skill'e ver: "Projemde state/ViewModel'de `List` alanını doğrudan saklayan ya da
+// açan yerleri bul, `List.unmodifiable`/`UnmodifiableListView` ile düzelt, test yaz."
 import 'dart:collection';
+
+final class LeakyCart {
+  LeakyCart(this.skus);
+
+  final List<String> skus; // caller's later add() changes this state
+}
 
 final class CartState {
   CartState(List<String> skus) : skus = List.unmodifiable(skus);
 
-  // A copy: later changes to the caller's list do not leak in.
-  final List<String> skus;
+  final List<String> skus; // a copy: nothing leaks in
 
   CartState add(String sku) => CartState([...skus, sku]);
 }
@@ -12,8 +19,7 @@ final class CartState {
 final class CartViewModel {
   final List<String> _skus = [];
 
-  // A live view: read-only for callers, but follows _skus.
-  List<String> get skus => UnmodifiableListView(_skus);
+  List<String> get skus => UnmodifiableListView(_skus); // live read-only view
 
   void add(String sku) => _skus.add(sku);
 }

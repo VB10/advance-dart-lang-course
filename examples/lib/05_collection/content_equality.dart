@@ -1,6 +1,14 @@
+// Skill'e ver: "Projemde `List`/`Map` alanlı sınıflarda `==`/`hashCode` yazan yerleri
+// bul, `DeepCollectionEquality` ile düzelt, her biri için test yaz."
 import 'package:collection/collection.dart';
 
 const _tagEquality = DeepCollectionEquality();
+
+bool naiveSame(Map<String, List<String>> a, Map<String, List<String>> b) =>
+    a == b; // same content: false
+
+bool deepSame(Map<String, List<String>> a, Map<String, List<String>> b) =>
+    _tagEquality.equals(a, b); // same content: true
 
 final class Profile {
   Profile(this.name, this.tags);
@@ -12,7 +20,6 @@ final class Profile {
   bool operator ==(Object other) =>
       other is Profile && other.name == name && _tagEquality.equals(other.tags, tags);
 
-  // hashCode must match ==, so it uses the same Equality.
   @override
   int get hashCode => Object.hash(name, _tagEquality.hash(tags));
 }

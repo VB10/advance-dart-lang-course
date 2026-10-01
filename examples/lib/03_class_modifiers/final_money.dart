@@ -1,4 +1,7 @@
-// `final`: other libraries can construct it but cannot extend or implement it.
+// Skill'e ver: "Projemde alt tiplenmemesi gereken değer sınıflarını bul, `final class`
+// + `==`/`hashCode` ile düzelt, her biri için test yaz."
+
+// `final`: others can construct it; `extends`/`implements` is an analyzer error.
 final class Money {
   const Money(this.cents, this.currency);
 
@@ -9,7 +12,7 @@ final class Money {
     if (other.currency != currency) {
       throw ArgumentError('Currency mismatch: $currency vs ${other.currency}');
     }
-    return Money(cents + other.cents, currency);
+    return Money(cents + other.cents, currency); // 100 + 250 TRY: 350
   }
 
   @override

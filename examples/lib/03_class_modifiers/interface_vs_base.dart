@@ -1,16 +1,19 @@
+// Skill'e ver: "Projemde repository sözleşmelerini ve ortak mantıklı tabanları bul,
+// `abstract interface class` / `abstract base class` ile ayır, her biri için test yaz."
+
 // Pure contract: outside code can only `implements` it (e.g. a test fake).
 abstract interface class ProductRepository {
   Future<String?> findName(String productId);
 }
 
-// Shared logic: outside code can `extends` it but never `implements` it.
+// Shared logic: outside `extends` works, `implements` is an analyzer error.
 abstract base class CachedProductRepository implements ProductRepository {
   final Map<String, String> _cache = {};
 
   @override
   Future<String?> findName(String productId) async {
     final cached = _cache[productId];
-    if (cached != null) return cached;
+    if (cached != null) return cached; // 2nd call: no fetch
     final fetched = await fetchName(productId);
     if (fetched != null) _cache[productId] = fetched;
     return fetched;

@@ -1,24 +1,28 @@
 # 06 · Event loop ve Future
 > Kaynak: https://dart.dev/language/concurrency#event-loop · https://dart.dev/libraries/async/async-await#execution-flow-with-async-and-await · https://dart.dev/libraries/dart-async#waiting-for-multiple-futures · https://dart.dev/libraries/dart-async#handling-errors-for-multiple-futures · https://api.dart.dev/stable/dart-async/unawaited.html · Min. sürüm: Dart 3.0 (record `.wait`)
 
+Neden bu konu: Sıralı `await` ve sessizce yutulan ateşle-unut hatalar Flutter'da yavaş ekran ve görünmeyen hata olarak karşına çıkar.
+
 Her isolate tek bir event loop ile çalışır; `Future` bu döngünün üstündeki sözdür. Data katmanında paralel istek/timeout/callback sarmalamayı, State katmanında ateşle-unut başlatmayı doğru yazmak için gerekir.
 
 ## 1. Event loop sırası (her sürüm)
 **Ne:** Önce senkron kod, sonra **tüm** microtask'lar, sonra event kuyruğu (`Timer.run`, `Future()`) çalışır. **Ne zaman:** "Bu satır neden sonra çalıştı?" sorusunu açıklarken. **Gerekmez:** Uygulama kodunda sırayı `scheduleMicrotask` ile "düzeltmek"; `await` kullan.
 <!-- snippet: 06_event_loop_future/event_loop_order -->
 ```dart
+// Skill'e ver: "Projemde `scheduleMicrotask`, `Timer.run` veya `Future(...)` ile sıra
+// varsayan yerleri bul, event loop sırasına göre düzelt, her biri için test yaz."
 import 'dart:async';
 
-/// Records the order in which each kind of callback runs.
+/// Sync code first, then every microtask, then event-queue callbacks.
 Future<List<String>> orderOfExecution() {
   final log = <String>[];
   final finished = Completer<List<String>>();
 
   Timer.run(() => log.add('event: Timer.run'));
-  unawaited(Future<void>(() => log.add('event: Future()')));
-  scheduleMicrotask(() => log.add('microtask: scheduleMicrotask'));
+  unawaited(Future<void>(() => log.add('event: Future()'))); // log[4]: last
+  scheduleMicrotask(() => log.add('microtask: scheduleMicrotask')); // log[1]
   unawaited(Future<void>.microtask(() => log.add('microtask: Future.microtask')));
-  log.add('sync: end of function');
+  log.add('sync: end of function'); // log[0]: first, though written last
 
   Timer.run(() => finished.complete(log));
   return finished.future;
@@ -27,30 +31,34 @@ Future<List<String>> orderOfExecution() {
 /// An async function runs synchronously until its first await.
 Future<void> greet(List<String> log) async {
   log.add('greet: before await');
-  await null; // the rest continues in a microtask
+  await null;
   log.add('greet: after await');
 }
 ```
 **Tuzak:** `async` fonksiyon ilk `await`'e kadar senkron çalışır; çağıran, `await` etmese bile o kısmı hemen görür.
-**Skill'e ver:** > "Bir sipariş takip ekranı için: senkron log, microtask ve Timer.run ile iki bildirimin hangi sırada çalıştığını kaydeden `orderOfNotifications()` yaz."
-**Kabul:** Test sırayı `sync → microtask → event` olarak doğrular; `dart analyze` temiz.
+**Skill'e ver:** > "Projemde `scheduleMicrotask`, `Timer.run` veya `Future(...)` ile sıra varsayan yerleri bul, event loop sırasına göre düzelt, her biri için test yaz."
+**Kabul:** Test sırayı `sync → microtask → event` olarak doğrular; sıra varsayımı `await` ile açık hale gelmiş; `dart analyze` temiz.
 
 ## 2. Future.wait ve record `.wait` (3.0)
 **Ne:** Bağımsız istekleri aynı anda başlatıp bekler; record `.wait` her alanın tipini korur. **Ne zaman:** RepositoryImpl'de iki-üç bağımsız çağrı. **Gerekmez:** İkinci istek birincinin sonucuna bağlıysa; sıralı `await`.
 <!-- snippet: 06_event_loop_future/parallel_wait -->
 ```dart
+// Skill'e ver: "Projemde birbirine bağlı olmayan `await`'leri art arda yazan repository
+// yerlerini bul, record `.wait` ile paralel yap, her biri için test yaz."
 import 'dart:async';
 
-/// Both requests start together; each field keeps its own type.
-Future<String> loadDashboard(Future<int> unreadCount, Future<String> userName) async {
+Future<String> loadSequential(Future<int> Function() unread, Future<String> Function() name) async {
+  final count = await unread(); // name() starts only after this finishes
+  return '${await name()} has $count unread';
+}
+
+Future<String> loadParallel(Future<int> Function() unread, Future<String> Function() name) async {
   try {
-    final (count, name) = await (unreadCount, userName).wait;
-    return '$name has $count unread';
+    final (count, userName) = await (unread(), name()).wait; // both start together
+    return '$userName has $count unread';
   } on ParallelWaitError<(int?, String?), (AsyncError?, AsyncError?)> catch (error) {
-    // Successful results are still available; failed ones are null.
-    final (count, name) = error.values;
-    final (countError, _) = error.errors;
-    return 'partial: name=$name count=$count countError=${countError?.error}';
+    final (count, userName) = error.values; // successes survive, failures are null
+    return 'partial: name=$userName count=$count';
   }
 }
 
@@ -58,13 +66,15 @@ Future<String> loadDashboard(Future<int> unreadCount, Future<String> userName) a
 Future<List<int>> loadPrices(List<Future<int>> requests) => Future.wait(requests);
 ```
 **Tuzak:** `Future.wait` sonuçları verilen sırayla döner ve yalnız ilk hatayı bildirir; başarılı değerlere `ParallelWaitError.values` ile ulaşılır.
-**Skill'e ver:** > "Ürün detay ekranı için `(Future<Product>, Future<int>) stock` çiftini record `.wait` ile bekleyen ve stok hata verirse ürünü yine gösteren `loadProductPage` yaz."
-**Kabul:** Test hem tam başarıyı hem kısmi başarıyı (`values`) kapsar; istekler `try`'dan önce başlatılır.
+**Skill'e ver:** > "Projemde birbirine bağlı olmayan `await`'leri art arda yazan repository yerlerini bul, record `.wait` ile paralel yap, her biri için test yaz."
+**Kabul:** Test bağımsız çağrıların birlikte başladığını (başlangıç sırası) ve kısmi başarıyı (`values`) kapsar; `dart analyze` temiz.
 
 ## 3. timeout ve Completer (her sürüm)
 **Ne:** `Completer` callback API'sini `Future`'a çevirir; `.timeout` bekleme süresini sınırlar. **Ne zaman:** Eski SDK sarmalama, ağ/IO sınırı. **Gerekmez:** Zaten `Future` dönen bir şeyi sarmak için `Completer`.
 <!-- snippet: 06_event_loop_future/timeout_completer -->
 ```dart
+// Skill'e ver: "Projemde callback tabanlı eski API'leri, süresiz bekleyen çağrıları bul,
+// `Completer` ile Future'a çevir, `timeout` ile sınırla, her biri için test yaz."
 import 'dart:async';
 
 abstract interface class LegacyLocationClient {
@@ -82,22 +92,25 @@ Future<String> currentCity(LegacyLocationClient client) {
   return completer.future;
 }
 
-/// Throws [TimeoutException] when [limit] passes first.
-Future<String> cityOrThrow(LegacyLocationClient client, Duration limit) =>
-    currentCity(client).timeout(limit);
+/// No limit: a silent client leaves the caller waiting forever.
+Future<String> cityForever(LegacyLocationClient client) => currentCity(client); // pending
 
-/// The source future is not cancelled; its late result is ignored.
+Future<String> cityOrThrow(LegacyLocationClient client, Duration limit) =>
+    currentCity(client).timeout(limit); // silent client: TimeoutException
+
 Future<String> cityOrDefault(LegacyLocationClient client, Duration limit) =>
-    currentCity(client).timeout(limit, onTimeout: () => 'Istanbul');
+    currentCity(client).timeout(limit, onTimeout: () => 'Istanbul'); // silent: Istanbul
 ```
 **Tuzak:** `timeout` kaynak future'ı iptal etmez; geç gelen sonuç yok sayılır, `Completer` ikinci kez tamamlanırsa `StateError` atar (`isCompleted` ile koru).
-**Skill'e ver:** > "Callback tabanlı bir `PaymentSdk.charge(onDone)` API'sini `Future<Receipt>`'e çeviren ve 5 saniyede `TimeoutException` fırlatan `chargeOrThrow` yaz."
-**Kabul:** Test sessiz SDK'de `TimeoutException`'ı, çift callback'te yalnız ilk sonucu doğrular.
+**Skill'e ver:** > "Projemde callback tabanlı eski API'leri, süresiz bekleyen çağrıları bul, `Completer` ile Future'a çevir, `timeout` ile sınırla, her biri için test yaz."
+**Kabul:** Test sessiz SDK'de `TimeoutException`'ı, çift callback'te yalnız ilk sonucu doğrular; süresiz bekleyen çağrı kalmaz.
 
 ## 4. unawaited, ignore ve ateşle-unut hatalar (unawaited 2.15, ignore 2.14)
 **Ne:** `unawaited` "bilerek beklemiyorum" der; `ignore()` hatayı da yutar. **Ne zaman:** `initState` gibi senkron yerden analitik/önbellek ısıtma. **Gerekmez:** Sonucu veya hatası önemliyse; `await` et.
 <!-- snippet: 06_event_loop_future/fire_and_forget -->
 ```dart
+// Skill'e ver: "Projemde beklenmeden çağrılan Future'ları (`unawaited`) bul, hatasını
+// `catchError` ile ele alacak şekilde düzelt, her biri için test yaz."
 import 'dart:async';
 
 final class AnalyticsClient {
@@ -106,22 +119,22 @@ final class AnalyticsClient {
 
 /// unawaited only silences the lint; a failure is still an unhandled error.
 void trackScreenOpenedLoud(AnalyticsClient analytics) {
-  unawaited(analytics.send('screen_opened'));
+  unawaited(analytics.send('screen_opened')); // error: unhandled
 }
 
 /// ignore() also marks the error as handled, so nothing is reported.
 void trackScreenOpenedQuiet(AnalyticsClient analytics) {
-  analytics.send('screen_opened').ignore();
+  analytics.send('screen_opened').ignore(); // error: swallowed silently
 }
 
 /// Safest: handle the failure yourself, then fire and forget.
 void trackScreenOpenedSafe(AnalyticsClient analytics, void Function(Object) report) {
-  unawaited(analytics.send('screen_opened').catchError(report));
+  unawaited(analytics.send('screen_opened').catchError(report)); // error: reported
 }
 ```
 **Tuzak:** `unawaited` hatayı yutmaz; hata yine işlenmemiş (unhandled) olur, `ignore()` ise sessizce yutar.
-**Skill'e ver:** > "Sepet ekranı açılınca `CartSync.push()` çağrısını ateşle-unut yapan `onCartOpened` yaz; hata olursa `logError`'a düşsün, uygulama çökmesin."
-**Kabul:** Test hatanın zone'a sızmadığını ve `logError`'a ulaştığını doğrular.
+**Skill'e ver:** > "Projemde beklenmeden çağrılan Future'ları (`unawaited`) bul, hatasını `catchError` ile ele alacak şekilde düzelt, her biri için test yaz."
+**Kabul:** Test hatanın zone'a sızmadığını ve `catchError` ile raporlandığını doğrular; `dart analyze` temiz.
 
 ## Flutter'da kanıt
 - `SchedulerBinding.endOfFrame`: `Completer<void>` ile callback'i Future'a çevirir — [binding.dart#L852](https://github.com/flutter/flutter/blob/3.47.5/packages/flutter/lib/src/scheduler/binding.dart#L852)

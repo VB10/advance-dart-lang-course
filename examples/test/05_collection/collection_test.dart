@@ -16,6 +16,11 @@ void main() {
   group('first_or_null', () {
     const products = [(name: 'pen', stock: 0), (name: 'ink', stock: 4)];
 
+    test('first and firstWhere throw StateError where the OrNull versions return null', () {
+      expect(() => naiveFirst(const []), throwsStateError);
+      expect(() => naiveInStock([products.first]), throwsStateError);
+    });
+
     test('firstOrNull returns null on an empty list instead of throwing', () {
       expect(cheapest(const []), isNull);
       expect(cheapest(products), (name: 'pen', stock: 0));
@@ -45,6 +50,12 @@ void main() {
       expect(_orders.first.amount, 30);
     });
 
+    test('sort() mutates the input while sortedByCompare does not', () {
+      final copy = [..._orders];
+      sortInPlace(copy);
+      expect(copy.map((order) => order.amount), [30, 20, 10]);
+    });
+
     test('mapIndexed numbers the lines from one', () {
       expect(numberedLines(_orders), ['1. a', '2. b', '3. c']);
     });
@@ -62,6 +73,14 @@ void main() {
 
     test('plain collections compare by identity', () {
       expect([1, 2] == [1, 2], isFalse);
+    });
+
+    test('== on maps is false for same content, deepSame is true', () {
+      Map<String, List<String>> tags() => {
+        'a': ['x'],
+      };
+      expect(naiveSame(tags(), tags()), isFalse);
+      expect(deepSame(tags(), tags()), isTrue);
     });
 
     test('a class using DeepCollectionEquality compares nested contents', () {
@@ -100,6 +119,13 @@ void main() {
   });
 
   group('immutable_state', () {
+    test('the leaky state follows the caller list', () {
+      final source = ['a'];
+      final state = LeakyCart(source);
+      source.add('b');
+      expect(state.skus, ['a', 'b']);
+    });
+
     test('the state copy does not follow the caller list', () {
       final source = ['a'];
       final state = CartState(source);
@@ -134,6 +160,15 @@ void main() {
         ..schedule('log', priority: 1)
         ..schedule('input', priority: 5);
       expect(scheduler.drain(), ['render', 'input', 'sync', 'log']);
+    });
+
+    test('priority-only comparator does not keep FIFO on ties', () {
+      final scheduler = TaskScheduler.priorityOnly()
+        ..schedule('sync', priority: 1)
+        ..schedule('render', priority: 5)
+        ..schedule('log', priority: 1)
+        ..schedule('input', priority: 5);
+      expect(scheduler.drain(), isNot(['render', 'input', 'sync', 'log']));
     });
 
     test('drain empties the queue', () {

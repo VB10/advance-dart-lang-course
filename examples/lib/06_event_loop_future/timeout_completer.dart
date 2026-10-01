@@ -1,3 +1,5 @@
+// Skill'e ver: "Projemde callback tabanlı eski API'leri, süresiz bekleyen çağrıları bul,
+// `Completer` ile Future'a çevir, `timeout` ile sınırla, her biri için test yaz."
 import 'dart:async';
 
 abstract interface class LegacyLocationClient {
@@ -15,10 +17,11 @@ Future<String> currentCity(LegacyLocationClient client) {
   return completer.future;
 }
 
-/// Throws [TimeoutException] when [limit] passes first.
-Future<String> cityOrThrow(LegacyLocationClient client, Duration limit) =>
-    currentCity(client).timeout(limit);
+/// No limit: a silent client leaves the caller waiting forever.
+Future<String> cityForever(LegacyLocationClient client) => currentCity(client); // pending
 
-/// The source future is not cancelled; its late result is ignored.
+Future<String> cityOrThrow(LegacyLocationClient client, Duration limit) =>
+    currentCity(client).timeout(limit); // silent client: TimeoutException
+
 Future<String> cityOrDefault(LegacyLocationClient client, Duration limit) =>
-    currentCity(client).timeout(limit, onTimeout: () => 'Istanbul');
+    currentCity(client).timeout(limit, onTimeout: () => 'Istanbul'); // silent: Istanbul

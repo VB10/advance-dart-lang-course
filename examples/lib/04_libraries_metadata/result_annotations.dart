@@ -1,3 +1,5 @@
+// Skill'e ver: "Projemde değer nesnesi sınıfları ve sonucu atılabilen metotları bul,
+// `@immutable` ve `@useResult` ekle, her biri için test yaz."
 import 'package:meta/meta.dart';
 
 // The analyzer warns if a field here is not final.

@@ -1,4 +1,6 @@
-// Privacy is per LIBRARY (file), not per class.
+// Skill'e ver: "Projemde `_` alanına aynı dosyadaki başka sınıfın eriştiği yerleri bul,
+// library gizliliği kuralıyla ayır veya bilerek kabul et, her biri için test yaz."
+// Same file = same library: no per-class privacy.
 final class Wallet {
   Wallet(this._balanceCents);
 
@@ -9,13 +11,13 @@ final class Wallet {
   void spend(int cents) => _balanceCents -= cents;
 }
 
-// Another class in the same file may touch Wallet's private field.
+// WalletAuditor lives in this file, so it may touch the private field.
 final class WalletAuditor {
   const WalletAuditor();
 
-  bool isOverdrawn(Wallet wallet) => wallet._balanceCents < 0;
+  bool isOverdrawn(Wallet wallet) => wallet._balanceCents < 0; // true
 
   void writeOff(Wallet wallet) {
-    if (isOverdrawn(wallet)) wallet._balanceCents = 0;
+    if (isOverdrawn(wallet)) wallet._balanceCents = 0; // balance: 0
   }
 }

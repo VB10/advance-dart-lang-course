@@ -1,12 +1,15 @@
+// Skill'e ver: "Projemde kur/fiyat/stok gibi veriyi her okumada çeken yerleri bul,
+// AsyncCache (package:async) ile TTL'li önbelleğe al, her biri için test yaz."
 import 'package:async/async.dart' hide Result;
 
-/// Fresh for [ttl] after the fetch completes; a failed fetch is cached too.
 final class RatesCache {
   RatesCache(this._fetch, {required Duration ttl}) : _cache = AsyncCache(ttl);
   final Future<double> Function() _fetch;
   final AsyncCache<double> _cache;
 
-  Future<double> get rate => _cache.fetch(_fetch);
+  Future<double> get rateNaive => _fetch(); // 2 reads: 2 fetches
 
-  void refresh() => _cache.invalidate();
+  Future<double> get rate => _cache.fetch(_fetch); // 2 reads: 1 fetch
+
+  void refresh() => _cache.invalidate(); // a failed fetch is cached for the TTL too
 }
