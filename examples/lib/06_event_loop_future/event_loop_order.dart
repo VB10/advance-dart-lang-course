@@ -1,5 +1,7 @@
-// /dartadvance Projemde `scheduleMicrotask`, `Timer.run` veya `Future(...)` ile sıra
-// varsayan yerleri bul, event loop sırasına göre düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde `scheduleMicrotask`, `Timer.run` veya `Future(...)` ile
+//   sıra varsayan yerleri bul, event loop sırasına göre düzelt, test yaz.
+// Üret: /dartadvance Bana sipariş onaylanınca önce ekran durumunu güncelleyip, işlem
+//   bittikten sonra analitik olayını gönderen bir fonksiyon yaz.
 import 'dart:async';
 
 /// Sync code first, then every microtask, then event-queue callbacks.

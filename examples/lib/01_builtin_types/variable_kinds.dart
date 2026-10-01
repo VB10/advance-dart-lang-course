@@ -1,5 +1,7 @@
-// /dartadvance Projemde değişmemesi gereken listeleri ve her okumada yeniden
-// hesaplanan getter'ları bul, `const` ve `late final` ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde değişmemesi gereken listeleri ve her okumada yeniden
+//   hesaplanan getter'ları bul, `const` ve `late final` ile düzelt, her biri için test yaz.
+// Üret: /dartadvance Bana desteklenen para birimleri listesini ve faturaların müşteri adı
+//   indeksini yalnızca bir kez hesaplayan bir sınıf yaz.
 
 final recentSearches = <String>['dart']; // add works: final is not deep
 

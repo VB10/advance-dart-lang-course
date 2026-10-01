@@ -11,13 +11,20 @@ State management ve framework konu dışı.
 
 ## Nasıl çalışır
 
-Kullanıcı bir özelliği gösterdiyse ya da "bunu advance kurala göre geliştir / yaz" dediyse:
+İki kullanım var; kural dosyasındaki her bölümde ikisi için de bir prompt örneği bulunur:
+
+- **Düzelt:** "Projemde … yerleri bul, … ile düzelt." Mevcut kodu kurala göre refactor et.
+- **Üret:** "Bana … yaz." Kullanıcı kuralı söylemese bile yeni kodu kurala göre yaz.
+
+Adımlar:
 
 1. **SDK kontrolü:** hedef paketin `pubspec.yaml` → `environment: sdk:` alt sınırını oku; aşağıdaki tabloda
    alt sınırın üstündeki özelliği önerme.
 2. **Kuralı bul:** konuyu [dizinden](#dizin) seç; o dosyada yalnız ilgili `## N.` bölümünü oku
    (`grep -n "^## " rules/NN-*.md`, sonra o bölümü). Dosyanın tamamını okuma.
-3. **Modeli uyarla:** bölümdeki kod bloğu modeldir; kullanıcının alanına uyarla, isimleri kopyalama.
+3. **Düzelt ise:** önce projede ilgili kalıbı ara (`grep`), bulduğun her yeri listele, sonra tek tek düzelt.
+   Bulamazsan "bulunamadı" de; kural uygulanacak yer uydurma.
+   **Üret ise:** bölümdeki kod bloğunu model al; kullanıcının alanına uyarla, isimleri kopyalama.
 4. **Yaz:** bir dosya = bir kavram, ≤ 50 satır, yorum en az, iç içe en fazla 3 seviye, metinler kullanıcının dilinde.
    `dart create` şablon dosyalarına dokunma.
 5. **Kanıtla:** bölümdeki **Kabul** satırını test eder. Kabul bir derleme hatasıysa geçici olarak ihlal et,

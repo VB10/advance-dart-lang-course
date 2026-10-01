@@ -1,5 +1,7 @@
-// /dartadvance Projemde callback tabanlı eski API'leri, süresiz bekleyen çağrıları bul,
-// `Completer` ile Future'a çevir, `timeout` ile sınırla, her biri için test yaz.
+// Düzelt: /dartadvance Projemde callback tabanlı eski API'leri, süresiz bekleyen çağrıları
+//   bul, `Completer` ile Future'a çevir, `timeout` ile sınırla, test yaz.
+// Üret: /dartadvance Bana callback ile sonuç veren eski bir ödeme SDK'sını saran, 10 sn'de
+//   cevap gelmezse hata veren bir fonksiyon yaz.
 import 'dart:async';
 
 abstract interface class LegacyLocationClient {

@@ -1,5 +1,7 @@
-// /dartadvance Projemde `/` sonucunu `toInt()`/`ceil()` ile tamsayıya çeviren ve
-// negatif değerde `%` kullanan yerleri bul, `~/` ve `remainder` ile düzelt, test yaz.
+// Düzelt: /dartadvance Projemde `/` sonucunu `toInt()`/`ceil()` ile tamsayıya çeviren ve
+//   negatif değerde `%` kullanan yerleri bul, `~/` ve `remainder` ile düzelt, test yaz.
+// Üret: /dartadvance Bana sipariş sayısı ve sayfa boyutundan toplam sayfa sayısını bulan ve
+//   sayfalar arasında döngüsel ileri/geri giden fonksiyonlar yaz.
 
 // Naive: goes through double just to get an int back.
 int pagesNaive(int items, int size) => (items / size).ceil();

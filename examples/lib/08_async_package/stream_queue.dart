@@ -1,5 +1,7 @@
-// /dartadvance Projemde başlık+gövde sırayla okunan stream parse yerlerini bul,
-// StreamQueue (package:async) ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde başlık+gövde sırayla okunan stream parse yerlerini bul,
+//    StreamQueue (package:async) ile düzelt, her biri için test yaz.
+// Üret: /dartadvance Bana ilk satırı 'FATURA 3' gibi kalem sayısı, sonra o kadar satırı
+//    okuyan bir fatura parser'ı yaz.
 import 'package:async/async.dart' hide Result;
 
 Future<List<String>> readItemsNaive(Stream<String> lines) async {

@@ -1,5 +1,7 @@
-// /dartadvance Projemde sayfaları hepsini çekip listeye dönen yerleri bul, `async*` ile
-// tembel Stream'e çevir, erken iptalde temizliği de kapsayan test yaz.
+// Düzelt: /dartadvance Projemde sayfaları hepsini çekip listeye dönen yerleri bul,
+//    `async*` ile tembel Stream'e çevir, erken iptali de kapsayan test yaz.
+// Üret: /dartadvance Bana sayfa sayfa gelen ürün yorumlarını akıtan, ilk 5'te bırakılınca
+//    bağlantıyı kapatan bir fonksiyon yaz.
 
 Stream<int> orderIds(
   Future<List<int>> Function(int page) fetchPage, {

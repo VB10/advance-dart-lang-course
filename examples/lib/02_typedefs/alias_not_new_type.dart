@@ -1,5 +1,7 @@
-// /dartadvance Projemde `typedef X = int` gibi alias'la ID ya da birim tipi
-// tanımlayan yerleri bul, `extension type` ile dönüştür, her biri için test yaz.
+// Düzelt: /dartadvance Projemde `typedef X = int` gibi alias'la ID ya da birim tipi
+//    tanımlayan yerleri bul, `extension type` ile dönüştür, test yaz.
+// Üret: /dartadvance Bana sipariş numarası ile müşteri numarasının karışmasını derleme
+//    anında engelleyen bir fatura servisi yaz.
 typedef UserIdAlias = int; // Just another name for int.
 
 extension type const UserId(int value) {}

@@ -1,5 +1,7 @@
-// /dartadvance Projemde `Isolate.run`/`compute` closure'larını bul, ne yakaladıklarını
-// ve global duruma bağımlılığı `dart:isolate` kurallarıyla düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde `Isolate.run`/`compute` closure'larını bul,
+//    ne yakaladıklarını ve global durumu kurallarıyla düzelt, her biri için test yaz.
+// Üret: /dartadvance Bana fatura listesini arka planda sıralayıp KDV toplamını hesaplayan
+//    bir fonksiyon yaz.
 import 'dart:isolate';
 
 int loadedOrderCount = 0;

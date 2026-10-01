@@ -1,5 +1,7 @@
-// /dartadvance Projemde Timer, soket veya sensörü stream dinlenmeden başlatan yerleri
-// bul, `StreamController` onListen/onCancel ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde Timer, soket veya sensörü dinlenmeden başlatan yerleri
+//    bul, `StreamController` onListen/onCancel ile düzelt, test yaz.
+// Üret: /dartadvance Bana sıcaklık sensörünü yalnız biri dinlerken okuyan, dinleyen
+//    kalmayınca durduran bir akış yaz.
 import 'dart:async';
 
 Stream<int> courierPositions({required void Function(String event) log}) {

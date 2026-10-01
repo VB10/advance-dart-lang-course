@@ -1,5 +1,7 @@
-// /dartadvance Projemde `Map<String, dynamic>` tipini tekrar eden Data katmanı yerlerini
-// bul, `typedef` alias ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde `Map<String, dynamic>` tipini tekrar eden Data katmanı
+//    yerlerini bul, `typedef` alias ile düzelt, test yaz.
+// Üret: /dartadvance Bana API'den gelen fatura satırları JSON listesini okuyup tekrar
+//    JSON'a çeviren bir Data sınıfı yaz.
 typedef Json = Map<String, Object?>;
 typedef JsonList = List<Json>;
 typedef Cache<T> = Map<String, List<T>>; // Cache<int> == Map<String, List<int>>

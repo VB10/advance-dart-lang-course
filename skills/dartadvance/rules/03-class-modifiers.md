@@ -9,8 +9,11 @@ Class modifier'lar bir sınıfın **başka library'lerden** construct / extend /
 **Ne zaman:** Sınırlı varyantlı aile (UI state, hata türleri, ödeme yöntemi). **Gerekmez:** Alt tipi olmayan tek sınıf (`final class` yeter); dışarıdan genişlemesi istenen hiyerarşi.
 <!-- snippet: 03_class_modifiers/sealed_order_state -->
 ```dart
-// /dartadvance Projemde durumları `_` ya da default ile eşleyen switch'leri bul, `sealed`
-// aile + `_`'siz switch ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde durumları `_` ya da default ile eşleyen switch'leri bul,
+//    `sealed` aile + `_`'siz switch ile düzelt, test yaz.
+// Üret: /dartadvance Bana ödeme sonucunu (başarılı, reddedildi, beklemede) ekran metnine
+//    çeviren bir fonksiyon yaz.
+
 sealed class OrderState {
   const OrderState();
 }
@@ -41,7 +44,8 @@ String statusText(OrderState state) => switch (state) {
 };
 ```
 **Tuzak:** `_` eklersen yeni alt tip eklendiğinde switch sessizce ona düşer, hata vermez; `_` yazma. `sealed` geçişli değildir: alt tipi `final` yapmazsan dışarıdan extend edilir (analyzer buna itiraz etmez).
-**Skill'e ver:** > "/dartadvance Projemde durumları `_` ya da default ile eşleyen switch'leri bul, `sealed` aile + `_`'siz switch ile düzelt, her biri için test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde durumları `_` ya da default ile eşleyen switch'leri bul, `sealed` aile + `_`'siz switch ile düzelt, test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana ödeme sonucunu (başarılı, reddedildi, beklemede) ekran metnine çeviren bir fonksiyon yaz."
 **Kabul:** Kök `sealed`, her alt tip `final class`, projedeki switch'lerde `_` yok; test her alt tip için ayrı metni doğrular ve `dart analyze` temiz.
 
 ## 2. final (3.0)
@@ -49,8 +53,10 @@ String statusText(OrderState state) => switch (state) {
 **Ne zaman:** Değer sınıfı, UseCase, entity: alt tiplenmemesi gereken somut sınıf. **Gerekmez:** Testte sahteleyeceğin sözleşme (onu `abstract interface class` yap).
 <!-- snippet: 03_class_modifiers/final_money -->
 ```dart
-// /dartadvance Projemde alt tiplenmemesi gereken değer sınıflarını bul, `final class`
-// + `==`/`hashCode` ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde alt tiplenmemesi gereken değer sınıflarını bul, `final
+//    class` + `==`/`hashCode` ile düzelt, test yaz.
+// Üret: /dartadvance Bana faturadaki bir kalemi (ürün adı, adet, birim fiyat) tutan,
+//    eşitlik karşılaştırılabilen sınıf yaz.
 
 // `final`: others can construct it; `extends`/`implements` is an analyzer error.
 final class Money {
@@ -75,7 +81,8 @@ final class Money {
 }
 ```
 **Tuzak:** `final` aynı library'de hiçbir şeyi kısıtlamaz ve `implements`'i de kapatır; mock gereken sınıfı `final` yaparsan test yazamazsın (bkz. bölüm 3). Testte yalnızca "dışarıdan construct edilir ve eşitlik çalışır" kanıtlanır; extend/implement reddi analyzer'dadır.
-**Skill'e ver:** > "/dartadvance Projemde alt tiplenmemesi gereken değer sınıflarını bul, `final class` + `==`/`hashCode` ile düzelt, her biri için test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde alt tiplenmemesi gereken değer sınıflarını bul, `final class` + `==`/`hashCode` ile düzelt, test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana faturadaki bir kalemi (ürün adı, adet, birim fiyat) tutan, eşitlik karşılaştırılabilen sınıf yaz."
 **Kabul:** Bulunan sınıflar `final`, `==` ve `hashCode` birlikte override edilmiş; test eşit/eşit olmayan durumları doğrular.
 
 ## 3. interface vs base (3.0)
@@ -83,8 +90,10 @@ final class Money {
 **Ne zaman:** Repository sözleşmesi = `abstract interface class`; ortak mantık (cache, listener listesi) = `abstract base class`. **Gerekmez:** Tek metotlu sözleşme, fonksiyon tipi yeter.
 <!-- snippet: 03_class_modifiers/interface_vs_base -->
 ```dart
-// /dartadvance Projemde repository sözleşmelerini ve ortak mantıklı tabanları bul,
-// `abstract interface class` / `abstract base class` ile ayır, her biri için test yaz.
+// Düzelt: /dartadvance Projemde repository sözleşmelerini ve ortak mantıklı tabanları bul,
+//    `abstract interface class` / `abstract base class` ile ayır, test yaz.
+// Üret: /dartadvance Bana siparişleri getiren bir repository sözleşmesi ve sonuçları
+//    önbellekleyen ortak bir taban yaz.
 
 // Pure contract: outside code can only `implements` it (e.g. a test fake).
 abstract interface class ProductRepository {
@@ -108,7 +117,8 @@ abstract base class CachedProductRepository implements ProductRepository {
 }
 ```
 **Tuzak:** `base` sınıfı başka library'de düz `class` ile extend edemezsin; alt tipi `final class` yaz (testteki `_CountingRepository`). Interface'i ise test library'sinde sahte olarak implement edebilirsin (`_FakeRepository`).
-**Skill'e ver:** > "/dartadvance Projemde repository sözleşmelerini ve ortak mantıklı tabanları bul, `abstract interface class` / `abstract base class` ile ayır, her biri için test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde repository sözleşmelerini ve ortak mantıklı tabanları bul, `abstract interface class` / `abstract base class` ile ayır, test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana siparişleri getiren bir repository sözleşmesi ve sonuçları önbellekleyen ortak bir taban yaz."
 **Kabul:** Test, interface'i `implements` ile sahteler; base'i `final class ... extends` ile kullanır; paylaşılan mantık test edilir.
 
 ## 4. mixin class (3.0)
@@ -116,8 +126,10 @@ abstract base class CachedProductRepository implements ProductRepository {
 **Ne zaman:** Eski bir sınıfı mixin olarak da açmak gerekiyorsa (Flutter'da `ChangeNotifier`). **Gerekmez:** Yeni kodda saf `mixin` veya saf `class` tercih et (Effective Dart); `mixin class` ikisini birden taahhüt eder.
 <!-- snippet: 03_class_modifiers/mixin_class -->
 ```dart
-// /dartadvance Projemde hem `with` hem `extends` ile kullanılan ortak sınıfları bul,
-// `mixin class` ile birleştir, her biri için test yaz.
+// Düzelt: /dartadvance Projemde hem `with` hem `extends` ile kullanılan ortak sınıfları
+//    bul, `mixin class` ile birleştir, test yaz.
+// Üret: /dartadvance Bana hem bir sınıfa karıştırılabilen hem miras alınabilen, çalma
+//    listesi değişikliklerini kaydeden sınıf yaz.
 
 // `mixin class` works both as `with Auditable` and as `extends Auditable`.
 mixin class Auditable {
@@ -129,7 +141,8 @@ mixin class Auditable {
 }
 ```
 **Tuzak:** Mixin gibi kullanılan sınıfın `extends` / `implements` yapması ya da constructor parametresi olması `mixin class` bildirimini geçersiz kılar (analyzer reddeder); state'i private tut, dışarıya kopya ver (`List.unmodifiable`).
-**Skill'e ver:** > "/dartadvance Projemde hem `with` hem `extends` ile kullanılan ortak sınıfları bul, `mixin class` ile birleştir, her biri için test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde hem `with` hem `extends` ile kullanılan ortak sınıfları bul, `mixin class` ile birleştir, test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana hem bir sınıfa karıştırılabilen hem miras alınabilen, çalma listesi değişikliklerini kaydeden sınıf yaz."
 **Kabul:** Test aynı sınıfı `with` ve `extends` ile kullanır; dışarıdan dönen liste değiştirilemez.
 
 ## Flutter'da kanıt

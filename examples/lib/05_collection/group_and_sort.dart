@@ -1,5 +1,7 @@
-// /dartadvance Projemde `list.sort()` ile yerinde sıralayan veya elle gruplayan
-// yerleri bul, `sortedBy`/`groupListsBy` ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde `list.sort()` ile yerinde sıralayan veya elle gruplayan
+//    yerleri bul, `sortedBy`/`groupListsBy` ile düzelt, her biri için test yaz.
+// Üret: /dartadvance Bana kullanıcı listesini şehre göre gruplayıp her şehirde en yeni
+//    üyeyi ilk gösteren bir fonksiyon yaz.
 import 'package:collection/collection.dart';
 
 typedef Order = ({String city, String sku, int amount});

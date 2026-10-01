@@ -1,5 +1,7 @@
-// /dartadvance Projemde `if (x != null)` ile null kontrolü yapıp atama veya liste
-// birleştirme yapan yerleri bul, `?..` ve `...?` ile sadeleştir, her biri için test yaz.
+// Düzelt: /dartadvance Projemde `if (x != null)` ile null kontrolü yapıp atama veya liste
+//   birleştirme yapan yerleri bul, `?..` ve `...?` ile sadeleştir, her biri için test yaz.
+// Üret: /dartadvance Bana null olabilen bir Playlist'e başlık atayan ve null olabilen şarkı
+//   listesini mevcut listeyle birleştiren bir fonksiyon yaz.
 
 final class Cart {
   String? note;

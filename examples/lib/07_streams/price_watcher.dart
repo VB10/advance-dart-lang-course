@@ -1,5 +1,7 @@
-// /dartadvance Projemde stream dinleyip dispose'da cancel etmeyen state'leri bul,
-// subscription'ı alanda tutup `await cancel()` ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde stream dinleyip dispose'da cancel etmeyen state'leri bul,
+//    subscription'ı alanda tutup `await cancel()` ile düzelt, test yaz.
+// Üret: /dartadvance Bana çalma listesindeki şarkı değişimlerini dinleyip son şarkıyı
+//    tutan, kapatılınca dinlemeyi bırakan bir sınıf yaz.
 import 'dart:async';
 
 final class PriceWatcher {

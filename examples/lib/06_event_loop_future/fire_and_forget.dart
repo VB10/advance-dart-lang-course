@@ -1,5 +1,7 @@
-// /dartadvance Projemde beklenmeden çağrılan Future'ları (`unawaited`) bul, hatasını
-// `catchError` ile ele alacak şekilde düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde beklenmeden çağrılan Future'ları (`unawaited`) bul,
+//   hatasını `catchError` ile ele alacak şekilde düzelt, test yaz.
+// Üret: /dartadvance Bana fatura ekranı açılırken sonucu beklemeden önbelleği ısıtan,
+//   hatayı kaybetmeyen bir fonksiyon yaz.
 import 'dart:async';
 
 final class AnalyticsClient {

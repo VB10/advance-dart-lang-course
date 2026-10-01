@@ -1,5 +1,7 @@
-// /dartadvance Projemde ana isolate'te büyük JSON/CSV/GPX çözen yerleri bul, eşikli
-// `Isolate.run` ile taşı, her biri için test yaz.
+// Düzelt: /dartadvance Projemde ana isolate'te büyük JSON/CSV/GPX çözen yerleri bul,
+//    eşikli `Isolate.run` ile taşı, her biri için test yaz.
+// Üret: /dartadvance Bana 3 MB'lık ürün kataloğu JSON'unu Product listesine çeviren bir
+//    fonksiyon yaz.
 import 'dart:convert';
 import 'dart:isolate';
 

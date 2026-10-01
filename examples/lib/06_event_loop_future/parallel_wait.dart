@@ -1,5 +1,7 @@
-// /dartadvance Projemde birbirine bağlı olmayan `await`'leri art arda yazan repository
-// yerlerini bul, record `.wait` ile paralel yap, her biri için test yaz.
+// Düzelt: /dartadvance Projemde birbirine bağlı olmayan `await`'leri art arda yazan
+//   repository yerlerini bul, record `.wait` ile paralel yap, test yaz.
+// Üret: /dartadvance Bana bir ürün sayfası için ürün detayını, yorumları ve stok bilgisini
+//   getiren bir fonksiyon yaz.
 import 'dart:async';
 
 Future<String> loadSequential(Future<int> Function() unread, Future<String> Function() name) async {

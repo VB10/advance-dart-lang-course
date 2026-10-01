@@ -1,5 +1,7 @@
-// /dartadvance Projemde alt tiplenmemesi gereken değer sınıflarını bul, `final class`
-// + `==`/`hashCode` ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde alt tiplenmemesi gereken değer sınıflarını bul, `final
+//    class` + `==`/`hashCode` ile düzelt, test yaz.
+// Üret: /dartadvance Bana faturadaki bir kalemi (ürün adı, adet, birim fiyat) tutan,
+//    eşitlik karşılaştırılabilen sınıf yaz.
 
 // `final`: others can construct it; `extends`/`implements` is an analyzer error.
 final class Money {

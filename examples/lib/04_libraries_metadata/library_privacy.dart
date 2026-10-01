@@ -1,5 +1,7 @@
-// /dartadvance Projemde `_` alanına aynı dosyadaki başka sınıfın eriştiği yerleri bul,
-// library gizliliği kuralıyla ayır veya bilerek kabul et, her biri için test yaz.
+// Düzelt: /dartadvance Projemde `_` alanına aynı dosyadaki başka sınıfın eriştiği yerleri
+//    bul, library gizliliği kuralıyla ayır veya bilerek kabul et, her biri için test yaz.
+// Üret: /dartadvance Bana bakiyesi gizli tutulan bir Coupon sınıfı ve eksiye düşeni
+//    sıfırlayan denetçisini yaz.
 // Same file = same library: no per-class privacy.
 final class Wallet {
   Wallet(this._balanceCents);

@@ -1,5 +1,7 @@
-// /dartadvance Projemde aynı fonksiyon imzasını birçok yerde tekrar eden callback ve
-// validator tiplerini bul, `typedef` ile adlandır, her biri için test yaz.
+// Düzelt: /dartadvance Projemde aynı fonksiyon imzasını birçok yerde tekrar eden callback
+//    ve validator tiplerini bul, `typedef` ile adlandır, test yaz.
+// Üret: /dartadvance Bana ürün adı, adet ve fiyat alanlarını aynı imzalı doğrulayıcılarla
+//    kontrol eden bir sipariş formu yaz.
 typedef Mapper<S, T> = T Function(S source);
 typedef Validator<T> = String? Function(T? value);
 

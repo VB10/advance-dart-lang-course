@@ -10,8 +10,10 @@ Neden bu konu: Arama kutusu, config yükleme ve stream okuma kodları sessizce e
 **Ne:** Bir `Future`'ı iptal edilebilir sarar; iptalde sonuç atılır, `valueOrCancellation()` `null` döner. **Ne zaman:** search-as-you-type, son sorgu kazansın. **Gerekmez:** sadece süre sınırı (`Future.timeout`).
 <!-- snippet: 08_async_package/cancelable_search -->
 ```dart
-// /dartadvance Projemde her tuş vuruşunda istek atan arama yerlerini bul,
-// CancelableOperation (package:async) ile son sorgu kazansın, her biri için test yaz.
+// Düzelt: /dartadvance Projemde her tuş vuruşunda istek atan arama yerlerini bul,
+//    CancelableOperation (package:async) ile son sorgu kazansın, her biri için test yaz.
+// Üret: /dartadvance Bana kullanıcı yazdıkça şehir önerisi getiren, eski sorgunun geç gelen
+//    cevabını yok sayan bir sınıf yaz.
 import 'package:async/async.dart' hide Result;
 
 final class ProductSearch {
@@ -31,15 +33,18 @@ final class ProductSearch {
 }
 ```
 **Tuzak:** Naif sürümde yavaş eski cevap en son gelip ekranı ezer. İptal alttaki isteği durdurmaz, yalnızca sonucunu yok sayar; tamamlanmış işte `cancel()` bir şey yapmaz (testte kanıtlı).
-**Skill'e ver:** > "/dartadvance Projemde her tuş vuruşunda istek atan arama yerlerini bul, CancelableOperation (package:async) ile son sorgu kazansın, her biri için test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde her tuş vuruşunda istek atan arama yerlerini bul, CancelableOperation (package:async) ile son sorgu kazansın, her biri için test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana kullanıcı yazdıkça şehir önerisi getiren, eski sorgunun geç gelen cevabını yok sayan bir sınıf yaz."
 **Kabul:** Eski çağrı `null`, yeni çağrı değer döner; eski cevabın geç gelmesi sonucu ezmez; `hide Result` kullanılır; `dart analyze` temiz.
 
 ## 2. AsyncMemoizer (2.x)
 **Ne:** Async işi bir kez çalıştırır, sonraki/eşzamanlı çağıranlar aynı future'ı alır. **Ne zaman:** pahalı init (config, veritabanı açma). **Gerekmez:** hata sonrası yeniden deneme gerekiyorsa.
 <!-- snippet: 08_async_package/async_memoizer -->
 ```dart
-// /dartadvance Projemde tekrar tekrar yüklenen config/liste yerlerini bul,
-// AsyncMemoizer (package:async) ile tek seferlik yap, her biri için test yaz.
+// Düzelt: /dartadvance Projemde tekrar tekrar yüklenen config/liste yerlerini bul,
+//    AsyncMemoizer (package:async) ile tek seferlik yap, her biri için test yaz.
+// Üret: /dartadvance Bana ödeme ayarlarını ağdan yalnız bir kez yükleyip eşzamanlı
+//    çağıranlarla paylaşan bir sınıf yaz.
 import 'package:async/async.dart' hide Result;
 
 final class ConfigLoader {
@@ -55,15 +60,18 @@ final class ConfigLoader {
 }
 ```
 **Tuzak:** Hata da sonsuza kadar saklanır, tekrar denenmez (testte kanıtlı).
-**Skill'e ver:** > "/dartadvance Projemde tekrar tekrar yüklenen config/liste yerlerini bul, AsyncMemoizer (package:async) ile tek seferlik yap, her biri için test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde tekrar tekrar yüklenen config/liste yerlerini bul, AsyncMemoizer (package:async) ile tek seferlik yap, her biri için test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana ödeme ayarlarını ağdan yalnız bir kez yükleyip eşzamanlı çağıranlarla paylaşan bir sınıf yaz."
 **Kabul:** Eşzamanlı ve sonraki çağrılarda yükleyici sayacı 1 kalır; `hasRun` doğrulanır.
 
 ## 3. AsyncCache (2.x)
 **Ne:** Sonucu süre boyunca taze tutar; `invalidate()` ile sıfırlanır. **Ne zaman:** kur, fiyat, ayar gibi kısa ömürlü veri. **Gerekmez:** anahtarlı/çok girdili önbellek (tek değer tutar).
 <!-- snippet: 08_async_package/async_cache -->
 ```dart
-// /dartadvance Projemde kur/fiyat/stok gibi veriyi her okumada çeken yerleri bul,
-// AsyncCache (package:async) ile TTL'li önbelleğe al, her biri için test yaz.
+// Düzelt: /dartadvance Projemde kur/fiyat/stok gibi veriyi her okumada çeken yerleri bul,
+//    AsyncCache (package:async) ile TTL'li önbelleğe al, her biri için test yaz.
+// Üret: /dartadvance Bana sipariş kargo ücretini 30 saniye boyunca tekrar istemeden
+//    hatırlayan bir servis yaz.
 import 'package:async/async.dart' hide Result;
 
 final class RatesCache {
@@ -79,15 +87,18 @@ final class RatesCache {
 }
 ```
 **Tuzak:** Başarısız istek de TTL boyunca önbellekte kalır (testte kanıtlı).
-**Skill'e ver:** > "/dartadvance Projemde kur/fiyat/stok gibi veriyi her okumada çeken yerleri bul, AsyncCache (package:async) ile TTL'li önbelleğe al, her biri için test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde kur/fiyat/stok gibi veriyi her okumada çeken yerleri bul, AsyncCache (package:async) ile TTL'li önbelleğe al, her biri için test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana sipariş kargo ücretini 30 saniye boyunca tekrar istemeden hatırlayan bir servis yaz."
 **Kabul:** TTL içinde tek fetch; `invalidate` sonrası ikinci fetch; `Duration.zero` ile her seferinde yenilenir.
 
 ## 4. StreamQueue (2.x)
 **Ne:** Stream'i pull-based okutur: `next`, `take(n)`, `peek`, `hasNext`, `rest`. **Ne zaman:** protokol/başlık+gövde parse, testlerde olayları tek tek okumak. **Gerekmez:** her olay aynı işleniyorsa (`await for`).
 <!-- snippet: 08_async_package/stream_queue -->
 ```dart
-// /dartadvance Projemde başlık+gövde sırayla okunan stream parse yerlerini bul,
-// StreamQueue (package:async) ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde başlık+gövde sırayla okunan stream parse yerlerini bul,
+//    StreamQueue (package:async) ile düzelt, her biri için test yaz.
+// Üret: /dartadvance Bana ilk satırı 'FATURA 3' gibi kalem sayısı, sonra o kadar satırı
+//    okuyan bir fatura parser'ı yaz.
 import 'package:async/async.dart' hide Result;
 
 Future<List<String>> readItemsNaive(Stream<String> lines) async {
@@ -108,15 +119,18 @@ Future<({String title, List<String> items})> readMessage(Stream<String> lines) a
 }
 ```
 **Tuzak:** Stream biterse `next` `StateError` fırlatır; önce `hasNext` sor, işin bitince `cancel()` et (testte kanıtlı).
-**Skill'e ver:** > "/dartadvance Projemde başlık+gövde sırayla okunan stream parse yerlerini bul, StreamQueue (package:async) ile düzelt, her biri için test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde başlık+gövde sırayla okunan stream parse yerlerini bul, StreamQueue (package:async) ile düzelt, her biri için test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana ilk satırı 'FATURA 3' gibi kalem sayısı, sonra o kadar satırı okuyan bir fatura parser'ı yaz."
 **Kabul:** Başlıktaki sayı kadar öğe döner; `finally` içinde `queue.cancel()` vardır; tek-abonelikli stream'e ikinci `listen` yoktur.
 
 ## 5. StreamGroup ve StreamSplitter (2.x)
 **Ne:** `StreamGroup.merge` birçok kaynağı tek stream yapar; `StreamSplitter` tek-abonelikli stream'i birden çok tüketiciye tüm olaylarla verir. **Ne zaman:** iki canlı kaynak (sunucu + cihaz), bir stream'den hem sayaç hem toplam. **Gerekmez:** kaynak tek, ya da geç gelen dinleyici eski olayı görmeyecekse (`asBroadcastStream`).
 <!-- snippet: 08_async_package/stream_group -->
 ```dart
-// /dartadvance Projemde aynı stream'i iki kez dinleyen yerleri bul, StreamSplitter ve
-// StreamGroup (package:async) ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde aynı stream'i iki kez dinleyen yerleri bul, StreamSplitter
+//    ve StreamGroup (package:async) ile düzelt, her biri için test yaz.
+// Üret: /dartadvance Bana çalma listesi stream'inden şarkı sayısını ve toplam süreyi tek
+//    geçişte hesaplayan fonksiyon yaz.
 import 'package:async/async.dart' hide Result;
 
 Stream<String> allAlerts(Stream<String> server, Stream<String> device) =>
@@ -131,7 +145,8 @@ Future<(int count, int total)> countAndTotal(Stream<int> prices) async {
 }
 ```
 **Tuzak:** `asBroadcastStream` geç dinleyiciye eski olayları vermez, splitter verir (testte kanıtlı); merge ancak tüm kaynaklar kapanınca kapanır.
-**Skill'e ver:** > "/dartadvance Projemde aynı stream'i iki kez dinleyen yerleri bul, StreamSplitter ve StreamGroup (package:async) ile düzelt, her biri için test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde aynı stream'i iki kez dinleyen yerleri bul, StreamSplitter ve StreamGroup (package:async) ile düzelt, her biri için test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana çalma listesi stream'inden şarkı sayısını ve toplam süreyi tek geçişte hesaplayan fonksiyon yaz."
 **Kabul:** Splitter'ın her kolu tüm olayları görür (naif çift dinleme `StateError` verirdi); merge iki kaynaktan da olay iletir, ikisi kapanınca biter.
 
 ## Flutter'da kanıt

@@ -1,5 +1,7 @@
-// /dartadvance Projemde aynı stream'i iki kez dinleyen yerleri bul, StreamSplitter ve
-// StreamGroup (package:async) ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde aynı stream'i iki kez dinleyen yerleri bul, StreamSplitter
+//    ve StreamGroup (package:async) ile düzelt, her biri için test yaz.
+// Üret: /dartadvance Bana çalma listesi stream'inden şarkı sayısını ve toplam süreyi tek
+//    geçişte hesaplayan fonksiyon yaz.
 import 'package:async/async.dart' hide Result;
 
 Stream<String> allAlerts(Stream<String> server, Stream<String> device) =>

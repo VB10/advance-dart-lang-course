@@ -1,5 +1,7 @@
-// /dartadvance Projemde stream olaylarını döngüyle süzüp dönüştüren yerleri bul,
-// `StreamTransformer.fromHandlers` ile dönüştür, her biri için test yaz.
+// Düzelt: /dartadvance Projemde stream olaylarını döngüyle süzüp dönüştüren yerleri bul,
+//    `StreamTransformer.fromHandlers` ile dönüştür, test yaz.
+// Üret: /dartadvance Bana fatura satırı metinlerini kırpıp boşları atan, kalanları büyük
+//    harfe çeviren bir stream dönüştürücü yaz.
 import 'dart:async';
 
 final trimMessages = StreamTransformer<String, String>.fromHandlers(

@@ -1,5 +1,8 @@
-// /dartadvance Projemde durumları `_` ya da default ile eşleyen switch'leri bul, `sealed`
-// aile + `_`'siz switch ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde durumları `_` ya da default ile eşleyen switch'leri bul,
+//    `sealed` aile + `_`'siz switch ile düzelt, test yaz.
+// Üret: /dartadvance Bana ödeme sonucunu (başarılı, reddedildi, beklemede) ekran metnine
+//    çeviren bir fonksiyon yaz.
+
 sealed class OrderState {
   const OrderState();
 }

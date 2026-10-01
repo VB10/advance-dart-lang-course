@@ -1,5 +1,7 @@
-// /dartadvance Projemde kullanıcıya görünen metni `length` ya da `substring` ile
-// sayan veya kesen yerleri bul, `characters` ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde kullanıcıya görünen metni `length` ya da `substring` ile
+//   sayan veya kesen yerleri bul, `characters` ile düzelt, her biri için test yaz.
+// Üret: /dartadvance Bana ürün başlığını en fazla 20 karakterle kısaltıp sonuna … ekleyen
+//   ve karakter sayacı gösteren bir fonksiyon yaz.
 import 'package:characters/characters.dart';
 
 const wave = '👋🏽';

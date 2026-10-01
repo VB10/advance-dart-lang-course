@@ -1,5 +1,7 @@
-// /dartadvance Projemde `first`/`firstWhere`/`try-catch StateError` ile arama yapan
-// yerleri bul, `firstOrNull`/`firstWhereOrNull` ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde `first`/`firstWhere`/`try-catch StateError` ile arama yapan
+//    yerleri bul, `firstOrNull`/`firstWhereOrNull` ile düzelt, her biri için test yaz.
+// Üret: /dartadvance Bana siparişlerde bir müşterinin ilk siparişini bulan, yoksa null
+//    dönen bir fonksiyon yaz.
 import 'package:collection/collection.dart';
 
 typedef Product = ({String name, int stock});

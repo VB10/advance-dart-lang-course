@@ -1,5 +1,7 @@
-// /dartadvance Projemde elle yazılmış sınıfı `part` ile böldüğüm yerleri bul, `part of`
-// string URI ve import kurallarıyla düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde elle yazılmış sınıfı `part` ile böldüğüm yerleri bul, `part
+//    of` string URI ve import kurallarıyla düzelt, her biri için test yaz.
+// Üret: /dartadvance Bana fatura satırı hesaplarını ayrı dosyaya bölen bir InvoiceBuilder
+//    sınıfı yaz.
 import 'dart:collection';
 
 part 'order_builder_lines.dart';

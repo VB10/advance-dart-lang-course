@@ -1,5 +1,7 @@
-// /dartadvance Projemde tekrar tekrar yüklenen config/liste yerlerini bul,
-// AsyncMemoizer (package:async) ile tek seferlik yap, her biri için test yaz.
+// Düzelt: /dartadvance Projemde tekrar tekrar yüklenen config/liste yerlerini bul,
+//    AsyncMemoizer (package:async) ile tek seferlik yap, her biri için test yaz.
+// Üret: /dartadvance Bana ödeme ayarlarını ağdan yalnız bir kez yükleyip eşzamanlı
+//    çağıranlarla paylaşan bir sınıf yaz.
 import 'package:async/async.dart' hide Result;
 
 final class ConfigLoader {

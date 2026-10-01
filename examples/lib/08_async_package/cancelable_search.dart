@@ -1,5 +1,7 @@
-// /dartadvance Projemde her tuş vuruşunda istek atan arama yerlerini bul,
-// CancelableOperation (package:async) ile son sorgu kazansın, her biri için test yaz.
+// Düzelt: /dartadvance Projemde her tuş vuruşunda istek atan arama yerlerini bul,
+//    CancelableOperation (package:async) ile son sorgu kazansın, her biri için test yaz.
+// Üret: /dartadvance Bana kullanıcı yazdıkça şehir önerisi getiren, eski sorgunun geç gelen
+//    cevabını yok sayan bir sınıf yaz.
 import 'package:async/async.dart' hide Result;
 
 final class ProductSearch {

@@ -1,5 +1,7 @@
-// /dartadvance Projemde öncelikli işi `sort()` ya da tek ölçütlü karşılaştırıcıyla
-// sıralayan yerleri bul, `HeapPriorityQueue` + sıra numarası ile düzelt, test yaz.
+// Düzelt: /dartadvance Projemde öncelikli işi `sort()` ya da tek ölçütlü karşılaştırıcıyla
+//    sıralayan yerleri bul, `HeapPriorityQueue` + sıra numarası ile düzelt, test yaz.
+// Üret: /dartadvance Bana faturaları aciliyete göre işleyen, eşit aciliyette geliş sırasını
+//    koruyan bir kuyruk yaz.
 import 'package:collection/collection.dart';
 
 typedef _Task = ({int priority, int sequence, String name});

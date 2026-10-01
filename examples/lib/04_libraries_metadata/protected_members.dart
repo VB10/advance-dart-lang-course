@@ -1,5 +1,7 @@
-// /dartadvance Projemde taban store sınıflarında alt sınıfa ait metotları ve dispose
-// zincirini bul, `@protected` ve `@mustCallSuper` ekle, her biri için test yaz.
+// Düzelt: /dartadvance Projemde taban store sınıflarında alt sınıfa ait metotları ve
+//    dispose zincirini bul, `@protected` ve `@mustCallSuper` ekle, her biri için test yaz.
+// Üret: /dartadvance Bana durumu yalnızca alt sınıfların değiştirdiği, dinleyicileri
+//    temizleyen PlaylistStore tabanı yaz.
 import 'package:meta/meta.dart';
 
 abstract base class CartStore<S> {

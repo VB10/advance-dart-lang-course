@@ -7,8 +7,10 @@ Neden bu konu: Dart'ın temel tipleri sessiz hatalara açıktır (metin uzunluğ
 **Ne:** `String.length` UTF-16 kod birimi sayar; kullanıcının gördüğü karakter için `characters` kullanılır. **Ne zaman:** karakter sınırı, kırpma, sayaç gösteren her UI metni. **Gerekmez:** yalnızca ASCII olduğu kesin olan kimlikler/kodlar.
 <!-- snippet: 01_builtin_types/grapheme_length -->
 ```dart
-// /dartadvance Projemde kullanıcıya görünen metni `length` ya da `substring` ile
-// sayan veya kesen yerleri bul, `characters` ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde kullanıcıya görünen metni `length` ya da `substring` ile
+//   sayan veya kesen yerleri bul, `characters` ile düzelt, her biri için test yaz.
+// Üret: /dartadvance Bana ürün başlığını en fazla 20 karakterle kısaltıp sonuna … ekleyen
+//   ve karakter sayacı gösteren bir fonksiyon yaz.
 import 'package:characters/characters.dart';
 
 const wave = '👋🏽';
@@ -24,15 +26,18 @@ String truncateBio(String bio, int maxCharacters) {
 }
 ```
 **Tuzak:** `'👋🏽'.length` 4'tür, `substring` emojiyi ortadan bölüp yalnız bir surrogate bırakır (test: "substring by code units splits...").
-**Skill'e ver:** > "/dartadvance Projemde kullanıcıya görünen metni `length` ya da `substring` ile sayan veya kesen yerleri bul, `characters` ile düzelt, her biri için test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde kullanıcıya görünen metni `length` ya da `substring` ile sayan veya kesen yerleri bul, `characters` ile düzelt, her biri için test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana ürün başlığını en fazla 20 karakterle kısaltıp sonuna … ekleyen ve karakter sayacı gösteren bir fonksiyon yaz."
 **Kabul:** `length`/`runes`/`substring` kullanılmaz; `'👨‍👩‍👦'` 1 karakter sayılır; `dart analyze` temiz.
 
 ## 2. Tamsayı bölme ve kalan
 **Ne:** `~/` `int` döndürür ve sıfıra doğru keser; `%` asla negatif olmaz, `remainder` bölünenin işaretini korur. **Ne zaman:** sayfalama, döngüsel indeks, saat/dakika hesabı. **Gerekmez:** ondalıklı sonuç isteniyorsa `/`.
 <!-- snippet: 01_builtin_types/integer_division -->
 ```dart
-// /dartadvance Projemde `/` sonucunu `toInt()`/`ceil()` ile tamsayıya çeviren ve
-// negatif değerde `%` kullanan yerleri bul, `~/` ve `remainder` ile düzelt, test yaz.
+// Düzelt: /dartadvance Projemde `/` sonucunu `toInt()`/`ceil()` ile tamsayıya çeviren ve
+//   negatif değerde `%` kullanan yerleri bul, `~/` ve `remainder` ile düzelt, test yaz.
+// Üret: /dartadvance Bana sipariş sayısı ve sayfa boyutundan toplam sayfa sayısını bulan ve
+//   sayfalar arasında döngüsel ileri/geri giden fonksiyonlar yaz.
 
 // Naive: goes through double just to get an int back.
 int pagesNaive(int items, int size) => (items / size).ceil();
@@ -48,15 +53,18 @@ int wrapIndex(int offset, int length) => offset % length; // (-1, 5): 4
 int signedRemainder(int offset, int length) => offset.remainder(length); // (-1, 5): -1
 ```
 **Tuzak:** `-7 ~/ 2` değeri -3'tür (Python'daki gibi -4 değil) ve `(-1).remainder(5)` -1 verirken `-1 % 5` 4 verir (testler: "~/ truncates toward zero...", "% is never negative...").
-**Skill'e ver:** > "/dartadvance Projemde `/` sonucunu `toInt()`/`ceil()` ile tamsayıya çeviren ve negatif değerde `%` kullanan yerleri bul, `~/` ve `remainder` ile düzelt, test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde `/` sonucunu `toInt()`/`ceil()` ile tamsayıya çeviren ve negatif değerde `%` kullanan yerleri bul, `~/` ve `remainder` ile düzelt, test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana sipariş sayısı ve sayfa boyutundan toplam sayfa sayısını bulan ve sayfalar arasında döngüsel ileri/geri giden fonksiyonlar yaz."
 **Kabul:** `double` dönüşümü kalmaz; `-7 ~/ 2` -3, `(-1) % 5` 4, `(-1).remainder(5)` -1 testle doğrulanır; `dart analyze` temiz.
 
 ## 3. `final` / `const` / `late final`
 **Ne:** `final` bir kez atanır ama nesne değişebilir; `const` derleme zamanı sabiti ve derin değişmezdir; `late final` ilk okumada hesaplanır. **Ne zaman:** sabit liste/model için `const`, pahalı türetilmiş veri için `late final`. **Gerekmez:** `late`, constructor initializer list ile çözülebiliyorsa.
 <!-- snippet: 01_builtin_types/variable_kinds -->
 ```dart
-// /dartadvance Projemde değişmemesi gereken listeleri ve her okumada yeniden
-// hesaplanan getter'ları bul, `const` ve `late final` ile düzelt, her biri için test yaz.
+// Düzelt: /dartadvance Projemde değişmemesi gereken listeleri ve her okumada yeniden
+//   hesaplanan getter'ları bul, `const` ve `late final` ile düzelt, her biri için test yaz.
+// Üret: /dartadvance Bana desteklenen para birimleri listesini ve faturaların müşteri adı
+//   indeksini yalnızca bir kez hesaplayan bir sınıf yaz.
 
 final recentSearches = <String>['dart']; // add works: final is not deep
 
@@ -81,15 +89,18 @@ final class ProductCatalog {
 }
 ```
 **Tuzak:** `final` liste `add` kabul eder, `const` liste `UnsupportedError` fırlatır (test: "a final list can still be mutated...").
-**Skill'e ver:** > "/dartadvance Projemde değişmemesi gereken listeleri ve her okumada yeniden hesaplanan getter'ları bul, `const` ve `late final` ile düzelt, her biri için test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde değişmemesi gereken listeleri ve her okumada yeniden hesaplanan getter'ları bul, `const` ve `late final` ile düzelt, her biri için test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana desteklenen para birimleri listesini ve faturaların müşteri adı indeksini yalnızca bir kez hesaplayan bir sınıf yaz."
 **Kabul:** sabit liste `add`'de `UnsupportedError` verir; `late final` alanın hesaplama sayacı iki okumadan sonra 1; `dart analyze` temiz.
 
 ## 4. Wildcard `_` ve null-aware cascade (3.7)
 **Ne:** `_` kullanılmayan değeri yok sayar ve artık birden fazla olabilir; `?..` cascade'i yalnızca alıcı null değilse çalıştırır; `...?` null listeyi boş sayar. **Ne zaman:** kullanılmayan callback parametreleri, opsiyonel nesneyi yapılandırma, opsiyonel liste birleştirme. **Gerekmez:** değer gerçekten kullanılıyorsa anlamlı isim ver.
 <!-- snippet: 01_builtin_types/wildcards_and_null_aware -->
 ```dart
-// /dartadvance Projemde `if (x != null)` ile null kontrolü yapıp atama veya liste
-// birleştirme yapan yerleri bul, `?..` ve `...?` ile sadeleştir, her biri için test yaz.
+// Düzelt: /dartadvance Projemde `if (x != null)` ile null kontrolü yapıp atama veya liste
+//   birleştirme yapan yerleri bul, `?..` ve `...?` ile sadeleştir, her biri için test yaz.
+// Üret: /dartadvance Bana null olabilen bir Playlist'e başlık atayan ve null olabilen şarkı
+//   listesini mevcut listeyle birleştiren bir fonksiyon yaz.
 
 final class Cart {
   String? note;
@@ -111,7 +122,8 @@ List<String> allTags(List<String> base, List<String>? extra) => [
 void Function(int, String) ignoreBoth = (_, _) {};
 ```
 **Tuzak:** `cart?..note = x` null alıcıda null döner, yeni nesne üretmez (test: "?.. skips the cascade on null...").
-**Skill'e ver:** > "/dartadvance Projemde `if (x != null)` ile null kontrolü yapıp atama veya liste birleştirme yapan yerleri bul, `?..` ve `...?` ile sadeleştir, her biri için test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde `if (x != null)` ile null kontrolü yapıp atama veya liste birleştirme yapan yerleri bul, `?..` ve `...?` ile sadeleştir, her biri için test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana null olabilen bir Playlist'e başlık atayan ve null olabilen şarkı listesini mevcut listeyle birleştiren bir fonksiyon yaz."
 **Kabul:** null girdide sonuç null, null liste boş sayılır; kullanılmayan parametreler `_` olur; `dart analyze` temiz.
 
 ## Flutter'da kanıt

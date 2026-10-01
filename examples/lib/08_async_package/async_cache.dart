@@ -1,5 +1,7 @@
-// /dartadvance Projemde kur/fiyat/stok gibi veriyi her okumada çeken yerleri bul,
-// AsyncCache (package:async) ile TTL'li önbelleğe al, her biri için test yaz.
+// Düzelt: /dartadvance Projemde kur/fiyat/stok gibi veriyi her okumada çeken yerleri bul,
+//    AsyncCache (package:async) ile TTL'li önbelleğe al, her biri için test yaz.
+// Üret: /dartadvance Bana sipariş kargo ücretini 30 saniye boyunca tekrar istemeden
+//    hatırlayan bir servis yaz.
 import 'package:async/async.dart' hide Result;
 
 final class RatesCache {

@@ -1,5 +1,7 @@
-// /dartadvance Projemde state/ViewModel'de `List` alanını doğrudan saklayan ya da
-// açan yerleri bul, `List.unmodifiable`/`UnmodifiableListView` ile düzelt, test yaz.
+// Düzelt: /dartadvance Projemde state/ViewModel'de `List` alanını doğrudan saklayan ya da
+//    açan yerleri bul, `List.unmodifiable`/`UnmodifiableListView` ile düzelt, test yaz.
+// Üret: /dartadvance Bana ürün listesi tutan bir sepet state'i ve listeyi salt-okunur açan
+//    bir ViewModel yaz.
 import 'dart:collection';
 
 final class LeakyCart {

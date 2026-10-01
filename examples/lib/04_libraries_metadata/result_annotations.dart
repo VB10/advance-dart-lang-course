@@ -1,5 +1,7 @@
-// /dartadvance Projemde değer nesnesi sınıfları ve sonucu atılabilen metotları bul,
-// `@immutable` ve `@useResult` ekle, her biri için test yaz.
+// Düzelt: /dartadvance Projemde değer nesnesi sınıfları ve sonucu atılabilen metotları bul,
+//    `@immutable` ve `@useResult` ekle, her biri için test yaz.
+// Üret: /dartadvance Bana tutar ve birimi tutan, iki fiyatı toplayıp yeni fiyat döndüren
+//    bir Price sınıfı yaz.
 import 'package:meta/meta.dart';
 
 // The analyzer warns if a field here is not final.

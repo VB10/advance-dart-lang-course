@@ -1,5 +1,7 @@
-// /dartadvance Projemde her mesaj/satır için tekrar tekrar isolate açan yerleri bul,
-// ports ve `onExit` ile uzun ömürlü worker'a çevir, her biri için test yaz.
+// Düzelt: /dartadvance Projemde her mesaj/satır için sürekli isolate açan yerleri bul,
+//    ports ve `onExit` ile uzun ömürlü worker'a çevir, her biri için test yaz.
+// Üret: /dartadvance Bana sipariş satırları art arda geldikçe indirim hesaplayan, açık
+//    kalan bir arka plan hesaplayıcısı yaz.
 import 'dart:isolate';
 
 final class PriceWorker {
