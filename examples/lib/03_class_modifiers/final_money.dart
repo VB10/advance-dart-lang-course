@@ -3,7 +3,8 @@
 // Üret: /dartadvance Bana faturadaki bir kalemi (ürün adı, adet, birim fiyat) tutan,
 //    eşitlik karşılaştırılabilen sınıf yaz.
 
-// `final`: others can construct it; `extends`/`implements` is an analyzer error.
+// ✗ class Bad extends Money {}  // analyzer: final class can't be extended
+// ✗ class Fake implements Money {}  // analyzer: final class can't be implemented
 final class Money {
   const Money(this.cents, this.currency);
 

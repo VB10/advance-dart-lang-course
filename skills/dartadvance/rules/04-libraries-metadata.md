@@ -25,6 +25,7 @@ final class Wallet {
   void spend(int cents) => _balanceCents -= cents;
 }
 
+// ✗ other_file.dart: wallet._balanceCents = 0;  // analyzer: undefined_getter, `_` is library-private
 // WalletAuditor lives in this file, so it may touch the private field.
 final class WalletAuditor {
   const WalletAuditor();
@@ -83,14 +84,15 @@ final class OrderBuilder {
 //    bir Price sınıfı yaz.
 import 'package:meta/meta.dart';
 
-// The analyzer warns if a field here is not final.
+// ✗ int cents;  // analyzer: must_be_immutable, a non-final field in an @immutable class
+
 @immutable
 final class Money {
   const Money(this.cents, this.currency);
   final int cents;
   final String currency;
 
-  // `total.add(fee);` alone is reported: the result is dropped.
+  // ✗ total.add(fee);  // analyzer: unused_result, the new Money is dropped, total is unchanged
   @useResult
   Money add(Money other) {
     if (other.currency != currency) {
@@ -127,7 +129,7 @@ abstract base class CartStore<S> {
 
   void listen(void Function(S state) listener) => _listeners.add(listener);
 
-  // Only subclasses should change state; outside callers get a warning.
+  // ✗ store.emit(1);  // analyzer: invalid_use_of_protected_member, called from outside
   @protected
   void emit(S next) {
     _state = next;
@@ -136,7 +138,7 @@ abstract base class CartStore<S> {
     }
   }
 
-  // Overrides that forget super.dispose() are reported.
+  // ✗ @override void dispose() {}  // analyzer: must_call_super, listeners would leak
   @mustCallSuper
   void dispose() => _listeners.clear();
 }

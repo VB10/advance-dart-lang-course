@@ -4,6 +4,14 @@
 //    harfe çeviren bir stream dönüştürücü yaz.
 import 'dart:async';
 
+Future<List<String>> naiveTrim(Stream<String> source) async {
+  final result = <String>[];
+  await for (final message in source) {
+    if (message.trim().isNotEmpty) result.add(message.trim());
+  }
+  return result; // open stream: completes only when the source closes
+}
+
 final trimMessages = StreamTransformer<String, String>.fromHandlers(
   handleData: (message, sink) {
     final trimmed = message.trim();

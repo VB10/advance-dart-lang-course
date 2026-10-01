@@ -52,6 +52,7 @@ int wrapIndex(int offset, int length) => offset % length; // (-1, 5): 4
 /// `remainder` keeps the sign of the dividend.
 int signedRemainder(int offset, int length) => offset.remainder(length); // (-1, 5): -1
 ```
+Web'de `int` ve `double` aynı JS number semantiğini paylaşır (`1.0 is int` web'de true olur; [dart.dev](https://dart.dev/language/built-in-types#numbers)); testler VM'de koştuğu için burada test edilmez.
 **Tuzak:** `-7 ~/ 2` değeri -3'tür (Python'daki gibi -4 değil) ve `(-1).remainder(5)` -1 verirken `-1 % 5` 4 verir (testler: "~/ truncates toward zero...", "% is never negative...").
 **Düzelt (mevcut proje):** > "/dartadvance Projemde `/` sonucunu `toInt()`/`ceil()` ile tamsayıya çeviren ve negatif değerde `%` kullanan yerleri bul, `~/` ve `remainder` ile düzelt, test yaz."
 **Üret (yeni kod):** > "/dartadvance Bana sipariş sayısı ve sayfa boyutundan toplam sayfa sayısını bulan ve sayfalar arasında döngüsel ileri/geri giden fonksiyonlar yaz."
@@ -120,6 +121,15 @@ List<String> allTags(List<String> base, List<String>? extra) => [
 
 // Since Dart 3.7, several `_` parameters can coexist.
 void Function(int, String) ignoreBoth = (_, _) {};
+
+/// Since 3.7 the loop variable can be a wildcard when only the count matters.
+String repeatLabel(String label, List<Object> items) {
+  var out = '';
+  for (final _ in items) {
+    out += label;
+  }
+  return out;
+} // ('x', [1, 2, 3]): xxx
 ```
 **Tuzak:** `cart?..note = x` null alıcıda null döner, yeni nesne üretmez (test: "?.. skips the cascade on null...").
 **Düzelt (mevcut proje):** > "/dartadvance Projemde `if (x != null)` ile null kontrolü yapıp atama veya liste birleştirme yapan yerleri bul, `?..` ve `...?` ile sadeleştir, her biri için test yaz."

@@ -4,14 +4,15 @@
 //    bir Price sınıfı yaz.
 import 'package:meta/meta.dart';
 
-// The analyzer warns if a field here is not final.
+// ✗ int cents;  // analyzer: must_be_immutable, a non-final field in an @immutable class
+
 @immutable
 final class Money {
   const Money(this.cents, this.currency);
   final int cents;
   final String currency;
 
-  // `total.add(fee);` alone is reported: the result is dropped.
+  // ✗ total.add(fee);  // analyzer: unused_result, the new Money is dropped, total is unchanged
   @useResult
   Money add(Money other) {
     if (other.currency != currency) {

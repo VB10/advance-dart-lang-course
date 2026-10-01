@@ -33,6 +33,11 @@ void main() {
       expect(JsonList, List<Map<String, Object?>>);
     });
 
+    test('naiveFromJson (dynamic) crashes at runtime on an int price', () {
+      expect(() => naiveFromJson({'name': 'Tea', 'price': 4}), throwsA(isA<TypeError>()));
+      expect(productFromJson({'name': 'Tea', 'price': 4}).price, 4.0);
+    });
+
     test('productsFromJson accepts int and double prices', () {
       final products = productsFromJson([
         {'name': 'Tea', 'price': 4},

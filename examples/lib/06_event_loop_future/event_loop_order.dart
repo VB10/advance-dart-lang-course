@@ -25,3 +25,18 @@ Future<void> greet(List<String> log) async {
   await null;
   log.add('greet: after await');
 }
+
+/// ✗ Naive: the analytics call is only queued, so the caller sees just the state step.
+List<String> confirmOrderNaive() {
+  final log = <String>[];
+  unawaited(Future<void>(() => log.add('analytics: sent'))); // runs after return
+  log.add('state: updated');
+  return log; // ['state: updated'] for now
+}
+
+/// Right: await makes "state first, analytics after it finishes" explicit.
+Future<List<String>> confirmOrder() async {
+  final log = <String>['state: updated'];
+  await Future<void>(() => log.add('analytics: sent'));
+  return log; // ['state: updated', 'analytics: sent']
+}

@@ -14,7 +14,7 @@ abstract base class CartStore<S> {
 
   void listen(void Function(S state) listener) => _listeners.add(listener);
 
-  // Only subclasses should change state; outside callers get a warning.
+  // ✗ store.emit(1);  // analyzer: invalid_use_of_protected_member, called from outside
   @protected
   void emit(S next) {
     _state = next;
@@ -23,7 +23,7 @@ abstract base class CartStore<S> {
     }
   }
 
-  // Overrides that forget super.dispose() are reported.
+  // ✗ @override void dispose() {}  // analyzer: must_call_super, listeners would leak
   @mustCallSuper
   void dispose() => _listeners.clear();
 }

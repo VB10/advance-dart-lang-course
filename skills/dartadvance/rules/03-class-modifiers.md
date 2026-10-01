@@ -58,7 +58,8 @@ String statusText(OrderState state) => switch (state) {
 // Üret: /dartadvance Bana faturadaki bir kalemi (ürün adı, adet, birim fiyat) tutan,
 //    eşitlik karşılaştırılabilen sınıf yaz.
 
-// `final`: others can construct it; `extends`/`implements` is an analyzer error.
+// ✗ class Bad extends Money {}  // analyzer: final class can't be extended
+// ✗ class Fake implements Money {}  // analyzer: final class can't be implemented
 final class Money {
   const Money(this.cents, this.currency);
 
@@ -95,12 +96,14 @@ final class Money {
 // Üret: /dartadvance Bana siparişleri getiren bir repository sözleşmesi ve sonuçları
 //    önbellekleyen ortak bir taban yaz.
 
+// ✗ class Bad extends ProductRepository {}  // analyzer: interface can't be extended
 // Pure contract: outside code can only `implements` it (e.g. a test fake).
 abstract interface class ProductRepository {
   Future<String?> findName(String productId);
 }
 
-// Shared logic: outside `extends` works, `implements` is an analyzer error.
+// ✗ class Fake implements CachedProductRepository {}  // analyzer: base can't be implemented
+// Shared logic: outside code can only `extends` it (as `base`/`final`).
 abstract base class CachedProductRepository implements ProductRepository {
   final Map<String, String> _cache = {};
 
@@ -131,6 +134,7 @@ abstract base class CachedProductRepository implements ProductRepository {
 // Üret: /dartadvance Bana hem bir sınıfa karıştırılabilen hem miras alınabilen, çalma
 //    listesi değişikliklerini kaydeden sınıf yaz.
 
+// ✗ class Checkout with PlainAudit {}  // analyzer: plain class can't be mixed in
 // `mixin class` works both as `with Auditable` and as `extends Auditable`.
 mixin class Auditable {
   final List<String> _entries = [];

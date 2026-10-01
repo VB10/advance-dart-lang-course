@@ -13,6 +13,7 @@ final class Wallet {
   void spend(int cents) => _balanceCents -= cents;
 }
 
+// ✗ other_file.dart: wallet._balanceCents = 0;  // analyzer: undefined_getter, `_` is library-private
 // WalletAuditor lives in this file, so it may touch the private field.
 final class WalletAuditor {
   const WalletAuditor();

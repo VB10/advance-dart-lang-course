@@ -3,12 +3,14 @@
 // Üret: /dartadvance Bana siparişleri getiren bir repository sözleşmesi ve sonuçları
 //    önbellekleyen ortak bir taban yaz.
 
+// ✗ class Bad extends ProductRepository {}  // analyzer: interface can't be extended
 // Pure contract: outside code can only `implements` it (e.g. a test fake).
 abstract interface class ProductRepository {
   Future<String?> findName(String productId);
 }
 
-// Shared logic: outside `extends` works, `implements` is an analyzer error.
+// ✗ class Fake implements CachedProductRepository {}  // analyzer: base can't be implemented
+// Shared logic: outside code can only `extends` it (as `base`/`final`).
 abstract base class CachedProductRepository implements ProductRepository {
   final Map<String, String> _cache = {};
 

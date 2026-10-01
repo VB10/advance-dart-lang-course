@@ -21,3 +21,12 @@ List<String> allTags(List<String> base, List<String>? extra) => [
 
 // Since Dart 3.7, several `_` parameters can coexist.
 void Function(int, String) ignoreBoth = (_, _) {};
+
+/// Since 3.7 the loop variable can be a wildcard when only the count matters.
+String repeatLabel(String label, List<Object> items) {
+  var out = '';
+  for (final _ in items) {
+    out += label;
+  }
+  return out;
+} // ('x', [1, 2, 3]): xxx

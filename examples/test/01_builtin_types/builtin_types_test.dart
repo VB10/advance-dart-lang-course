@@ -92,5 +92,10 @@ void main() {
     test('two _ parameters coexist', () {
       expect(() => ignoreBoth(1, 'x'), returnsNormally);
     });
+
+    test('for (final _ in ...) iterates without naming the element', () {
+      expect(repeatLabel('x', [1, 2, 3]), 'xxx');
+      expect(repeatLabel('x', []), '');
+    });
   });
 }

@@ -11,6 +11,9 @@ final class Order {
   final double total;
 }
 
+// Naive: pays an isolate spawn even for a 2-row body (same result, wasted cost).
+Future<List<Order>> naiveDecodeOrders(String body) => Isolate.run(() => parseOrders(body));
+
 /// Small bodies parse inline; the closure captures only `body`.
 Future<List<Order>> decodeOrders(String body, {int isolateThreshold = 50 * 1024}) async {
   if (body.length < isolateThreshold) return parseOrders(body);

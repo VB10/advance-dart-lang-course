@@ -3,6 +3,7 @@
 // Üret: /dartadvance Bana hem bir sınıfa karıştırılabilen hem miras alınabilen, çalma
 //    listesi değişikliklerini kaydeden sınıf yaz.
 
+// ✗ class Checkout with PlainAudit {}  // analyzer: plain class can't be mixed in
 // `mixin class` works both as `with Auditable` and as `extends Auditable`.
 mixin class Auditable {
   final List<String> _entries = [];

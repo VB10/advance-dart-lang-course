@@ -21,6 +21,9 @@ final class Order {
   final double total;
 }
 
+// Naive: pays an isolate spawn even for a 2-row body (same result, wasted cost).
+Future<List<Order>> naiveDecodeOrders(String body) => Isolate.run(() => parseOrders(body));
+
 /// Small bodies parse inline; the closure captures only `body`.
 Future<List<Order>> decodeOrders(String body, {int isolateThreshold = 50 * 1024}) async {
   if (body.length < isolateThreshold) return parseOrders(body);
@@ -36,7 +39,7 @@ List<Order> parseOrders(String body) {
   ];
 }
 ```
-**Tuzak:** `Isolate.run` içinde fırlayan hata aynı tipte ana isolate'e gelir (`FormatException` testte tipiyle yakalanır); `Result`'a çevirmeyi RepositoryImpl yapar. Parse fonksiyonu top-level ve saf olmalı.
+**Tuzak:** `Isolate.run` içinde fırlayan hata aynı tipte ana isolate'e gelir (`FormatException` testte tipiyle yakalanır); `Result`'a çevirmeyi RepositoryImpl yapar. Parse fonksiyonu top-level ve saf olmalı. Dosyada `naiveDecodeOrders` (her çağrıda isolate açar) eşikli `decodeOrders` ile yan yana durur.
 **Düzelt (mevcut proje):** > "/dartadvance Projemde ana isolate'te büyük JSON/CSV/GPX çözen yerleri bul, eşikli `Isolate.run` ile taşı, her biri için test yaz."
 **Üret (yeni kod):** > "/dartadvance Bana 3 MB'lık ürün kataloğu JSON'unu Product listesine çeviren bir fonksiyon yaz."
 **Kabul:** Her bulunan yerde eşik 1 ve büyük eşik aynı sonucu verir; bozuk girdide `FormatException` tipiyle fırlar; parse fonksiyonu top-level ve saf; `dart analyze` temiz.
@@ -104,6 +107,13 @@ final class PriceWorker {
     return result is Error ? throw result : result! as int;
   }
 
+  // Naive: no exit race, no error check. Dead worker: never completes; RemoteError: TypeError.
+  Future<int> naiveWithTax(int cents) async {
+    final reply = ReceivePort();
+    _commands.send((cents, reply.sendPort));
+    return await reply.first as int;
+  }
+
   void close() => _commands.send(null);
 }
 
@@ -117,7 +127,7 @@ void _serve(SendPort ready) {
   });
 }
 ```
-**Tuzak:** Ölü worker asla yanıt vermez; isteği `exited` ile yarıştırmazsan çağıran sonsuza kadar bekler. Worker'daki hata `RemoteError` değeri olarak döner; `close()` sonrası istek `StateError` verir (üçü de testli).
+**Tuzak:** Ölü worker asla yanıt vermez; isteği `exited` ile yarıştırmazsan çağıran sonsuza kadar bekler. Worker'daki hata `RemoteError` değeri olarak döner; `close()` sonrası istek `StateError` verir (üçü de testli). Dosyada `naiveWithTax` yan yana: ölü worker'da takılır, `RemoteError`'u `TypeError`'a çevirir (testli).
 **Düzelt (mevcut proje):** > "/dartadvance Projemde her mesaj/satır için sürekli isolate açan yerleri bul, ports ve `onExit` ile uzun ömürlü worker'a çevir, her biri için test yaz."
 **Üret (yeni kod):** > "/dartadvance Bana sipariş satırları art arda geldikçe indirim hesaplayan, açık kalan bir arka plan hesaplayıcısı yaz."
 **Kabul:** Her dönüştürülen yerde sıralı ve eşzamanlı istekler doğru cevaplanır; hata `RemoteError` gelir; `close()` sonrası `exited` tamamlanır ve yeni istek `StateError` verir.

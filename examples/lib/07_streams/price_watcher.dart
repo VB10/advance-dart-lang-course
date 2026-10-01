@@ -4,6 +4,17 @@
 //    tutan, kapatılınca dinlemeyi bırakan bir sınıf yaz.
 import 'dart:async';
 
+final class LeakyPriceWatcher {
+  LeakyPriceWatcher(this._prices);
+  final Stream<double> _prices;
+
+  double? latestPrice;
+
+  void start() => _prices.listen((price) => latestPrice = price); // start twice: two listeners
+
+  void dispose() {} // nothing cancelled: events still change state after dispose
+}
+
 final class PriceWatcher {
   PriceWatcher(this._prices);
   final Stream<double> _prices;

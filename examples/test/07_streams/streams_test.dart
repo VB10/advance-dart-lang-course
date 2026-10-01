@@ -51,6 +51,16 @@ void main() {
   });
 
   group('async_generator', () {
+    test('naive version fetches every page even when only 3 ids are wanted', () async {
+      final requested = <int>[];
+      final all = await naiveOrderIds((page) async {
+        requested.add(page);
+        return page < 3 ? [page * 2, page * 2 + 1] : [];
+      });
+      expect(all.take(3), [0, 1, 2]);
+      expect(requested, [0, 1, 2, 3]);
+    });
+
     test('an async* stream yields every page in order and ends on an empty page', () async {
       final pages = {
         0: [1, 2],
@@ -78,6 +88,18 @@ void main() {
   });
 
   group('controller_callbacks', () {
+    test('naive version reads the sensor with no listener and never stops', () async {
+      final log = <String>[];
+      final stream = naiveCourierPositions(log: log.add);
+      await Future<void>.delayed(const Duration(milliseconds: 35));
+      expect(log, isNotEmpty);
+      final subscription = stream.listen(null);
+      await subscription.cancel();
+      final countAtCancel = log.length;
+      await Future<void>.delayed(const Duration(milliseconds: 35));
+      expect(log.length, greaterThan(countAtCancel));
+    });
+
     test('the source stays inert until listened and stops while paused', () async {
       final log = <String>[];
       final stream = courierPositions(log: log.add);
@@ -110,6 +132,24 @@ void main() {
   });
 
   group('message_transformer', () {
+    test('naiveTrim waits for close while the transformer emits at once', () async {
+      final controller = StreamController<String>.broadcast();
+      var done = false;
+      unawaited(naiveTrim(controller.stream).whenComplete(() => done = true));
+      final first = controller.stream.transform(trimMessages).first;
+      controller.add('  hi ');
+      expect(await first, 'hi');
+      await pumpEventQueue();
+      expect(done, isFalse);
+      await controller.close();
+      await pumpEventQueue();
+      expect(done, isTrue);
+    });
+
+    test('naiveTrim gives the same list once the source closes', () async {
+      expect(await naiveTrim(Stream.fromIterable(['  hi ', '   ', 'yo'])), ['hi', 'yo']);
+    });
+
     test('trimMessages trims messages and drops empty ones', () async {
       final result = await Stream.fromIterable(['  hi ', '   ', 'yo'])
           .transform(trimMessages)
@@ -119,6 +159,18 @@ void main() {
   });
 
   group('price_watcher', () {
+    test('leaky watcher keeps listening after dispose and doubles on start twice', () async {
+      final controller = StreamController<double>.broadcast();
+      final watcher = LeakyPriceWatcher(controller.stream)
+        ..start()
+        ..start();
+      watcher.dispose();
+      expect(controller.hasListener, isTrue);
+      controller.add(7);
+      await pumpEventQueue();
+      expect(watcher.latestPrice, 7);
+    });
+
     test('dispose cancels the source and later events change nothing', () async {
       var cancelled = false;
       final controller = StreamController<double>(onCancel: () => cancelled = true);

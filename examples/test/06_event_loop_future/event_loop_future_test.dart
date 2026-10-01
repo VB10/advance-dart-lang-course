@@ -52,6 +52,19 @@ void main() {
     });
   });
 
+  group('event_loop_order confirm', () {
+    test('naive version returns before the queued analytics call runs', () async {
+      final log = confirmOrderNaive();
+      expect(log, ['state: updated']);
+      await Future<void>.delayed(Duration.zero);
+      expect(log, ['state: updated', 'analytics: sent']);
+    });
+
+    test('await returns only after state and analytics, in order', () async {
+      expect(await confirmOrder(), ['state: updated', 'analytics: sent']);
+    });
+  });
+
   group('parallel_wait', () {
     final log = <String>[];
     Future<int> unread() async {

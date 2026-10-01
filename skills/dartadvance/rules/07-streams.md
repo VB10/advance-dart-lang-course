@@ -48,6 +48,15 @@ final class OrderStatusFeed {
 // Üret: /dartadvance Bana sayfa sayfa gelen ürün yorumlarını akıtan, ilk 5'te bırakılınca
 //    bağlantıyı kapatan bir fonksiyon yaz.
 
+Future<List<int>> naiveOrderIds(Future<List<int>> Function(int page) fetchPage) async {
+  final all = <int>[];
+  for (var page = 0; ; page++) {
+    final ids = await fetchPage(page);
+    if (ids.isEmpty) return all;
+    all.addAll(ids); // eager: caller wants 3 ids, every page is still fetched
+  }
+}
+
 Stream<int> orderIds(
   Future<List<int>> Function(int page) fetchPage, {
   required void Function() onReleased,
@@ -79,6 +88,15 @@ Stream<int> orderIds(
 //    kalmayınca durduran bir akış yaz.
 import 'dart:async';
 
+Stream<int> naiveCourierPositions({required void Function(String event) log}) {
+  final controller = StreamController<int>();
+  Timer.periodic(const Duration(milliseconds: 10), (_) {
+    log('read'); // no listener yet: the sensor is read anyway
+    controller.add(1);
+  }); // never cancelled: keeps reading after the last listener leaves
+  return controller.stream;
+}
+
 Stream<int> courierPositions({required void Function(String event) log}) {
   late final StreamController<int> controller;
   Timer? timer;
@@ -103,10 +121,10 @@ Stream<int> courierPositions({required void Function(String event) log}) {
   return controller.stream;
 }
 ```
-**Tuzak:** Dinleyici gelene kadar `onListen` çalışmaz; kaynak kapalı kalır (test kanıtlıyor).
+**Tuzak:** `onListen`/`onCancel` olmadan Timer dinleyicisiz de okur ve iptal sonrası sürer; callback'li akışta kaynak kapalı kalır (test kanıtlıyor).
 **Düzelt (mevcut proje):** > "/dartadvance Projemde Timer, soket veya sensörü dinlenmeden başlatan yerleri bul, `StreamController` onListen/onCancel ile düzelt, test yaz."
 **Üret (yeni kod):** > "/dartadvance Bana sıcaklık sensörünü yalnız biri dinlerken okuyan, dinleyen kalmayınca durduran bir akış yaz."
-**Kabul:** Dinleyici gelmeden kaynak açılmıyor; log sırası `onListen`, `onPause`, `onResume`, `onCancel`; cancel sonrası yeni olay yok.
+**Kabul:** Dinleyici yokken kaynak okunmadı (sayaç/log boş); ilk `listen` sonrası kaynak başladı; `cancel` sonrası `onCancel` çalıştı ve sayaç artmayı bıraktı; testler ve `dart analyze` yeşil.
 
 ## 4. `StreamTransformer` (2.x)
 **Ne:** `transform()` ile stream'i yeniden biçimlendirir; `fromHandlers` olay başına sink'e 0..n çıktı yazar.
@@ -118,6 +136,14 @@ Stream<int> courierPositions({required void Function(String event) log}) {
 // Üret: /dartadvance Bana fatura satırı metinlerini kırpıp boşları atan, kalanları büyük
 //    harfe çeviren bir stream dönüştürücü yaz.
 import 'dart:async';
+
+Future<List<String>> naiveTrim(Stream<String> source) async {
+  final result = <String>[];
+  await for (final message in source) {
+    if (message.trim().isNotEmpty) result.add(message.trim());
+  }
+  return result; // open stream: completes only when the source closes
+}
 
 final trimMessages = StreamTransformer<String, String>.fromHandlers(
   handleData: (message, sink) {
@@ -141,6 +167,17 @@ final trimMessages = StreamTransformer<String, String>.fromHandlers(
 // Üret: /dartadvance Bana çalma listesindeki şarkı değişimlerini dinleyip son şarkıyı
 //    tutan, kapatılınca dinlemeyi bırakan bir sınıf yaz.
 import 'dart:async';
+
+final class LeakyPriceWatcher {
+  LeakyPriceWatcher(this._prices);
+  final Stream<double> _prices;
+
+  double? latestPrice;
+
+  void start() => _prices.listen((price) => latestPrice = price); // start twice: two listeners
+
+  void dispose() {} // nothing cancelled: events still change state after dispose
+}
 
 final class PriceWatcher {
   PriceWatcher(this._prices);

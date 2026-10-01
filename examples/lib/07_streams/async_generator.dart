@@ -3,6 +3,15 @@
 // Üret: /dartadvance Bana sayfa sayfa gelen ürün yorumlarını akıtan, ilk 5'te bırakılınca
 //    bağlantıyı kapatan bir fonksiyon yaz.
 
+Future<List<int>> naiveOrderIds(Future<List<int>> Function(int page) fetchPage) async {
+  final all = <int>[];
+  for (var page = 0; ; page++) {
+    final ids = await fetchPage(page);
+    if (ids.isEmpty) return all;
+    all.addAll(ids); // eager: caller wants 3 ids, every page is still fetched
+  }
+}
+
 Stream<int> orderIds(
   Future<List<int>> Function(int page) fetchPage, {
   required void Function() onReleased,

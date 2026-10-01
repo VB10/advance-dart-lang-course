@@ -4,6 +4,15 @@
 //    kalmayınca durduran bir akış yaz.
 import 'dart:async';
 
+Stream<int> naiveCourierPositions({required void Function(String event) log}) {
+  final controller = StreamController<int>();
+  Timer.periodic(const Duration(milliseconds: 10), (_) {
+    log('read'); // no listener yet: the sensor is read anyway
+    controller.add(1);
+  }); // never cancelled: keeps reading after the last listener leaves
+  return controller.stream;
+}
+
 Stream<int> courierPositions({required void Function(String event) log}) {
   late final StreamController<int> controller;
   Timer? timer;

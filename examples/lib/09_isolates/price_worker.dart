@@ -25,6 +25,13 @@ final class PriceWorker {
     return result is Error ? throw result : result! as int;
   }
 
+  // Naive: no exit race, no error check. Dead worker: never completes; RemoteError: TypeError.
+  Future<int> naiveWithTax(int cents) async {
+    final reply = ReceivePort();
+    _commands.send((cents, reply.sendPort));
+    return await reply.first as int;
+  }
+
   void close() => _commands.send(null);
 }
 

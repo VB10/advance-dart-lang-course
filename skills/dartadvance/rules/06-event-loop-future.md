@@ -36,11 +36,26 @@ Future<void> greet(List<String> log) async {
   await null;
   log.add('greet: after await');
 }
+
+/// ✗ Naive: the analytics call is only queued, so the caller sees just the state step.
+List<String> confirmOrderNaive() {
+  final log = <String>[];
+  unawaited(Future<void>(() => log.add('analytics: sent'))); // runs after return
+  log.add('state: updated');
+  return log; // ['state: updated'] for now
+}
+
+/// Right: await makes "state first, analytics after it finishes" explicit.
+Future<List<String>> confirmOrder() async {
+  final log = <String>['state: updated'];
+  await Future<void>(() => log.add('analytics: sent'));
+  return log; // ['state: updated', 'analytics: sent']
+}
 ```
 **Tuzak:** `async` fonksiyon ilk `await`'e kadar senkron çalışır; çağıran, `await` etmese bile o kısmı hemen görür.
 **Düzelt (mevcut proje):** > "/dartadvance Projemde `scheduleMicrotask`, `Timer.run` veya `Future(...)` ile sıra varsayan yerleri bul, event loop sırasına göre düzelt, test yaz."
 **Üret (yeni kod):** > "/dartadvance Bana sipariş onaylanınca önce ekran durumunu güncelleyip, işlem bittikten sonra analitik olayını gönderen bir fonksiyon yaz."
-**Kabul:** Test sırayı `sync → microtask → event` olarak doğrular; sıra varsayımı `await` ile açık hale gelmiş; `dart analyze` temiz.
+**Kabul:** Test sırayı `sync → microtask → event` olarak, `await`'li fonksiyonun durum adımını analitikten önce bitirdiğini (beklenmeyen sürümün ise analitik olmadan döndüğünü) doğrular; `dart analyze` temiz.
 
 ## 2. Future.wait ve record `.wait` (3.0)
 **Ne:** Bağımsız istekleri aynı anda başlatıp bekler; record `.wait` her alanın tipini korur. **Ne zaman:** RepositoryImpl'de iki-üç bağımsız çağrı. **Gerekmez:** İkinci istek birincinin sonucuna bağlıysa; sıralı `await`.

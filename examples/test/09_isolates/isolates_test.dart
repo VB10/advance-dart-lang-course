@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:isolate';
 
 import 'package:dartadvance_examples/09_isolates/capture_rules.dart';
@@ -18,6 +19,11 @@ void main() {
     test('a body over the threshold parses in an isolate with the same result', () async {
       final orders = await decodeOrders(body, isolateThreshold: 1);
       expect(orders.map((order) => order.total), [9.5, 20.0]);
+    });
+
+    test('the naive always-isolate version returns the same orders', () async {
+      final orders = await naiveDecodeOrders(body);
+      expect(orders.map((order) => order.id), [1, 2]);
     });
 
     test('a FormatException crosses the isolate boundary with its type', () {
@@ -64,6 +70,17 @@ void main() {
       worker.close();
       await worker.exited.timeout(const Duration(seconds: 2));
       await expectLater(worker.withTax(100), throwsStateError);
+    });
+
+    test('naive version hangs on a dead worker and turns RemoteError into TypeError', () async {
+      final worker = await PriceWorker.spawn();
+      await expectLater(worker.naiveWithTax(-1), throwsA(isA<TypeError>()));
+      worker.close();
+      await worker.exited;
+      expect(
+        worker.naiveWithTax(100).timeout(const Duration(milliseconds: 300)),
+        throwsA(isA<TimeoutException>()),
+      );
     });
   });
 }
