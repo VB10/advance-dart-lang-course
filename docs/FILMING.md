@@ -3,6 +3,7 @@
 Her özellik aynı döngü: **Aç** (tek dosya, başında iki prompt yazıyor) → **Söyle** (2 cümle) → izleyiciye iki yolu göster:
 **Düzelt** (mevcut projede refactor) ve **Üret** (yeni kod isteği) → **Kıyasla** (Kabul satırı).
 Skill çıktısı birebir aynı olmaz; canlıdan önce promptları kendi projende bir kez dene.
+`// ✗` ile işaretli satırlar analyzer'ın reddettiği yanlış örneklerdir; dosyada yorum olarak durur.
 
 Hazırlık: `dart pub get` · `dart run dartadvance_tool:dartadvance verify --all`. Dosyalar `examples/lib/NN_*/`, testler `examples/test/NN_*/`;
 test: `cd examples && dart test test/NN_*`. Konu sırası ve gerekçesi: [KONULAR.md](KONULAR.md).
@@ -21,7 +22,7 @@ Bölüm sonunda kural dosyasındaki **Pekiştirme** iki alıştırmasını ver; 
 - **Tuzak:** `'👋🏽'.length` 4'tür, `substring` emojiyi ortadan bölüp yalnız bir surrogate bırakır (test: "substring by code units splits...").
 - **Düzelt:** "/dartadvance Projemde kullanıcıya görünen metni `length` ya da `substring` ile sayan veya kesen yerleri bul, `characters` ile düzelt, her biri için test yaz."
 - **Üret:** "/dartadvance Bana ürün başlığını en fazla 20 karakterle kısaltıp sonuna … ekleyen ve karakter sayacı gösteren bir fonksiyon yaz."
-- **Kıyasla:** `length`/`runes`/`substring` kullanılmaz; `'👨‍👩‍👦'` 1 karakter sayılır; `dart analyze` temiz.
+- **Kıyasla:** `String.length`/`runes`/`substring` kullanılmaz (`characters.length` serbest); `'👨‍👩‍👦'` 1 karakter sayılır; kırpma testi tam sınırda (metin = sınır ve sınır + 1) yapılır; `dart analyze` temiz.
 
 ### 2. Tamsayı bölme ve kalan
 - **Aç:** `examples/lib/01_builtin_types/integer_division.dart`
@@ -68,7 +69,7 @@ Bölüm sonunda kural dosyasındaki **Pekiştirme** iki alıştırmasını ver; 
 - **Tuzak:** Alias orijinal tiple birebir aynıdır (`Json == Map<String, Object?>`); `dynamic` değil `Object?` kullan, yoksa `strict-casts` bile seni koruyamaz. JSON sayısı `int` de gelebilir: `(x as num).toDouble()`.
 - **Düzelt:** "/dartadvance Projemde `Map<String, dynamic>` tipini tekrar eden Data katmanı yerlerini bul, `typedef` alias ile düzelt, test yaz."
 - **Üret:** "/dartadvance Bana API'den gelen fatura satırları JSON listesini okuyup tekrar JSON'a çeviren bir Data sınıfı yaz."
-- **Kıyasla:** Test `Json == Map<String, Object?>` ve generic alias eşitliğini doğrular; `int` ve `double` değerler kabul edilir; `dynamic` kalmaz; Domain'e `Json` sızmaz.
+- **Kıyasla:** Test `Json == Map<String, Object?>` ve generic alias eşitliğini doğrular; `int` ve `double` değerler kabul edilir (`as double` kullanan naif sürüm `int`'te `TypeError` verir); `dynamic` kalmaz; Domain'e `Json` sızmaz.
 
 ### 3. Typedef yeni tip değildir: ID için extension type (3.3)
 - **Aç:** `examples/lib/02_typedefs/alias_not_new_type.dart`
@@ -89,9 +90,9 @@ Bölüm sonunda kural dosyasındaki **Pekiştirme** iki alıştırmasını ver; 
 - **Aç:** `examples/lib/03_class_modifiers/sealed_order_state.dart`
 - **Söyle:** `sealed` kök doğrudan construct edilemez, alt tipleri aynı library'de kapalıdır; `switch` tüm alt tipleri kapsamazsa analyzer reddeder.
 - **Tuzak:** `_` eklersen yeni alt tip eklendiğinde switch sessizce ona düşer, hata vermez; `_` yazma. `sealed` geçişli değildir: alt tipi `final` yapmazsan dışarıdan extend edilir (analyzer buna itiraz etmez).
-- **Düzelt:** "/dartadvance Projemde durumları `_` ya da default ile eşleyen switch'leri bul, `sealed` aile + `_`'siz switch ile düzelt, test yaz."
+- **Düzelt:** "/dartadvance Projemde durumu `_`/default'lu switch ya da if-else zinciriyle ayıran yerleri bul, `sealed` aile + `_`'siz switch ile düzelt, test yaz."
 - **Üret:** "/dartadvance Bana ödeme sonucunu (başarılı, reddedildi, beklemede) ekran metnine çeviren bir fonksiyon yaz."
-- **Kıyasla:** Kök `sealed`, her alt tip `final class`, projedeki switch'lerde `_` yok; test her alt tip için ayrı metni doğrular ve `dart analyze` temiz.
+- **Kıyasla:** Kök `sealed`, her alt tip `final class`, projedeki switch'lerde `_` yok; test her alt tip için ayrı metni doğrular; geçici olarak yeni bir alt tip ekle, `dart analyze` `non_exhaustive_switch_expression` hatasını göstersin, sonra geri al.
 
 ### 2. final (3.0)
 - **Aç:** `examples/lib/03_class_modifiers/final_money.dart`
@@ -169,7 +170,7 @@ Bölüm sonunda kural dosyasındaki **Pekiştirme** iki alıştırmasını ver; 
 - **Tuzak:** `first`/`firstWhere` boşta `StateError` atar (test: "first and firstWhere throw StateError ..."); `singleOrNull` iki veya daha fazla elemanda da null döner, hata vermez (test: "singleOrNull is null for zero and for two or more elements").
 - **Düzelt:** "/dartadvance Projemde `first`/`firstWhere`/`try-catch StateError` ile arama yapan yerleri bul, `firstOrNull`/`firstWhereOrNull` ile düzelt, her biri için test yaz."
 - **Üret:** "/dartadvance Bana siparişlerde bir müşterinin ilk siparişini bulan, yoksa null dönen bir fonksiyon yaz."
-- **Kıyasla:** Boş listede ve eşleşme yokta exception atmıyor; `first`/`firstWhere`/`StateError` yakalama kalmadı; `firstOrNull` için paket import'u yok, predicate'li arama için var; her değişiklik için test, `dart analyze` temiz.
+- **Kıyasla:** Boş listede ve eşleşme yokta exception atmıyor; `first`/`firstWhere`/`StateError` yakalama kalmadı; `firstOrNull` core'da; `package:collection` import'u yalnız `firstWhereOrNull` kullanan dosyada var; dönüş tipi nullable olduysa çağıranlar null'u işliyor; her değişiklik için test, `dart analyze` temiz.
 
 ### 2. Gruplama ve sıralama (package:collection)
 - **Aç:** `examples/lib/05_collection/group_and_sort.dart`
@@ -216,7 +217,7 @@ Bölüm sonunda kural dosyasındaki **Pekiştirme** iki alıştırmasını ver; 
 - **Tuzak:** `async` fonksiyon ilk `await`'e kadar senkron çalışır; çağıran, `await` etmese bile o kısmı hemen görür.
 - **Düzelt:** "/dartadvance Projemde `scheduleMicrotask`, `Timer.run` veya `Future(...)` ile sıra varsayan yerleri bul, event loop sırasına göre düzelt, test yaz."
 - **Üret:** "/dartadvance Bana sipariş onaylanınca önce ekran durumunu güncelleyip, işlem bittikten sonra analitik olayını gönderen bir fonksiyon yaz."
-- **Kıyasla:** Test sırayı `sync → microtask → event` olarak doğrular; sıra varsayımı `await` ile açık hale gelmiş; `dart analyze` temiz.
+- **Kıyasla:** Test sırayı `sync → microtask → event` olarak, `await`'li fonksiyonun durum adımını analitikten önce bitirdiğini (beklenmeyen sürümün ise analitik olmadan döndüğünü) doğrular; `dart analyze` temiz.
 
 ### 2. Future.wait ve record `.wait` (3.0)
 - **Aç:** `examples/lib/06_event_loop_future/parallel_wait.dart`
@@ -268,10 +269,10 @@ Bölüm sonunda kural dosyasındaki **Pekiştirme** iki alıştırmasını ver; 
 ### 3. StreamController callback'leri (2.x)
 - **Aç:** `examples/lib/07_streams/controller_callbacks.dart`
 - **Söyle:** `onListen`, `onPause`, `onResume`, `onCancel` ile kaynak yalnız birisi dinlerken çalışır.
-- **Tuzak:** Dinleyici gelene kadar `onListen` çalışmaz; kaynak kapalı kalır (test kanıtlıyor).
+- **Tuzak:** `onListen`/`onCancel` olmadan Timer dinleyicisiz de okur ve iptal sonrası sürer; callback'li akışta kaynak kapalı kalır (test kanıtlıyor).
 - **Düzelt:** "/dartadvance Projemde Timer, soket veya sensörü dinlenmeden başlatan yerleri bul, `StreamController` onListen/onCancel ile düzelt, test yaz."
 - **Üret:** "/dartadvance Bana sıcaklık sensörünü yalnız biri dinlerken okuyan, dinleyen kalmayınca durduran bir akış yaz."
-- **Kıyasla:** Dinleyici gelmeden kaynak açılmıyor; log sırası `onListen`, `onPause`, `onResume`, `onCancel`; cancel sonrası yeni olay yok.
+- **Kıyasla:** Dinleyici yokken kaynak okunmadı (sayaç/log boş); ilk `listen` sonrası kaynak başladı; `cancel` sonrası `onCancel` çalıştı ve sayaç artmayı bıraktı; testler ve `dart analyze` yeşil.
 
 ### 4. `StreamTransformer` (2.x)
 - **Aç:** `examples/lib/07_streams/message_transformer.dart`
@@ -287,7 +288,7 @@ Bölüm sonunda kural dosyasındaki **Pekiştirme** iki alıştırmasını ver; 
 - **Tuzak:** `dispose` sonrası gelen olay state'i değiştirmez; `start` iki kez çağrılsa tek abonelik olur (`??=`) (test kanıtlıyor).
 - **Düzelt:** "/dartadvance Projemde stream dinleyip dispose'da cancel etmeyen state'leri bul, subscription'ı alanda tutup `await cancel()` ile düzelt, test yaz."
 - **Üret:** "/dartadvance Bana çalma listesindeki şarkı değişimlerini dinleyip son şarkıyı tutan, kapatılınca dinlemeyi bırakan bir sınıf yaz."
-- **Kıyasla:** Bulunan her state sınıfında `dispose` sonrası kaynağın `onCancel`'ı çalıştı; geç gelen olay state'i değiştirmedi.
+- **Kıyasla:** Bulunan her state sınıfında `dispose` sonrası kaynağın `onCancel`'ı çalıştı; geç gelen olay state'i değiştirmedi; kaynak birden çok dinleyiciye gidiyorsa ayrıca `isBroadcast` ve iki dinleyici testi var.
 
 
 ---
@@ -318,7 +319,7 @@ Bölüm sonunda kural dosyasındaki **Pekiştirme** iki alıştırmasını ver; 
 - **Tuzak:** Başarısız istek de TTL boyunca önbellekte kalır (testte kanıtlı).
 - **Düzelt:** "/dartadvance Projemde kur/fiyat/stok gibi veriyi her okumada çeken yerleri bul, AsyncCache (package:async) ile TTL'li önbelleğe al, her biri için test yaz."
 - **Üret:** "/dartadvance Bana sipariş kargo ücretini 30 saniye boyunca tekrar istemeden hatırlayan bir servis yaz."
-- **Kıyasla:** TTL içinde tek fetch; `invalidate` sonrası ikinci fetch; `Duration.zero` ile her seferinde yenilenir.
+- **Kıyasla:** TTL içinde tek fetch; `invalidate` sonrası ikinci fetch; `Duration.zero` ile her okumada yenilenir (süre dolumu zamanlayıcıyla olur; testte ardışık okumaların arasına `await Future<void>.delayed(Duration.zero)` koy).
 
 ### 4. StreamQueue (2.x)
 - **Aç:** `examples/lib/08_async_package/stream_queue.dart`
@@ -346,7 +347,7 @@ Bölüm sonunda kural dosyasındaki **Pekiştirme** iki alıştırmasını ver; 
 ### 1. Eşikli ağır parse: `Isolate.run` (2.19)
 - **Aç:** `examples/lib/09_isolates/decode_orders.dart`
 - **Söyle:** Büyük gövde `Isolate.run` ile çözülür, küçük gövde inline kalır.
-- **Tuzak:** `Isolate.run` içinde fırlayan hata aynı tipte ana isolate'e gelir (`FormatException` testte tipiyle yakalanır); `Result`'a çevirmeyi RepositoryImpl yapar. Parse fonksiyonu top-level ve saf olmalı.
+- **Tuzak:** `Isolate.run` içinde fırlayan hata aynı tipte ana isolate'e gelir (`FormatException` testte tipiyle yakalanır); `Result`'a çevirmeyi RepositoryImpl yapar. Parse fonksiyonu top-level ve saf olmalı. Dosyada `naiveDecodeOrders` (her çağrıda isolate açar) eşikli `decodeOrders` ile yan yana durur.
 - **Düzelt:** "/dartadvance Projemde ana isolate'te büyük JSON/CSV/GPX çözen yerleri bul, eşikli `Isolate.run` ile taşı, her biri için test yaz."
 - **Üret:** "/dartadvance Bana 3 MB'lık ürün kataloğu JSON'unu Product listesine çeviren bir fonksiyon yaz."
 - **Kıyasla:** Her bulunan yerde eşik 1 ve büyük eşik aynı sonucu verir; bozuk girdide `FormatException` tipiyle fırlar; parse fonksiyonu top-level ve saf; `dart analyze` temiz.
@@ -362,7 +363,7 @@ Bölüm sonunda kural dosyasındaki **Pekiştirme** iki alıştırmasını ver; 
 ### 3. Sağlam worker: ports, hata ve çıkış (3.0)
 - **Aç:** `examples/lib/09_isolates/price_worker.dart`
 - **Söyle:** Tekrar eden işi, `onExit` ve ports ile kurulan uzun ömürlü bir isolate'e verir.
-- **Tuzak:** Ölü worker asla yanıt vermez; isteği `exited` ile yarıştırmazsan çağıran sonsuza kadar bekler. Worker'daki hata `RemoteError` değeri olarak döner; `close()` sonrası istek `StateError` verir (üçü de testli).
+- **Tuzak:** Ölü worker asla yanıt vermez; isteği `exited` ile yarıştırmazsan çağıran sonsuza kadar bekler. Worker'daki hata `RemoteError` değeri olarak döner; `close()` sonrası istek `StateError` verir (üçü de testli). Dosyada `naiveWithTax` yan yana: ölü worker'da takılır, `RemoteError`'u `TypeError`'a çevirir (testli).
 - **Düzelt:** "/dartadvance Projemde her mesaj/satır için sürekli isolate açan yerleri bul, ports ve `onExit` ile uzun ömürlü worker'a çevir, her biri için test yaz."
 - **Üret:** "/dartadvance Bana sipariş satırları art arda geldikçe indirim hesaplayan, açık kalan bir arka plan hesaplayıcısı yaz."
 - **Kıyasla:** Her dönüştürülen yerde sıralı ve eşzamanlı istekler doğru cevaplanır; hata `RemoteError` gelir; `close()` sonrası `exited` tamamlanır ve yeni istek `StateError` verir.

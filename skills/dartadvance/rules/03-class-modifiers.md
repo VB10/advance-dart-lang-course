@@ -9,8 +9,8 @@ Class modifier'lar bir sınıfın **başka library'lerden** construct / extend /
 **Ne zaman:** Sınırlı varyantlı aile (UI state, hata türleri, ödeme yöntemi). **Gerekmez:** Alt tipi olmayan tek sınıf (`final class` yeter); dışarıdan genişlemesi istenen hiyerarşi.
 <!-- snippet: 03_class_modifiers/sealed_order_state -->
 ```dart
-// Düzelt: /dartadvance Projemde durumları `_` ya da default ile eşleyen switch'leri bul,
-//    `sealed` aile + `_`'siz switch ile düzelt, test yaz.
+// Düzelt: /dartadvance Projemde durumu `_`/default'lu switch ya da if-else zinciriyle
+//    ayıran yerleri bul, `sealed` aile + `_`'siz switch ile düzelt, test yaz.
 // Üret: /dartadvance Bana ödeme sonucunu (başarılı, reddedildi, beklemede) ekran metnine
 //    çeviren bir fonksiyon yaz.
 
@@ -32,6 +32,7 @@ final class OrderCancelled extends OrderState {
   final String reason;
 }
 
+// ✗ kopyalama: `_` yeni durumu sessizce yutar
 String lazyText(OrderState state) => switch (state) {
   OrderPlaced() => 'Preparing your order',
   _ => 'Unknown', // cancelled order: 'Unknown'
@@ -44,9 +45,9 @@ String statusText(OrderState state) => switch (state) {
 };
 ```
 **Tuzak:** `_` eklersen yeni alt tip eklendiğinde switch sessizce ona düşer, hata vermez; `_` yazma. `sealed` geçişli değildir: alt tipi `final` yapmazsan dışarıdan extend edilir (analyzer buna itiraz etmez).
-**Düzelt (mevcut proje):** > "/dartadvance Projemde durumları `_` ya da default ile eşleyen switch'leri bul, `sealed` aile + `_`'siz switch ile düzelt, test yaz."
+**Düzelt (mevcut proje):** > "/dartadvance Projemde durumu `_`/default'lu switch ya da if-else zinciriyle ayıran yerleri bul, `sealed` aile + `_`'siz switch ile düzelt, test yaz."
 **Üret (yeni kod):** > "/dartadvance Bana ödeme sonucunu (başarılı, reddedildi, beklemede) ekran metnine çeviren bir fonksiyon yaz."
-**Kabul:** Kök `sealed`, her alt tip `final class`, projedeki switch'lerde `_` yok; test her alt tip için ayrı metni doğrular ve `dart analyze` temiz.
+**Kabul:** Kök `sealed`, her alt tip `final class`, projedeki switch'lerde `_` yok; test her alt tip için ayrı metni doğrular; geçici olarak yeni bir alt tip ekle, `dart analyze` `non_exhaustive_switch_expression` hatasını göstersin, sonra geri al.
 
 ## 2. final (3.0)
 **Ne:** `final class` başka library'den construct edilir ama extend / implement edilemez (analyzer reddeder).

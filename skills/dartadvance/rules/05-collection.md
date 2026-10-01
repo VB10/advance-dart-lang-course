@@ -30,7 +30,7 @@ Product? onlyProduct(List<Product> products) => products.singleOrNull;
 **Tuzak:** `first`/`firstWhere` boşta `StateError` atar (test: "first and firstWhere throw StateError ..."); `singleOrNull` iki veya daha fazla elemanda da null döner, hata vermez (test: "singleOrNull is null for zero and for two or more elements").
 **Düzelt (mevcut proje):** > "/dartadvance Projemde `first`/`firstWhere`/`try-catch StateError` ile arama yapan yerleri bul, `firstOrNull`/`firstWhereOrNull` ile düzelt, her biri için test yaz."
 **Üret (yeni kod):** > "/dartadvance Bana siparişlerde bir müşterinin ilk siparişini bulan, yoksa null dönen bir fonksiyon yaz."
-**Kabul:** Boş listede ve eşleşme yokta exception atmıyor; `first`/`firstWhere`/`StateError` yakalama kalmadı; `firstOrNull` için paket import'u yok, predicate'li arama için var; her değişiklik için test, `dart analyze` temiz.
+**Kabul:** Boş listede ve eşleşme yokta exception atmıyor; `first`/`firstWhere`/`StateError` yakalama kalmadı; `firstOrNull` core'da; `package:collection` import'u yalnız `firstWhereOrNull` kullanan dosyada var; dönüş tipi nullable olduysa çağıranlar null'u işliyor; her değişiklik için test, `dart analyze` temiz.
 
 ## 2. Gruplama ve sıralama (package:collection)
 **Ne:** `groupListsBy`, `sortedBy`/`sortedByCompare`, `mapIndexed`, `compareNatural`. **Ne zaman:** Listeyi ekran için gruplarken veya yeni sıralı kopya gerektiğinde. **Gerekmez:** Yerinde sıralama yeterliyse `List.sort`.

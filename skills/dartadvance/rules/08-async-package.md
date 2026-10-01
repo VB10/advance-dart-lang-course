@@ -89,7 +89,7 @@ final class RatesCache {
 **Tuzak:** Başarısız istek de TTL boyunca önbellekte kalır (testte kanıtlı).
 **Düzelt (mevcut proje):** > "/dartadvance Projemde kur/fiyat/stok gibi veriyi her okumada çeken yerleri bul, AsyncCache (package:async) ile TTL'li önbelleğe al, her biri için test yaz."
 **Üret (yeni kod):** > "/dartadvance Bana sipariş kargo ücretini 30 saniye boyunca tekrar istemeden hatırlayan bir servis yaz."
-**Kabul:** TTL içinde tek fetch; `invalidate` sonrası ikinci fetch; `Duration.zero` ile her seferinde yenilenir.
+**Kabul:** TTL içinde tek fetch; `invalidate` sonrası ikinci fetch; `Duration.zero` ile her okumada yenilenir (süre dolumu zamanlayıcıyla olur; testte ardışık okumaların arasına `await Future<void>.delayed(Duration.zero)` koy).
 
 ## 4. StreamQueue (2.x)
 **Ne:** Stream'i pull-based okutur: `next`, `take(n)`, `peek`, `hasNext`, `rest`. **Ne zaman:** protokol/başlık+gövde parse, testlerde olayları tek tek okumak. **Gerekmez:** her olay aynı işleniyorsa (`await for`).

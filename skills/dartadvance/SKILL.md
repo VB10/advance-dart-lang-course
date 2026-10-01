@@ -21,14 +21,17 @@ Adımlar:
 1. **SDK kontrolü:** hedef paketin `pubspec.yaml` → `environment: sdk:` alt sınırını oku; aşağıdaki tabloda
    alt sınırın üstündeki özelliği önerme.
 2. **Kuralı bul:** konuyu [dizinden](#dizin) seç; o dosyada yalnız ilgili `## N.` bölümünü oku
-   (`grep -n "^## " rules/NN-*.md`, sonra o bölümü). Dosyanın tamamını okuma.
+   (`grep -n "^## " rules/NN-*.md`, sonra o bölümün başından sonraki `## `'ye kadar, **Kabul** satırı dahil).
+   Dosyanın tamamını okuma. Birden çok bölüm uygulanıyorsa her birinin Kabul'unu ayrı doğrula.
 3. **Düzelt ise:** önce projede ilgili kalıbı ara (`grep`), bulduğun her yeri listele, sonra tek tek düzelt.
-   Bulamazsan "bulunamadı" de; kural uygulanacak yer uydurma.
+   Bulamazsan "bulunamadı" de; kural uygulanacak yer uydurma. Düzeltme dönüş tipini değiştirirse
+   (ör. `first` → nullable) çağıranları da güncelle. Projenin kendi hata tipi (`Result` vb.) varsa modeli ona uyarla.
+   Bölümdeki `// ✗` işaretli kod yanlış örnektir; modele kopyalama.
    **Üret ise:** bölümdeki kod bloğunu model al; kullanıcının alanına uyarla, isimleri kopyalama.
 4. **Yaz:** bir dosya = bir kavram, ≤ 50 satır, yorum en az, iç içe en fazla 3 seviye, metinler kullanıcının dilinde.
    `dart create` şablon dosyalarına dokunma.
-5. **Kanıtla:** bölümdeki **Kabul** satırını test eder. Kabul bir derleme hatasıysa geçici olarak ihlal et,
-   `dart analyze` hatasını göster, geri al.
+5. **Kanıtla:** bölümdeki **Kabul** satırını test et ve sonucu göster. Kabul bir derleme hatası içeriyorsa geçici olarak ihlal et,
+   `dart analyze` hatasını göster, geri al. Kabul bir test ise o testin geçtiğini göster.
 6. `dart format` · `dart analyze` (sıfır sorun) · `dart test`; çıktıyı göster. Sonunda 3 satır özet:
    hangi kural, hangi dosyalar, min. sürüm.
 

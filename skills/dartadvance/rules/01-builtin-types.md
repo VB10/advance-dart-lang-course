@@ -28,7 +28,7 @@ String truncateBio(String bio, int maxCharacters) {
 **Tuzak:** `'👋🏽'.length` 4'tür, `substring` emojiyi ortadan bölüp yalnız bir surrogate bırakır (test: "substring by code units splits...").
 **Düzelt (mevcut proje):** > "/dartadvance Projemde kullanıcıya görünen metni `length` ya da `substring` ile sayan veya kesen yerleri bul, `characters` ile düzelt, her biri için test yaz."
 **Üret (yeni kod):** > "/dartadvance Bana ürün başlığını en fazla 20 karakterle kısaltıp sonuna … ekleyen ve karakter sayacı gösteren bir fonksiyon yaz."
-**Kabul:** `length`/`runes`/`substring` kullanılmaz; `'👨‍👩‍👦'` 1 karakter sayılır; `dart analyze` temiz.
+**Kabul:** `String.length`/`runes`/`substring` kullanılmaz (`characters.length` serbest); `'👨‍👩‍👦'` 1 karakter sayılır; kırpma testi tam sınırda (metin = sınır ve sınır + 1) yapılır; `dart analyze` temiz.
 
 ## 2. Tamsayı bölme ve kalan
 **Ne:** `~/` `int` döndürür ve sıfıra doğru keser; `%` asla negatif olmaz, `remainder` bölünenin işaretini korur. **Ne zaman:** sayfalama, döngüsel indeks, saat/dakika hesabı. **Gerekmez:** ondalıklı sonuç isteniyorsa `/`.

@@ -1,5 +1,5 @@
-// Düzelt: /dartadvance Projemde durumları `_` ya da default ile eşleyen switch'leri bul,
-//    `sealed` aile + `_`'siz switch ile düzelt, test yaz.
+// Düzelt: /dartadvance Projemde durumu `_`/default'lu switch ya da if-else zinciriyle
+//    ayıran yerleri bul, `sealed` aile + `_`'siz switch ile düzelt, test yaz.
 // Üret: /dartadvance Bana ödeme sonucunu (başarılı, reddedildi, beklemede) ekran metnine
 //    çeviren bir fonksiyon yaz.
 
@@ -21,6 +21,7 @@ final class OrderCancelled extends OrderState {
   final String reason;
 }
 
+// ✗ kopyalama: `_` yeni durumu sessizce yutar
 String lazyText(OrderState state) => switch (state) {
   OrderPlaced() => 'Preparing your order',
   _ => 'Unknown', // cancelled order: 'Unknown'

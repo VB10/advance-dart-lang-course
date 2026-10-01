@@ -199,7 +199,7 @@ final class PriceWatcher {
 **Tuzak:** `dispose` sonrası gelen olay state'i değiştirmez; `start` iki kez çağrılsa tek abonelik olur (`??=`) (test kanıtlıyor).
 **Düzelt (mevcut proje):** > "/dartadvance Projemde stream dinleyip dispose'da cancel etmeyen state'leri bul, subscription'ı alanda tutup `await cancel()` ile düzelt, test yaz."
 **Üret (yeni kod):** > "/dartadvance Bana çalma listesindeki şarkı değişimlerini dinleyip son şarkıyı tutan, kapatılınca dinlemeyi bırakan bir sınıf yaz."
-**Kabul:** Bulunan her state sınıfında `dispose` sonrası kaynağın `onCancel`'ı çalıştı; geç gelen olay state'i değiştirmedi.
+**Kabul:** Bulunan her state sınıfında `dispose` sonrası kaynağın `onCancel`'ı çalıştı; geç gelen olay state'i değiştirmedi; kaynak birden çok dinleyiciye gidiyorsa ayrıca `isBroadcast` ve iki dinleyici testi var.
 
 ## Flutter'da kanıt
 - `StreamBuilder` state'inde subscription alan olarak tutulur, `dispose()`'da `cancel()`: [widgets/async.dart#L100](https://github.com/flutter/flutter/blob/3.47.5/packages/flutter/lib/src/widgets/async.dart#L100)
