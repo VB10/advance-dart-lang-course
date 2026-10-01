@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde stream dinleyip dispose'da cancel etmeyen state'leri bul,
-// subscription'ı alanda tutup `await cancel()` ile düzelt, her biri için test yaz."
+// /dartadvance Projemde stream dinleyip dispose'da cancel etmeyen state'leri bul,
+// subscription'ı alanda tutup `await cancel()` ile düzelt, her biri için test yaz.
 import 'dart:async';
 
 final class PriceWatcher {

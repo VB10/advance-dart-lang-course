@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde sayfaları hepsini çekip listeye dönen yerleri bul, `async*` ile
-// tembel Stream'e çevir, erken iptalde temizliği de kapsayan test yaz."
+// /dartadvance Projemde sayfaları hepsini çekip listeye dönen yerleri bul, `async*` ile
+// tembel Stream'e çevir, erken iptalde temizliği de kapsayan test yaz.
 
 Stream<int> orderIds(
   Future<List<int>> Function(int page) fetchPage, {

@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde başlık+gövde sırayla okunan stream parse yerlerini bul,
-// StreamQueue (package:async) ile düzelt, her biri için test yaz."
+// /dartadvance Projemde başlık+gövde sırayla okunan stream parse yerlerini bul,
+// StreamQueue (package:async) ile düzelt, her biri için test yaz.
 import 'package:async/async.dart' hide Result;
 
 Future<List<String>> readItemsNaive(Stream<String> lines) async {

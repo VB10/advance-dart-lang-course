@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde callback tabanlı eski API'leri, süresiz bekleyen çağrıları bul,
-// `Completer` ile Future'a çevir, `timeout` ile sınırla, her biri için test yaz."
+// /dartadvance Projemde callback tabanlı eski API'leri, süresiz bekleyen çağrıları bul,
+// `Completer` ile Future'a çevir, `timeout` ile sınırla, her biri için test yaz.
 import 'dart:async';
 
 abstract interface class LegacyLocationClient {

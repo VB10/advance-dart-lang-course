@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde kur/fiyat/stok gibi veriyi her okumada çeken yerleri bul,
-// AsyncCache (package:async) ile TTL'li önbelleğe al, her biri için test yaz."
+// /dartadvance Projemde kur/fiyat/stok gibi veriyi her okumada çeken yerleri bul,
+// AsyncCache (package:async) ile TTL'li önbelleğe al, her biri için test yaz.
 import 'package:async/async.dart' hide Result;
 
 final class RatesCache {

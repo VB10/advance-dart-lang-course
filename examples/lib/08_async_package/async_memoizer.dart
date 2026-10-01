@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde tekrar tekrar yüklenen config/liste yerlerini bul,
-// AsyncMemoizer (package:async) ile tek seferlik yap, her biri için test yaz."
+// /dartadvance Projemde tekrar tekrar yüklenen config/liste yerlerini bul,
+// AsyncMemoizer (package:async) ile tek seferlik yap, her biri için test yaz.
 import 'package:async/async.dart' hide Result;
 
 final class ConfigLoader {

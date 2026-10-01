@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde birbirine bağlı olmayan `await`'leri art arda yazan repository
-// yerlerini bul, record `.wait` ile paralel yap, her biri için test yaz."
+// /dartadvance Projemde birbirine bağlı olmayan `await`'leri art arda yazan repository
+// yerlerini bul, record `.wait` ile paralel yap, her biri için test yaz.
 import 'dart:async';
 
 Future<String> loadSequential(Future<int> Function() unread, Future<String> Function() name) async {

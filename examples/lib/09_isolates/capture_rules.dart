@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde `Isolate.run`/`compute` closure'larını bul, ne yakaladıklarını
-// ve global duruma bağımlılığı `dart:isolate` kurallarıyla düzelt, her biri için test yaz."
+// /dartadvance Projemde `Isolate.run`/`compute` closure'larını bul, ne yakaladıklarını
+// ve global duruma bağımlılığı `dart:isolate` kurallarıyla düzelt, her biri için test yaz.
 import 'dart:isolate';
 
 int loadedOrderCount = 0;

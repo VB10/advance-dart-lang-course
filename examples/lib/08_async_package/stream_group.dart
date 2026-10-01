@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde aynı stream'i iki kez dinleyen yerleri bul, StreamSplitter ve
-// StreamGroup (package:async) ile düzelt, her biri için test yaz."
+// /dartadvance Projemde aynı stream'i iki kez dinleyen yerleri bul, StreamSplitter ve
+// StreamGroup (package:async) ile düzelt, her biri için test yaz.
 import 'package:async/async.dart' hide Result;
 
 Stream<String> allAlerts(Stream<String> server, Stream<String> device) =>

@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde `if (x != null)` ile null kontrolü yapıp atama veya liste
-// birleştirme yapan yerleri bul, `?..` ve `...?` ile sadeleştir, her biri için test yaz."
+// /dartadvance Projemde `if (x != null)` ile null kontrolü yapıp atama veya liste
+// birleştirme yapan yerleri bul, `?..` ve `...?` ile sadeleştir, her biri için test yaz.
 
 final class Cart {
   String? note;

@@ -10,8 +10,8 @@ Dart'ta `public/private/protected` yoktur; sınırı library (dosya) çizer, ana
 **Gerekmez:** "Sınıfı özel yapmak" için `_` kullanma; sadece sınıfın kendisinden saklamak mümkün değil.
 <!-- snippet: 04_libraries_metadata/library_privacy -->
 ```dart
-// Skill'e ver: "Projemde `_` alanına aynı dosyadaki başka sınıfın eriştiği yerleri bul,
-// library gizliliği kuralıyla ayır veya bilerek kabul et, her biri için test yaz."
+// /dartadvance Projemde `_` alanına aynı dosyadaki başka sınıfın eriştiği yerleri bul,
+// library gizliliği kuralıyla ayır veya bilerek kabul et, her biri için test yaz.
 // Same file = same library: no per-class privacy.
 final class Wallet {
   Wallet(this._balanceCents);
@@ -35,7 +35,7 @@ final class WalletAuditor {
 }
 ```
 **Tuzak:** `WalletAuditor` aynı dosyada olduğu için `Wallet._balanceCents` alanını okuyup yazar (testte kanıtlı).
-**Skill'e ver:** > "Projemde `_` alanına aynı dosyadaki başka sınıfın eriştiği yerleri bul, library gizliliği kuralıyla ayır veya bilerek kabul et, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde `_` alanına aynı dosyadaki başka sınıfın eriştiği yerleri bul, library gizliliği kuralıyla ayır veya bilerek kabul et, her biri için test yaz."
 **Kabul:** Aynı dosyadan `_` erişimi ya ayrı dosyaya taşınarak derleme hatasına çevrildi ya da bilerek bırakıldı ve testle sabitlendi; `dart analyze` temiz.
 
 ## 2. `part` / `part of` (2.0)
@@ -45,8 +45,8 @@ final class WalletAuditor {
 Not: `part_files/order_builder_lines.dart` yalnızca `part` örneğinin eşlik eden dosyasıdır.
 <!-- snippet: 04_libraries_metadata/part_files/order_builder -->
 ```dart
-// Skill'e ver: "Projemde elle yazılmış sınıfı `part` ile böldüğüm yerleri bul, `part of`
-// string URI ve import kurallarıyla düzelt, her biri için test yaz."
+// /dartadvance Projemde elle yazılmış sınıfı `part` ile böldüğüm yerleri bul, `part of`
+// string URI ve import kurallarıyla düzelt, her biri için test yaz.
 import 'dart:collection';
 
 part 'order_builder_lines.dart';
@@ -62,7 +62,7 @@ final class OrderBuilder {
 }
 ```
 **Tuzak:** Part'taki `_Line` tipi ve `Queue` (ana dosyanın `dart:collection` import'u) ana dosyada kullanılır; part import'suz çalışır (testte kanıtlı).
-**Skill'e ver:** > "Projemde elle yazılmış sınıfı `part` ile böldüğüm yerleri bul, `part of` string URI ve import kurallarıyla düzelt, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde elle yazılmış sınıfı `part` ile böldüğüm yerleri bul, `part of` string URI ve import kurallarıyla düzelt, her biri için test yaz."
 **Kabul:** Part dosyasında `import` yok, `part of '<dosya>.dart';` string URI ile; el yazımı bölünmeler küçük library'lere ayrıldı veya gerekçelendirildi; davranış testle doğrulanır.
 
 ## 3. `@immutable` ve `@useResult` (package:meta)
@@ -71,8 +71,8 @@ final class OrderBuilder {
 **Gerekmez:** Runtime koruması değildir; analyzer uyarısıdır, derlemeyi durdurmaz.
 <!-- snippet: 04_libraries_metadata/result_annotations -->
 ```dart
-// Skill'e ver: "Projemde değer nesnesi sınıfları ve sonucu atılabilen metotları bul,
-// `@immutable` ve `@useResult` ekle, her biri için test yaz."
+// /dartadvance Projemde değer nesnesi sınıfları ve sonucu atılabilen metotları bul,
+// `@immutable` ve `@useResult` ekle, her biri için test yaz.
 import 'package:meta/meta.dart';
 
 // The analyzer warns if a field here is not final.
@@ -93,7 +93,7 @@ final class Money {
 }
 ```
 **Tuzak:** `add` orijinali değiştirmez, yeni `Money` döner; sonucu atmak sessizce hiçbir şey yapmaz (testte kanıtlı).
-**Skill'e ver:** > "Projemde değer nesnesi sınıfları ve sonucu atılabilen metotları bul, `@immutable` ve `@useResult` ekle, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde değer nesnesi sınıfları ve sonucu atılabilen metotları bul, `@immutable` ve `@useResult` ekle, her biri için test yaz."
 **Kabul:** Bulunan sınıflarda tüm alanlar final ve `const` constructor var; `@useResult` metotlarında sonucu atan satır analyzer'da raporlanır; test orijinalin değişmediğini doğrular.
 
 ## 4. `@protected` ve `@mustCallSuper` (package:meta)
@@ -102,8 +102,8 @@ final class Money {
 **Gerekmez:** Gerçek erişim kontrolü değildir; dışarıdan çağrı derlenir, sadece uyarı alır.
 <!-- snippet: 04_libraries_metadata/protected_members -->
 ```dart
-// Skill'e ver: "Projemde taban store sınıflarında alt sınıfa ait metotları ve dispose
-// zincirini bul, `@protected` ve `@mustCallSuper` ekle, her biri için test yaz."
+// /dartadvance Projemde taban store sınıflarında alt sınıfa ait metotları ve dispose
+// zincirini bul, `@protected` ve `@mustCallSuper` ekle, her biri için test yaz.
 import 'package:meta/meta.dart';
 
 abstract base class CartStore<S> {
@@ -131,7 +131,7 @@ abstract base class CartStore<S> {
 }
 ```
 **Tuzak:** Alt sınıf `emit`'i kendi içinde serbestçe çağırır; `dispose` override'ı `super.dispose()` çağırmazsa dinleyiciler temizlenmez (testte kanıtlı).
-**Skill'e ver:** > "Projemde taban store sınıflarında alt sınıfa ait metotları ve dispose zincirini bul, `@protected` ve `@mustCallSuper` ekle, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde taban store sınıflarında alt sınıfa ait metotları ve dispose zincirini bul, `@protected` ve `@mustCallSuper` ekle, her biri için test yaz."
 **Kabul:** Dışarıdan çağrı ve `super.dispose()` eksik override analyzer uyarısı verir; test alt sınıf üzerinden durum değişimini ve temizliği doğrular.
 
 ## Flutter'da kanıt

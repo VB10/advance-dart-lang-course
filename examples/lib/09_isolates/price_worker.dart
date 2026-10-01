@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde her mesaj/satır için tekrar tekrar isolate açan yerleri bul,
-// ports ve `onExit` ile uzun ömürlü worker'a çevir, her biri için test yaz."
+// /dartadvance Projemde her mesaj/satır için tekrar tekrar isolate açan yerleri bul,
+// ports ve `onExit` ile uzun ömürlü worker'a çevir, her biri için test yaz.
 import 'dart:isolate';
 
 final class PriceWorker {

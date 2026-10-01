@@ -10,8 +10,8 @@ Typedef uzun ya da tekrar eden bir tipe **yeni bir isim** verir, yeni tip yaratm
 **Gerekmez:** Tek yerde geçen fonksiyon tipi için inline yaz: `void Function(String query)`.
 <!-- snippet: 02_typedefs/function_typedefs -->
 ```dart
-// Skill'e ver: "Projemde aynı fonksiyon imzasını birçok yerde tekrar eden callback ve
-// validator tiplerini bul, `typedef` ile adlandır, her biri için test yaz."
+// /dartadvance Projemde aynı fonksiyon imzasını birçok yerde tekrar eden callback ve
+// validator tiplerini bul, `typedef` ile adlandır, her biri için test yaz.
 typedef Mapper<S, T> = T Function(S source);
 typedef Validator<T> = String? Function(T? value);
 
@@ -38,7 +38,7 @@ class CouponField {
 ```
 **Tuzak:** Eski sözdizimi (`typedef T Name(S s)`) yasaktır; `typedef Name<S, T> = T Function(S s)` yaz. Düz fonksiyon `isA<Mapper<...>>()` ile doğrulanır.
 **Skill'e ver:**
-> "Projemde aynı fonksiyon imzasını birçok yerde tekrar eden callback ve validator tiplerini bul, `typedef` ile adlandır, her biri için test yaz."
+> "/dartadvance Projemde aynı fonksiyon imzasını birçok yerde tekrar eden callback ve validator tiplerini bul, `typedef` ile adlandır, her biri için test yaz."
 **Kabul:** Her tekrar eden imza tek bir typedef'e iner; somut fonksiyonlar düz fonksiyon olarak verilir; `isA<Mapper<...>>()` / `isA<Validator<String>>()` geçer; inline ve typedef'li sürüm aynı sonucu verir; `dart analyze` temiz.
 
 ## 2. Fonksiyon olmayan typedef: Json ve generic alias (2.13)
@@ -47,8 +47,8 @@ class CouponField {
 **Gerekmez:** Katmanlar arası public API'de: Domain'e `Json` sızdırma, entity/sınıf döndür.
 <!-- snippet: 02_typedefs/json_alias -->
 ```dart
-// Skill'e ver: "Projemde `Map<String, dynamic>` tipini tekrar eden Data katmanı yerlerini
-// bul, `typedef` alias ile düzelt, her biri için test yaz."
+// /dartadvance Projemde `Map<String, dynamic>` tipini tekrar eden Data katmanı yerlerini
+// bul, `typedef` alias ile düzelt, her biri için test yaz.
 typedef Json = Map<String, Object?>;
 typedef JsonList = List<Json>;
 typedef Cache<T> = Map<String, List<T>>; // Cache<int> == Map<String, List<int>>
@@ -81,7 +81,7 @@ Cache<Product> groupByFirstLetter(List<Product> products) {
 ```
 **Tuzak:** Alias orijinal tiple birebir aynıdır (`Json == Map<String, Object?>`); `dynamic` değil `Object?` kullan, yoksa `strict-casts` bile seni koruyamaz. JSON sayısı `int` de gelebilir: `(x as num).toDouble()`.
 **Skill'e ver:**
-> "Projemde `Map<String, dynamic>` tipini tekrar eden Data katmanı yerlerini bul, `typedef` alias ile düzelt, her biri için test yaz."
+> "/dartadvance Projemde `Map<String, dynamic>` tipini tekrar eden Data katmanı yerlerini bul, `typedef` alias ile düzelt, her biri için test yaz."
 **Kabul:** Test `Json == Map<String, Object?>` ve generic alias eşitliğini doğrular; `int` ve `double` değerler kabul edilir; `dynamic` kalmaz; Domain'e `Json` sızmaz.
 
 ## 3. Typedef yeni tip değildir: ID için extension type (3.3)
@@ -90,8 +90,8 @@ Cache<Product> groupByFirstLetter(List<Product> products) {
 **Gerekmez:** Extension type, sıfır maliyetli sarmalayıcıdır; yalnızca gerçekten karışabilecek ID/birim değerlerinde gerekir.
 <!-- snippet: 02_typedefs/alias_not_new_type -->
 ```dart
-// Skill'e ver: "Projemde `typedef X = int` gibi alias'la ID ya da birim tipi
-// tanımlayan yerleri bul, `extension type` ile dönüştür, her biri için test yaz."
+// /dartadvance Projemde `typedef X = int` gibi alias'la ID ya da birim tipi
+// tanımlayan yerleri bul, `extension type` ile dönüştür, her biri için test yaz.
 typedef UserIdAlias = int; // Just another name for int.
 
 extension type const UserId(int value) {}
@@ -108,7 +108,7 @@ String loadWithTyped() => describeTyped(const UserId(7)); // user #7
 ```
 **Tuzak:** `UserIdAlias == int` ve alias'lı fonksiyon ürün sayısı gibi sıradan bir `int`'i sessizce kabul eder; `UserId` alan fonksiyona `int` vermeyi analyzer reddeder (testlenemez, yalnızca prose).
 **Skill'e ver:**
-> "Projemde `typedef X = int` gibi alias'la ID ya da birim tipi tanımlayan yerleri bul, `extension type` ile dönüştür, her biri için test yaz."
+> "/dartadvance Projemde `typedef X = int` gibi alias'la ID ya da birim tipi tanımlayan yerleri bul, `extension type` ile dönüştür, her biri için test yaz."
 **Kabul:** Test eski alias'ın `int`'e eşit olduğunu ve yanlış değerin kabul edildiğini gösterir; extension type `.value` ile sarılı değeri verir; yanlış ID için derleme hatasının analyzer tarafından verildiği yorumda yazılıdır.
 
 ## Flutter'da kanıt

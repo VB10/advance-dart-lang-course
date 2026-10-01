@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde `_` alanına aynı dosyadaki başka sınıfın eriştiği yerleri bul,
-// library gizliliği kuralıyla ayır veya bilerek kabul et, her biri için test yaz."
+// /dartadvance Projemde `_` alanına aynı dosyadaki başka sınıfın eriştiği yerleri bul,
+// library gizliliği kuralıyla ayır veya bilerek kabul et, her biri için test yaz.
 // Same file = same library: no per-class privacy.
 final class Wallet {
   Wallet(this._balanceCents);

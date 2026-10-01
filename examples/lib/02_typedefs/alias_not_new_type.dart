@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde `typedef X = int` gibi alias'la ID ya da birim tipi
-// tanımlayan yerleri bul, `extension type` ile dönüştür, her biri için test yaz."
+// /dartadvance Projemde `typedef X = int` gibi alias'la ID ya da birim tipi
+// tanımlayan yerleri bul, `extension type` ile dönüştür, her biri için test yaz.
 typedef UserIdAlias = int; // Just another name for int.
 
 extension type const UserId(int value) {}

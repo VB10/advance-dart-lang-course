@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde durumları `_` ya da default ile eşleyen switch'leri bul, `sealed`
-// aile + `_`'siz switch ile düzelt, her biri için test yaz."
+// /dartadvance Projemde durumları `_` ya da default ile eşleyen switch'leri bul, `sealed`
+// aile + `_`'siz switch ile düzelt, her biri için test yaz.
 sealed class OrderState {
   const OrderState();
 }

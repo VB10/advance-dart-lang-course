@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde `list.sort()` ile yerinde sıralayan veya elle gruplayan
-// yerleri bul, `sortedBy`/`groupListsBy` ile düzelt, her biri için test yaz."
+// /dartadvance Projemde `list.sort()` ile yerinde sıralayan veya elle gruplayan
+// yerleri bul, `sortedBy`/`groupListsBy` ile düzelt, her biri için test yaz.
 import 'package:collection/collection.dart';
 
 typedef Order = ({String city, String sku, int amount});

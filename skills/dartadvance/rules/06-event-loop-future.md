@@ -9,8 +9,8 @@ Her isolate tek bir event loop ile çalışır; `Future` bu döngünün üstünd
 **Ne:** Önce senkron kod, sonra **tüm** microtask'lar, sonra event kuyruğu (`Timer.run`, `Future()`) çalışır. **Ne zaman:** "Bu satır neden sonra çalıştı?" sorusunu açıklarken. **Gerekmez:** Uygulama kodunda sırayı `scheduleMicrotask` ile "düzeltmek"; `await` kullan.
 <!-- snippet: 06_event_loop_future/event_loop_order -->
 ```dart
-// Skill'e ver: "Projemde `scheduleMicrotask`, `Timer.run` veya `Future(...)` ile sıra
-// varsayan yerleri bul, event loop sırasına göre düzelt, her biri için test yaz."
+// /dartadvance Projemde `scheduleMicrotask`, `Timer.run` veya `Future(...)` ile sıra
+// varsayan yerleri bul, event loop sırasına göre düzelt, her biri için test yaz.
 import 'dart:async';
 
 /// Sync code first, then every microtask, then event-queue callbacks.
@@ -36,15 +36,15 @@ Future<void> greet(List<String> log) async {
 }
 ```
 **Tuzak:** `async` fonksiyon ilk `await`'e kadar senkron çalışır; çağıran, `await` etmese bile o kısmı hemen görür.
-**Skill'e ver:** > "Projemde `scheduleMicrotask`, `Timer.run` veya `Future(...)` ile sıra varsayan yerleri bul, event loop sırasına göre düzelt, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde `scheduleMicrotask`, `Timer.run` veya `Future(...)` ile sıra varsayan yerleri bul, event loop sırasına göre düzelt, her biri için test yaz."
 **Kabul:** Test sırayı `sync → microtask → event` olarak doğrular; sıra varsayımı `await` ile açık hale gelmiş; `dart analyze` temiz.
 
 ## 2. Future.wait ve record `.wait` (3.0)
 **Ne:** Bağımsız istekleri aynı anda başlatıp bekler; record `.wait` her alanın tipini korur. **Ne zaman:** RepositoryImpl'de iki-üç bağımsız çağrı. **Gerekmez:** İkinci istek birincinin sonucuna bağlıysa; sıralı `await`.
 <!-- snippet: 06_event_loop_future/parallel_wait -->
 ```dart
-// Skill'e ver: "Projemde birbirine bağlı olmayan `await`'leri art arda yazan repository
-// yerlerini bul, record `.wait` ile paralel yap, her biri için test yaz."
+// /dartadvance Projemde birbirine bağlı olmayan `await`'leri art arda yazan repository
+// yerlerini bul, record `.wait` ile paralel yap, her biri için test yaz.
 import 'dart:async';
 
 Future<String> loadSequential(Future<int> Function() unread, Future<String> Function() name) async {
@@ -66,15 +66,15 @@ Future<String> loadParallel(Future<int> Function() unread, Future<String> Functi
 Future<List<int>> loadPrices(List<Future<int>> requests) => Future.wait(requests);
 ```
 **Tuzak:** `Future.wait` sonuçları verilen sırayla döner ve yalnız ilk hatayı bildirir; başarılı değerlere `ParallelWaitError.values` ile ulaşılır.
-**Skill'e ver:** > "Projemde birbirine bağlı olmayan `await`'leri art arda yazan repository yerlerini bul, record `.wait` ile paralel yap, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde birbirine bağlı olmayan `await`'leri art arda yazan repository yerlerini bul, record `.wait` ile paralel yap, her biri için test yaz."
 **Kabul:** Test bağımsız çağrıların birlikte başladığını (başlangıç sırası) ve kısmi başarıyı (`values`) kapsar; `dart analyze` temiz.
 
 ## 3. timeout ve Completer (her sürüm)
 **Ne:** `Completer` callback API'sini `Future`'a çevirir; `.timeout` bekleme süresini sınırlar. **Ne zaman:** Eski SDK sarmalama, ağ/IO sınırı. **Gerekmez:** Zaten `Future` dönen bir şeyi sarmak için `Completer`.
 <!-- snippet: 06_event_loop_future/timeout_completer -->
 ```dart
-// Skill'e ver: "Projemde callback tabanlı eski API'leri, süresiz bekleyen çağrıları bul,
-// `Completer` ile Future'a çevir, `timeout` ile sınırla, her biri için test yaz."
+// /dartadvance Projemde callback tabanlı eski API'leri, süresiz bekleyen çağrıları bul,
+// `Completer` ile Future'a çevir, `timeout` ile sınırla, her biri için test yaz.
 import 'dart:async';
 
 abstract interface class LegacyLocationClient {
@@ -102,15 +102,15 @@ Future<String> cityOrDefault(LegacyLocationClient client, Duration limit) =>
     currentCity(client).timeout(limit, onTimeout: () => 'Istanbul'); // silent: Istanbul
 ```
 **Tuzak:** `timeout` kaynak future'ı iptal etmez; geç gelen sonuç yok sayılır, `Completer` ikinci kez tamamlanırsa `StateError` atar (`isCompleted` ile koru).
-**Skill'e ver:** > "Projemde callback tabanlı eski API'leri, süresiz bekleyen çağrıları bul, `Completer` ile Future'a çevir, `timeout` ile sınırla, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde callback tabanlı eski API'leri, süresiz bekleyen çağrıları bul, `Completer` ile Future'a çevir, `timeout` ile sınırla, her biri için test yaz."
 **Kabul:** Test sessiz SDK'de `TimeoutException`'ı, çift callback'te yalnız ilk sonucu doğrular; süresiz bekleyen çağrı kalmaz.
 
 ## 4. unawaited, ignore ve ateşle-unut hatalar (unawaited 2.15, ignore 2.14)
 **Ne:** `unawaited` "bilerek beklemiyorum" der; `ignore()` hatayı da yutar. **Ne zaman:** `initState` gibi senkron yerden analitik/önbellek ısıtma. **Gerekmez:** Sonucu veya hatası önemliyse; `await` et.
 <!-- snippet: 06_event_loop_future/fire_and_forget -->
 ```dart
-// Skill'e ver: "Projemde beklenmeden çağrılan Future'ları (`unawaited`) bul, hatasını
-// `catchError` ile ele alacak şekilde düzelt, her biri için test yaz."
+// /dartadvance Projemde beklenmeden çağrılan Future'ları (`unawaited`) bul, hatasını
+// `catchError` ile ele alacak şekilde düzelt, her biri için test yaz.
 import 'dart:async';
 
 final class AnalyticsClient {
@@ -133,7 +133,7 @@ void trackScreenOpenedSafe(AnalyticsClient analytics, void Function(Object) repo
 }
 ```
 **Tuzak:** `unawaited` hatayı yutmaz; hata yine işlenmemiş (unhandled) olur, `ignore()` ise sessizce yutar.
-**Skill'e ver:** > "Projemde beklenmeden çağrılan Future'ları (`unawaited`) bul, hatasını `catchError` ile ele alacak şekilde düzelt, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde beklenmeden çağrılan Future'ları (`unawaited`) bul, hatasını `catchError` ile ele alacak şekilde düzelt, her biri için test yaz."
 **Kabul:** Test hatanın zone'a sızmadığını ve `catchError` ile raporlandığını doğrular; `dart analyze` temiz.
 
 ## Flutter'da kanıt

@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde `Map<String, dynamic>` tipini tekrar eden Data katmanı yerlerini
-// bul, `typedef` alias ile düzelt, her biri için test yaz."
+// /dartadvance Projemde `Map<String, dynamic>` tipini tekrar eden Data katmanı yerlerini
+// bul, `typedef` alias ile düzelt, her biri için test yaz.
 typedef Json = Map<String, Object?>;
 typedef JsonList = List<Json>;
 typedef Cache<T> = Map<String, List<T>>; // Cache<int> == Map<String, List<int>>

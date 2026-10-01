@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde state/ViewModel'de `List` alanını doğrudan saklayan ya da
-// açan yerleri bul, `List.unmodifiable`/`UnmodifiableListView` ile düzelt, test yaz."
+// /dartadvance Projemde state/ViewModel'de `List` alanını doğrudan saklayan ya da
+// açan yerleri bul, `List.unmodifiable`/`UnmodifiableListView` ile düzelt, test yaz.
 import 'dart:collection';
 
 final class LeakyCart {

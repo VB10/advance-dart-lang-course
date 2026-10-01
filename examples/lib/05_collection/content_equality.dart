@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde `List`/`Map` alanlı sınıflarda `==`/`hashCode` yazan yerleri
-// bul, `DeepCollectionEquality` ile düzelt, her biri için test yaz."
+// /dartadvance Projemde `List`/`Map` alanlı sınıflarda `==`/`hashCode` yazan yerleri
+// bul, `DeepCollectionEquality` ile düzelt, her biri için test yaz.
 import 'package:collection/collection.dart';
 
 const _tagEquality = DeepCollectionEquality();

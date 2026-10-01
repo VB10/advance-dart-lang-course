@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde beklenmeden çağrılan Future'ları (`unawaited`) bul, hatasını
-// `catchError` ile ele alacak şekilde düzelt, her biri için test yaz."
+// /dartadvance Projemde beklenmeden çağrılan Future'ları (`unawaited`) bul, hatasını
+// `catchError` ile ele alacak şekilde düzelt, her biri için test yaz.
 import 'dart:async';
 
 final class AnalyticsClient {

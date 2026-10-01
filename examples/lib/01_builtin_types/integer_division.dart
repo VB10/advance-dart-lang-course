@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde `/` sonucunu `toInt()`/`ceil()` ile tamsayıya çeviren ve
-// negatif değerde `%` kullanan yerleri bul, `~/` ve `remainder` ile düzelt, test yaz."
+// /dartadvance Projemde `/` sonucunu `toInt()`/`ceil()` ile tamsayıya çeviren ve
+// negatif değerde `%` kullanan yerleri bul, `~/` ve `remainder` ile düzelt, test yaz.
 
 // Naive: goes through double just to get an int back.
 int pagesNaive(int items, int size) => (items / size).ceil();

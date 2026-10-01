@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde öncelikli işi `sort()` ya da tek ölçütlü karşılaştırıcıyla
-// sıralayan yerleri bul, `HeapPriorityQueue` + sıra numarası ile düzelt, test yaz."
+// /dartadvance Projemde öncelikli işi `sort()` ya da tek ölçütlü karşılaştırıcıyla
+// sıralayan yerleri bul, `HeapPriorityQueue` + sıra numarası ile düzelt, test yaz.
 import 'package:collection/collection.dart';
 
 typedef _Task = ({int priority, int sequence, String name});

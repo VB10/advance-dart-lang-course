@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde `scheduleMicrotask`, `Timer.run` veya `Future(...)` ile sıra
-// varsayan yerleri bul, event loop sırasına göre düzelt, her biri için test yaz."
+// /dartadvance Projemde `scheduleMicrotask`, `Timer.run` veya `Future(...)` ile sıra
+// varsayan yerleri bul, event loop sırasına göre düzelt, her biri için test yaz.
 import 'dart:async';
 
 /// Sync code first, then every microtask, then event-queue callbacks.

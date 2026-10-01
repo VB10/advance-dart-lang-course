@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde elle yazılmış sınıfı `part` ile böldüğüm yerleri bul, `part of`
-// string URI ve import kurallarıyla düzelt, her biri için test yaz."
+// /dartadvance Projemde elle yazılmış sınıfı `part` ile böldüğüm yerleri bul, `part of`
+// string URI ve import kurallarıyla düzelt, her biri için test yaz.
 import 'dart:collection';
 
 part 'order_builder_lines.dart';

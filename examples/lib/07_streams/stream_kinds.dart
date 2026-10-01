@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde aynı stream'i birden çok yerde dinleyen yerleri bul,
-// single-subscription/broadcast ayrımıyla düzelt, her biri için test yaz."
+// /dartadvance Projemde aynı stream'i birden çok yerde dinleyen yerleri bul,
+// single-subscription/broadcast ayrımıyla düzelt, her biri için test yaz.
 import 'dart:async';
 
 Stream<String> orderHistory(List<String> statuses) async* {

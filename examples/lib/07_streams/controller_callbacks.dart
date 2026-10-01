@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde Timer, soket veya sensörü stream dinlenmeden başlatan yerleri
-// bul, `StreamController` onListen/onCancel ile düzelt, her biri için test yaz."
+// /dartadvance Projemde Timer, soket veya sensörü stream dinlenmeden başlatan yerleri
+// bul, `StreamController` onListen/onCancel ile düzelt, her biri için test yaz.
 import 'dart:async';
 
 Stream<int> courierPositions({required void Function(String event) log}) {

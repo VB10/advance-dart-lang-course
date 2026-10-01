@@ -8,8 +8,8 @@ Liste, map ve kuyruk işlerini (arama, gruplama, sıralama, eşitlik, değişmez
 **Ne:** `firstOrNull`/`lastOrNull`/`singleOrNull`/`elementAtOrNull` core'da; predicate'li `firstWhereOrNull` hâlâ `package:collection`'da. **Ne zaman:** "belki yok" aramasında `StateError` yerine null istediğinde. **Gerekmez:** Eleman kesin varsa düz `first`.
 <!-- snippet: 05_collection/first_or_null -->
 ```dart
-// Skill'e ver: "Projemde `first`/`firstWhere`/`try-catch StateError` ile arama yapan
-// yerleri bul, `firstOrNull`/`firstWhereOrNull` ile düzelt, her biri için test yaz."
+// /dartadvance Projemde `first`/`firstWhere`/`try-catch StateError` ile arama yapan
+// yerleri bul, `firstOrNull`/`firstWhereOrNull` ile düzelt, her biri için test yaz.
 import 'package:collection/collection.dart';
 
 typedef Product = ({String name, int stock});
@@ -26,15 +26,15 @@ Product? firstInStock(List<Product> products) =>
 Product? onlyProduct(List<Product> products) => products.singleOrNull;
 ```
 **Tuzak:** `first`/`firstWhere` boşta `StateError` atar (test: "first and firstWhere throw StateError ..."); `singleOrNull` iki veya daha fazla elemanda da null döner, hata vermez (test: "singleOrNull is null for zero and for two or more elements").
-**Skill'e ver:** > "Projemde `first`/`firstWhere`/`try-catch StateError` ile arama yapan yerleri bul, `firstOrNull`/`firstWhereOrNull` ile düzelt, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde `first`/`firstWhere`/`try-catch StateError` ile arama yapan yerleri bul, `firstOrNull`/`firstWhereOrNull` ile düzelt, her biri için test yaz."
 **Kabul:** Boş listede ve eşleşme yokta exception atmıyor; `first`/`firstWhere`/`StateError` yakalama kalmadı; `firstOrNull` için paket import'u yok, predicate'li arama için var; her değişiklik için test, `dart analyze` temiz.
 
 ## 2. Gruplama ve sıralama (package:collection)
 **Ne:** `groupListsBy`, `sortedBy`/`sortedByCompare`, `mapIndexed`, `compareNatural`. **Ne zaman:** Listeyi ekran için gruplarken veya yeni sıralı kopya gerektiğinde. **Gerekmez:** Yerinde sıralama yeterliyse `List.sort`.
 <!-- snippet: 05_collection/group_and_sort -->
 ```dart
-// Skill'e ver: "Projemde `list.sort()` ile yerinde sıralayan veya elle gruplayan
-// yerleri bul, `sortedBy`/`groupListsBy` ile düzelt, her biri için test yaz."
+// /dartadvance Projemde `list.sort()` ile yerinde sıralayan veya elle gruplayan
+// yerleri bul, `sortedBy`/`groupListsBy` ile düzelt, her biri için test yaz.
 import 'package:collection/collection.dart';
 
 typedef Order = ({String city, String sku, int amount});
@@ -55,15 +55,15 @@ List<String> versionsInOrder(Iterable<String> versions) =>
     versions.sorted(compareNatural); // v2 before v10
 ```
 **Tuzak:** `sort()` girdi listesini değiştirir (test: "sort() mutates the input ..."); `sort()` yerinde çalışır ve `void` döner; `sorted*` yeni liste verir, kaynak değişmez (test: "sorting helpers return a new list and leave the source alone").
-**Skill'e ver:** > "Projemde `list.sort()` ile yerinde sıralayan veya elle gruplayan yerleri bul, `sortedBy`/`groupListsBy` ile düzelt, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde `list.sort()` ile yerinde sıralayan veya elle gruplayan yerleri bul, `sortedBy`/`groupListsBy` ile düzelt, her biri için test yaz."
 **Kabul:** Gruplar ilk görülme sırasında; kaynak liste `sort()` ile değişmiyor (yerinde sıralama kalmadı); her değişen yer için test, `dart analyze` temiz.
 
 ## 3. İçerik eşitliği
 **Ne:** `List`/`Map`/`Set` `==` ile identity karşılaştırır; içerik için `ListEquality`, `DeepCollectionEquality` kullanılır. **Ne zaman:** Koleksiyon alanı olan sınıfta `==`/`hashCode` yazarken. **Gerekmez:** Alanlar `String`/`int`/record ise `Object.hash` yeter.
 <!-- snippet: 05_collection/content_equality -->
 ```dart
-// Skill'e ver: "Projemde `List`/`Map` alanlı sınıflarda `==`/`hashCode` yazan yerleri
-// bul, `DeepCollectionEquality` ile düzelt, her biri için test yaz."
+// /dartadvance Projemde `List`/`Map` alanlı sınıflarda `==`/`hashCode` yazan yerleri
+// bul, `DeepCollectionEquality` ile düzelt, her biri için test yaz.
 import 'package:collection/collection.dart';
 
 const _tagEquality = DeepCollectionEquality();
@@ -92,15 +92,15 @@ bool sameQuery(Map<String, List<String>> a, Map<String, List<String>> b) =>
     const DeepCollectionEquality.unordered().equals(a, b);
 ```
 **Tuzak:** `Map`/`List` üzerinde `==` aynı içerikte bile false'tur (test: "== on maps is false ..."); `ListEquality<List<int>>` iç listeleri identity ile karşılaştırır; iç içe veri için `DeepCollectionEquality` gerekir (test: "ListEquality without deep support ..."). `hashCode` da aynı Equality ile üretilmeli.
-**Skill'e ver:** > "Projemde `List`/`Map` alanlı sınıflarda `==`/`hashCode` yazan yerleri bul, `DeepCollectionEquality` ile düzelt, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde `List`/`Map` alanlı sınıflarda `==`/`hashCode` yazan yerleri bul, `DeepCollectionEquality` ile düzelt, her biri için test yaz."
 **Kabul:** `==` ve `hashCode` aynı `DeepCollectionEquality` örneğini kullanıyor; aynı içerikli iki ayrı nesne için eşitlik ve hash testi geçiyor; koleksiyon alanlarında çıplak `==` kalmadı.
 
 ## 4. Değişmez state: kopya mı görünüm mü
 **Ne:** `List.unmodifiable` kopya alır; `UnmodifiableListView` canlı, salt-okunur görünümdür. **Ne zaman:** State nesnesinde kopya, ViewModel'in iç listesini dışarı açarken görünüm. **Gerekmez:** Liste zaten dışarı sızmıyorsa.
 <!-- snippet: 05_collection/immutable_state -->
 ```dart
-// Skill'e ver: "Projemde state/ViewModel'de `List` alanını doğrudan saklayan ya da
-// açan yerleri bul, `List.unmodifiable`/`UnmodifiableListView` ile düzelt, test yaz."
+// /dartadvance Projemde state/ViewModel'de `List` alanını doğrudan saklayan ya da
+// açan yerleri bul, `List.unmodifiable`/`UnmodifiableListView` ile düzelt, test yaz.
 import 'dart:collection';
 
 final class LeakyCart {
@@ -126,15 +126,15 @@ final class CartViewModel {
 }
 ```
 **Tuzak:** Listeyi doğrudan saklamak çağıranın değişikliğini state'e sızdırır (test: "the leaky state follows the caller list"); `UnmodifiableListView` kopya değildir; sahibi listeyi değiştirirse görünüm de değişir (test: "the view rejects changes but follows the owner").
-**Skill'e ver:** > "Projemde state/ViewModel'de `List` alanını doğrudan saklayan ya da açan yerleri bul, `List.unmodifiable`/`UnmodifiableListView` ile düzelt, test yaz."
+**Skill'e ver:** > "/dartadvance Projemde state/ViewModel'de `List` alanını doğrudan saklayan ya da açan yerleri bul, `List.unmodifiable`/`UnmodifiableListView` ile düzelt, test yaz."
 **Kabul:** State'e verilen kaynak liste sonradan değişse state değişmiyor; dışarı açılan listeye `add` `UnsupportedError` atıyor; her değişen yer için test, `dart analyze` temiz.
 
 ## 5. Öncelik kuyruğu
 **Ne:** `HeapPriorityQueue` en küçük (karşılaştırıcıya göre ilk) elemanı verir. **Ne zaman:** Öncelikli iş/görev sırası. **Gerekmez:** Sıra yalnızca geliş sırasıysa `Queue`/`QueueList`.
 <!-- snippet: 05_collection/task_scheduler -->
 ```dart
-// Skill'e ver: "Projemde öncelikli işi `sort()` ya da tek ölçütlü karşılaştırıcıyla
-// sıralayan yerleri bul, `HeapPriorityQueue` + sıra numarası ile düzelt, test yaz."
+// /dartadvance Projemde öncelikli işi `sort()` ya da tek ölçütlü karşılaştırıcıyla
+// sıralayan yerleri bul, `HeapPriorityQueue` + sıra numarası ile düzelt, test yaz.
 import 'package:collection/collection.dart';
 
 typedef _Task = ({int priority, int sequence, String name});
@@ -167,7 +167,7 @@ final class TaskScheduler {
 }
 ```
 **Tuzak:** Eşit öncelikte FIFO garanti edilmez (test: "priority-only comparator does not keep FIFO on ties"); `sequence` alanı ile karşılaştırıcıya ikinci ölçüt eklenir (test: "runs the highest priority first and FIFO within a priority").
-**Skill'e ver:** > "Projemde öncelikli işi `sort()` ya da tek ölçütlü karşılaştırıcıyla sıralayan yerleri bul, `HeapPriorityQueue` + sıra numarası ile düzelt, test yaz."
+**Skill'e ver:** > "/dartadvance Projemde öncelikli işi `sort()` ya da tek ölçütlü karşılaştırıcıyla sıralayan yerleri bul, `HeapPriorityQueue` + sıra numarası ile düzelt, test yaz."
 **Kabul:** Karşılaştırıcı önce öncelik sonra sıra numarasına bakıyor; aynı öncelikte geliş sırası testle kanıtlı; `drain()` sonrası kuyruk boş.
 
 ## Flutter'da kanıt

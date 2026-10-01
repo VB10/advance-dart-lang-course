@@ -9,8 +9,8 @@ Neden bu konu: Flutter'da sızan `listen`, ikinci dinleyicide `StateError` ve di
 **Ne zaman:** Sıralı, eksiksiz veri (dosya, geçmiş) için single; UI olayları ve durum değişimi için broadcast. **Gerekmez:** Tek değer için `Future` yeter.
 <!-- snippet: 07_streams/stream_kinds -->
 ```dart
-// Skill'e ver: "Projemde aynı stream'i birden çok yerde dinleyen yerleri bul,
-// single-subscription/broadcast ayrımıyla düzelt, her biri için test yaz."
+// /dartadvance Projemde aynı stream'i birden çok yerde dinleyen yerleri bul,
+// single-subscription/broadcast ayrımıyla düzelt, her biri için test yaz.
 import 'dart:async';
 
 Stream<String> orderHistory(List<String> statuses) async* {
@@ -32,7 +32,7 @@ final class OrderStatusFeed {
 }
 ```
 **Tuzak:** Single-subscription'a ikinci `listen` `StateError` atar, ilk abonelik cancel edilse bile (test kanıtlıyor).
-**Skill'e ver:** > "Projemde aynı stream'i birden çok yerde dinleyen yerleri bul, single-subscription/broadcast ayrımıyla düzelt, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde aynı stream'i birden çok yerde dinleyen yerleri bul, single-subscription/broadcast ayrımıyla düzelt, her biri için test yaz."
 **Kabul:** Çoklu dinlenen akış `isBroadcast`; iki dinleyici aynı olayı aldı; ikinci `listen` `StateError` atmıyor; mevcut testler ve `dart analyze` yeşil.
 
 ## 2. `async*` generator (2.x)
@@ -40,8 +40,8 @@ final class OrderStatusFeed {
 **Ne zaman:** Olaylar başka kaynaktan (sayfa, stream) türetiliyorsa. **Gerekmez:** Olaylar kodun farklı yerlerinden geliyorsa `StreamController`. `sync*` aynı fikrin senkron hali: `Iterable` döner, stream değildir.
 <!-- snippet: 07_streams/async_generator -->
 ```dart
-// Skill'e ver: "Projemde sayfaları hepsini çekip listeye dönen yerleri bul, `async*` ile
-// tembel Stream'e çevir, erken iptalde temizliği de kapsayan test yaz."
+// /dartadvance Projemde sayfaları hepsini çekip listeye dönen yerleri bul, `async*` ile
+// tembel Stream'e çevir, erken iptalde temizliği de kapsayan test yaz.
 
 Stream<int> orderIds(
   Future<List<int>> Function(int page) fetchPage, {
@@ -59,7 +59,7 @@ Stream<int> orderIds(
 }
 ```
 **Tuzak:** `take(3)` gibi erken durma sonraki sayfayı çağırmaz ve `finally` bir kez çalışır (test kanıtlıyor).
-**Skill'e ver:** > "Projemde sayfaları hepsini çekip listeye dönen yerleri bul, `async*` ile tembel Stream'e çevir, erken iptalde temizliği de kapsayan test yaz."
+**Skill'e ver:** > "/dartadvance Projemde sayfaları hepsini çekip listeye dönen yerleri bul, `async*` ile tembel Stream'e çevir, erken iptalde temizliği de kapsayan test yaz."
 **Kabul:** Dönüştürülen her yerde sayfalar sırayla geldi; `take(n)` sonrası fazladan sayfa istenmedi; temizlik bir kez çalıştı; analyze temiz.
 
 ## 3. StreamController callback'leri (2.x)
@@ -67,8 +67,8 @@ Stream<int> orderIds(
 **Ne zaman:** Zamanlayıcı, bağlantı, sensör gibi pahalı kaynak. **Gerekmez:** Kaynak zaten stream ise `async*` veya `map` yeter.
 <!-- snippet: 07_streams/controller_callbacks -->
 ```dart
-// Skill'e ver: "Projemde Timer, soket veya sensörü stream dinlenmeden başlatan yerleri
-// bul, `StreamController` onListen/onCancel ile düzelt, her biri için test yaz."
+// /dartadvance Projemde Timer, soket veya sensörü stream dinlenmeden başlatan yerleri
+// bul, `StreamController` onListen/onCancel ile düzelt, her biri için test yaz.
 import 'dart:async';
 
 Stream<int> courierPositions({required void Function(String event) log}) {
@@ -96,7 +96,7 @@ Stream<int> courierPositions({required void Function(String event) log}) {
 }
 ```
 **Tuzak:** Dinleyici gelene kadar `onListen` çalışmaz; kaynak kapalı kalır (test kanıtlıyor).
-**Skill'e ver:** > "Projemde Timer, soket veya sensörü stream dinlenmeden başlatan yerleri bul, `StreamController` onListen/onCancel ile düzelt, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde Timer, soket veya sensörü stream dinlenmeden başlatan yerleri bul, `StreamController` onListen/onCancel ile düzelt, her biri için test yaz."
 **Kabul:** Dinleyici gelmeden kaynak açılmıyor; log sırası `onListen`, `onPause`, `onResume`, `onCancel`; cancel sonrası yeni olay yok.
 
 ## 4. `StreamTransformer` (2.x)
@@ -104,8 +104,8 @@ Stream<int> courierPositions({required void Function(String event) log}) {
 **Ne zaman:** Olayı süzüp dönüştürmek gerekiyorsa. **Gerekmez:** Olay başına tek çıktı için `map()`.
 <!-- snippet: 07_streams/message_transformer -->
 ```dart
-// Skill'e ver: "Projemde stream olaylarını döngüyle süzüp dönüştüren yerleri bul,
-// `StreamTransformer.fromHandlers` ile dönüştür, her biri için test yaz."
+// /dartadvance Projemde stream olaylarını döngüyle süzüp dönüştüren yerleri bul,
+// `StreamTransformer.fromHandlers` ile dönüştür, her biri için test yaz.
 import 'dart:async';
 
 final trimMessages = StreamTransformer<String, String>.fromHandlers(
@@ -116,7 +116,7 @@ final trimMessages = StreamTransformer<String, String>.fromHandlers(
 );
 ```
 **Tuzak:** Sink'e eklemediğin olay sessizce düşer; kırpılan boş mesaj çıktıda yoktur (test kanıtlıyor).
-**Skill'e ver:** > "Projemde stream olaylarını döngüyle süzüp dönüştüren yerleri bul, `StreamTransformer.fromHandlers` ile dönüştür, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde stream olaylarını döngüyle süzüp dönüştüren yerleri bul, `StreamTransformer.fromHandlers` ile dönüştür, her biri için test yaz."
 **Kabul:** Dönüşen her akışta davranış aynı: beklenen olaylar sırayla geldi, süzülenler düştü; testler yeşil.
 
 ## 5. Dinleyen state sınıfı ve dispose (2.x)
@@ -124,8 +124,8 @@ final trimMessages = StreamTransformer<String, String>.fromHandlers(
 **Ne zaman:** Bir state sınıfı stream'i ömrü boyunca dinliyorsa. **Gerekmez:** Tek seferlik okuma için `await for` / `first`.
 <!-- snippet: 07_streams/price_watcher -->
 ```dart
-// Skill'e ver: "Projemde stream dinleyip dispose'da cancel etmeyen state'leri bul,
-// subscription'ı alanda tutup `await cancel()` ile düzelt, her biri için test yaz."
+// /dartadvance Projemde stream dinleyip dispose'da cancel etmeyen state'leri bul,
+// subscription'ı alanda tutup `await cancel()` ile düzelt, her biri için test yaz.
 import 'dart:async';
 
 final class PriceWatcher {
@@ -146,7 +146,7 @@ final class PriceWatcher {
 }
 ```
 **Tuzak:** `dispose` sonrası gelen olay state'i değiştirmez; `start` iki kez çağrılsa tek abonelik olur (`??=`) (test kanıtlıyor).
-**Skill'e ver:** > "Projemde stream dinleyip dispose'da cancel etmeyen state'leri bul, subscription'ı alanda tutup `await cancel()` ile düzelt, her biri için test yaz."
+**Skill'e ver:** > "/dartadvance Projemde stream dinleyip dispose'da cancel etmeyen state'leri bul, subscription'ı alanda tutup `await cancel()` ile düzelt, her biri için test yaz."
 **Kabul:** Bulunan her state sınıfında `dispose` sonrası kaynağın `onCancel`'ı çalıştı; geç gelen olay state'i değiştirmedi.
 
 ## Flutter'da kanıt

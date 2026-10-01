@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde değişmemesi gereken listeleri ve her okumada yeniden
-// hesaplanan getter'ları bul, `const` ve `late final` ile düzelt, her biri için test yaz."
+// /dartadvance Projemde değişmemesi gereken listeleri ve her okumada yeniden
+// hesaplanan getter'ları bul, `const` ve `late final` ile düzelt, her biri için test yaz.
 
 final recentSearches = <String>['dart']; // add works: final is not deep
 

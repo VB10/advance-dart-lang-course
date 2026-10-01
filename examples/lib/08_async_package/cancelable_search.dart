@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde her tuş vuruşunda istek atan arama yerlerini bul,
-// CancelableOperation (package:async) ile son sorgu kazansın, her biri için test yaz."
+// /dartadvance Projemde her tuş vuruşunda istek atan arama yerlerini bul,
+// CancelableOperation (package:async) ile son sorgu kazansın, her biri için test yaz.
 import 'package:async/async.dart' hide Result;
 
 final class ProductSearch {

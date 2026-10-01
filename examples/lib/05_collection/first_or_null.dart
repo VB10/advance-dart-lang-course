@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde `first`/`firstWhere`/`try-catch StateError` ile arama yapan
-// yerleri bul, `firstOrNull`/`firstWhereOrNull` ile düzelt, her biri için test yaz."
+// /dartadvance Projemde `first`/`firstWhere`/`try-catch StateError` ile arama yapan
+// yerleri bul, `firstOrNull`/`firstWhereOrNull` ile düzelt, her biri için test yaz.
 import 'package:collection/collection.dart';
 
 typedef Product = ({String name, int stock});

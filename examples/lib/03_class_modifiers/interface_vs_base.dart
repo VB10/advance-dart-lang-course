@@ -1,5 +1,5 @@
-// Skill'e ver: "Projemde repository sözleşmelerini ve ortak mantıklı tabanları bul,
-// `abstract interface class` / `abstract base class` ile ayır, her biri için test yaz."
+// /dartadvance Projemde repository sözleşmelerini ve ortak mantıklı tabanları bul,
+// `abstract interface class` / `abstract base class` ile ayır, her biri için test yaz.
 
 // Pure contract: outside code can only `implements` it (e.g. a test fake).
 abstract interface class ProductRepository {
