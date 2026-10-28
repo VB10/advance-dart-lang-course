@@ -13,7 +13,7 @@ class Product {
 }
 
 // ✗ Map<String, dynamic> json  // analyzer (strict-casts): dynamic can't be assigned to String
-Product naiveFromJson(Map<String, Object?> json) =>
+Product fromJsonWrong(Map<String, Object?> json) =>
     Product(json['name']! as String, json['price']! as double); // 4: TypeError
 
 Product productFromJson(Json json) =>

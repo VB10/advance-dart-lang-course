@@ -5,15 +5,14 @@ sonra tasarım (tipler, modifier'lar, library), sonra veri (koleksiyon), en sond
 
 | # | Konu | Neden bu konu | Neden bu sırada |
 | --- | --- | --- | --- |
-| 01 | Built-in types | Metin uzunluğu, bölme, `final`/`const`: her dosyada çıkar, hataları sessizdir | Her sonraki konunun kodu bunları kullanır |
+| 01 | Built-in types | Bildiğini sandığın tipler: kuruş `int`, `%`, JSON `num`, `tryParse`, `characters`, Türkçe slug, record anahtar, UTC saat, `late final`/getter, cascade ve `?..`; hepsi derlenir, hata ekranda çıkar | Her sonraki konunun kodu bunları kullanır |
 | 02 | Typedefs | Callback ve JSON tipleri her yerde; "alias yeni tip değildir" sürprizi kısa ve etkili | Küçük, hızlı kazanım; Json ve callback tipleri sonraki konularda geçer |
-| 03 | Class modifiers | State ve repository tiplerini kapatıp derleyiciyle güvenlik almak | Tip tasarımı; `sealed` state, `final`/`base` API sınırı |
-| 04 | Libraries, `part`, metadata | Gizlilik sınıfa değil library'ye göre; `part` ve annotation'lar yanlış güvenlik verir | 03'teki kısıtların library sınırıyla nasıl çalıştığını tamamlar |
-| 05 | Koleksiyonlar | Boş listede `first`, yerinde `sort()`, `==` tuzakları en sık görülen hatalar | Günlük veri işlemi; async konulardan önce eldeki veri güvenli olmalı |
-| 06 | Event loop ve Future | Sıralı `await`, yutulan hatalar | Async zincirin temeli |
-| 07 | Streams | Sızan `listen`, tek/çok abonelik | Future'ı bilmeden anlaşılmaz |
-| 08 | `package:async` | `dart:async`'in çözmediği iptal, önbellek, sıralı okuma | Future ve Stream bilindikten sonra eksikleri tamamlar |
-| 09 | Isolates | Ağır işte frame kaçar; closure ne yakalar | En ileri seviye; async zincirin sonu |
+| 03 | Class tasarımı | Bir sınıfın dışarıya nasıl açıldığı: modifier (`sealed` state, `final`/`base` API sınırı), annotation (`@immutable`, `@useResult`, `@protected`, `@mustCallSuper`) ve library sınırı (`_`, `part`); hepsi hatayı ekrana çıkmadan yakalatır | Tip tasarımı; temel tiplerden sonra, veriden önce |
+| 04 | Collection | `package:collection` (`firstWhereOrNull`, `groupBy`, Equality, `slices`, `sortedBy`, `PriorityQueue`), `fast_immutable_collections` `IList`, null-aware element | Günlük veri işlemi; async konulardan önce eldeki veri güvenli olmalı |
+| 05 | Event loop ve Future | Sıralı `await`, yutulan hatalar | Async zincirin temeli |
+| 06 | Streams | Sızan `listen`, tek/çok abonelik | Future'ı bilmeden anlaşılmaz |
+| 07 | `package:async` | `dart:async`'in çözmediği iptal, önbellek, sıralı okuma | Future ve Stream bilindikten sonra eksikleri tamamlar |
+| 08 | Isolates | Ağır işte frame kaçar; closure ne yakalar | En ileri seviye; async zincirin sonu |
 
 ## Sonra gelecekler (önerilen sıra)
 

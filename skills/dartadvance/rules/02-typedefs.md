@@ -64,7 +64,7 @@ class Product {
 }
 
 // ✗ Map<String, dynamic> json  // analyzer (strict-casts): dynamic can't be assigned to String
-Product naiveFromJson(Map<String, Object?> json) =>
+Product fromJsonWrong(Map<String, Object?> json) =>
     Product(json['name']! as String, json['price']! as double); // 4: TypeError
 
 Product productFromJson(Json json) =>
@@ -90,7 +90,7 @@ Cache<Product> groupByFirstLetter(List<Product> products) {
 **Tuzak:** Alias orijinal tiple birebir aynıdır (`Json == Map<String, Object?>`); `dynamic` değil `Object?` kullan, yoksa `strict-casts` bile seni koruyamaz. JSON sayısı `int` de gelebilir: `(x as num).toDouble()`.
 **Düzelt (mevcut proje):** > "/dartadvance Projemde `Map<String, dynamic>` tipini tekrar eden Data katmanı yerlerini bul, `typedef` alias ile düzelt, test yaz."
 **Üret (yeni kod):** > "/dartadvance Bana API'den gelen fatura satırları JSON listesini okuyup tekrar JSON'a çeviren bir Data sınıfı yaz."
-**Kabul:** Test `Json == Map<String, Object?>` ve generic alias eşitliğini doğrular; `int` ve `double` değerler kabul edilir (`as double` kullanan naif sürüm `int`'te `TypeError` verir); `dynamic` kalmaz; Domain'e `Json` sızmaz.
+**Kabul:** Test `Json == Map<String, Object?>` ve generic alias eşitliğini doğrular; `int` ve `double` değerler kabul edilir (`as double` kullanan olumsuz sürüm `int`'te `TypeError` verir); `dynamic` kalmaz; Domain'e `Json` sızmaz.
 
 ## 3. Typedef yeni tip değildir: ID için extension type (3.3)
 **Ne:** `typedef UserIdAlias = int` yalnızca isimdir; `int` kabul eden her yer onu kabul eder.

@@ -1,6 +1,6 @@
 ---
 name: dartadvance
-description: "Advanced Dart language rules with tested single-file examples: built-in types (String length vs grapheme clusters via package:characters, ~/ and %, final/const/late, wildcard _), typedefs, class modifiers (sealed/final/base/interface/mixin class), libraries and part/part of, package:meta annotations, dart:collection and package:collection, event loop and Future (Future.wait, timeout, unawaited), Streams (broadcast, async*, StreamController, subscriptions), package:async (CancelableOperation, AsyncMemoizer, AsyncCache, StreamQueue, StreamGroup), isolates (Isolate.run, ports). Use when the user asks to audit or fix their project against one of these Dart features, or invokes /dartadvance."
+description: "Advanced Dart language rules with tested single-file examples: built-in types (money as int cents, % vs remainder, ~/ and %, num from JSON, tryParse, grapheme-safe truncation via package:characters, Turkish-safe slugs with raw-string RegExp, records as map keys, DateTime UTC/toLocal, late final vs getter, cascade and null-aware cascade), typedefs, class design (modifiers sealed/final/base/interface/mixin class, package:meta annotations @immutable/@useResult/@protected/@mustCallSuper, library privacy and part/part of), package:collection (firstWhereOrNull, groupBy, Equality, slices, sortedBy, PriorityQueue), fast_immutable_collections IList, null-aware elements, event loop and Future (Future.wait, timeout, unawaited), Streams (broadcast, async*, StreamController, subscriptions), package:async (CancelableOperation, AsyncMemoizer, AsyncCache, StreamQueue, StreamGroup), isolates (Isolate.run, ports). Use when the user asks to audit or fix their project against one of these Dart features, or invokes /dartadvance."
 ---
 
 # dartadvance
@@ -26,7 +26,7 @@ Adımlar:
 3. **Düzelt ise:** önce projede ilgili kalıbı ara (`grep`), bulduğun her yeri listele, sonra tek tek düzelt.
    Bulamazsan "bulunamadı" de; kural uygulanacak yer uydurma. Düzeltme dönüş tipini değiştirirse
    (ör. `first` → nullable) çağıranları da güncelle. Projenin kendi hata tipi (`Result` vb.) varsa modeli ona uyarla.
-   Bölümdeki `// ✗` işaretli kod yanlış örnektir; modele kopyalama.
+   Bölümdeki `xxxWrong` metotları ve `// ✗` işaretli satırlar yanlış örnektir; modele kopyalama.
    **Üret ise:** bölümdeki kod bloğunu model al; kullanıcının alanına uyarla, isimleri kopyalama.
 4. **Yaz:** bir dosya = bir kavram, ≤ 50 satır, yorum en az, iç içe en fazla 3 seviye, metinler kullanıcının dilinde.
    `dart create` şablon dosyalarına dokunma.
@@ -39,19 +39,33 @@ Daha basit yapı yetiyorsa ileri özelliği zorlama; her bölümdeki **Gerekmez*
 Kural dosyası yoksa tahmin etme; dart.dev sayfasını oku
 (`https://raw.githubusercontent.com/dart-lang/site-www/main/src/content/<yol>.md`).
 
+## Kural bölümü nasıl kurulur
+
+Her `## N.` bölümü gerçek bir Flutter ekranındaki tek hatayı anlatır. Yeni bölüm yazarken ya da örnek üretirken aynı kalıp:
+
+- **Senaryo:** bir ekran ve bir iş (grup adı alanı, sepet özeti, OTP butonu, PATCH gövdesi). Sayı oyunu ya da "demo" yok.
+- **Aynı girdi, iki metot:** `xxxWrong` (olumsuz, üstünde `// ✗` ve ekranda ne olduğu) ve `xxx` (olumlu). "naive" adı kullanılmaz.
+- **Olumsuz sonuç ekranda görünür:** kapalı buton, alan hatası, yanlış dilde metin, silinen alan, çalışma anı hatası.
+  İki taraf aynı sonucu veriyorsa o bölüm yazılmaz; "aynı sonuç, daha az kod" bölümü yok.
+- **Hata başlıktaki özellikten gelir:** başlık `late final` diyorsa bozulmayı `late final` yapar, başka bir şey değil.
+- Sonra **Tuzak** (testin adıyla), **Düzelt**, **Üret**, **Kabul**. Kaynak link dart.dev başlığına gider.
+- Müşteri projelerinin adı ya da kodu yazılmaz; yalnız kalıp.
+
+Her bölüm `examples/lib/NN_*/<ekran>.dart` dosyasından snippet olarak gelir ve `examples/test/NN_*` ile kanıtlanır;
+aynı kural `examples/dart_advance_example` uygulamasında bozuk ve düzgün ekran olarak yan yana çizilir.
+
 ## Dizin
 
 | # | Kural dosyası | Konu |
 | --- | --- | --- |
-| 01 | [rules/01-builtin-types.md](rules/01-builtin-types.md) | String uzunluğu, int/double, final/const/late, `_`, `?..` |
+| 01 | [rules/01-builtin-types.md](rules/01-builtin-types.md) | Kuruş `int`, `%`, `~/`, JSON `num`, `tryParse`, `characters`, Türkçe slug + raw `RegExp`, record anahtar, UTC `toLocal`, `late final`/getter, cascade, `?..` |
 | 02 | [rules/02-typedefs.md](rules/02-typedefs.md) | Typedef ve yeni tip olmadığı |
-| 03 | [rules/03-class-modifiers.md](rules/03-class-modifiers.md) | `sealed`, `final`, `base`, `interface`, `mixin class` |
-| 04 | [rules/04-libraries-metadata.md](rules/04-libraries-metadata.md) | Library gizliliği, `export`, `part`, `@immutable`/`@useResult` |
-| 05 | [rules/05-collection.md](rules/05-collection.md) | `dart:collection` ve `package:collection` |
-| 06 | [rules/06-event-loop-future.md](rules/06-event-loop-future.md) | Event loop, `Future.wait`, timeout |
-| 07 | [rules/07-streams.md](rules/07-streams.md) | Stream, broadcast, `async*`, abonelik |
-| 08 | [rules/08-async-package.md](rules/08-async-package.md) | `CancelableOperation`, `AsyncMemoizer`, `AsyncCache`, `StreamQueue` |
-| 09 | [rules/09-isolates.md](rules/09-isolates.md) | `Isolate.run`, port'lar |
+| 03 | [rules/03-class-design.md](rules/03-class-design.md) | `sealed`, `final`, `base`, `interface`, `mixin class`; `@immutable`, `@useResult`, `@protected`, `@mustCallSuper`; `_` gizliliği, `part` |
+| 04 | [rules/04-collection.md](rules/04-collection.md) | `firstWhereOrNull`, `groupBy`, Equality, `slices`, `sortedBy`, `PriorityQueue`, `IList`, `?` element |
+| 05 | [rules/05-event-loop-future.md](rules/05-event-loop-future.md) | Event loop, `Future.wait`, timeout |
+| 06 | [rules/06-streams.md](rules/06-streams.md) | Stream, broadcast, `async*`, abonelik |
+| 07 | [rules/07-async-package.md](rules/07-async-package.md) | `CancelableOperation`, `AsyncMemoizer`, `AsyncCache`, `StreamQueue` |
+| 08 | [rules/08-isolates.md](rules/08-isolates.md) | `Isolate.run`, port'lar |
 
 Yeni konu sıradaki numarayı alır, boşluk bırakılmaz.
 

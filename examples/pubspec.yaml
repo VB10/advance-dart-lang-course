@@ -10,6 +10,7 @@ dependencies:
   async: ^2.13.0
   characters: ^1.4.0
   collection: ^1.19.0
+  fast_immutable_collections: ^12.0.0
   meta: ^1.16.0
 
 dev_dependencies:

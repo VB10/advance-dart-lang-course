@@ -12,14 +12,25 @@ Her özellik için **tek bir Dart dosyası** (ekranda gösterilir), kısa bir **
 | `examples/test/NN_konu/` | Konunun testi (her iddia testle kanıtlı) |
 | `skills/dartadvance/rules/NN-konu.md` | Kural: ne, ne zaman, ne zaman gerekmez, tuzak, skill promptu, kabul kriteri |
 | `skills/dartadvance/SKILL.md` | Skill'in girişi: SDK kontrolü, nasıl çalışır, dizin |
+| `examples/dart_advance_example/` | Flutter uygulaması: her kural gerçek bir ekranda, bozuk ve düzgün hali yan yana |
+| `artifacts/` | Kurs sayfalarının HTML kaynağı (landing + bölüm sayfaları) |
 | `docs/KONULAR.md` | Neden bu konular, neden bu sırada |
 | `docs/FILMING.md` | Çekim notları: bölüm bölüm aç → söyle → izleyiciye prompt → kıyasla |
 | `tool/` | Kural dosyalarındaki kodu `examples/`'tan dolduran ve doğrulayan CLI |
 
+## Kurs sayfaları
+
+- [Kurs haritası](https://claude.ai/artifact/Tg9xgzVDeNbGvGjv4NA3yU)
+- [01 · Built-in types](https://claude.ai/artifact/1ftjaakLwccfcG1NVHanh3)
+- [03 · Class tasarımı](https://claude.ai/artifact/L7uxuQD7VqgRJgjVHA61rM)
+- [04 · Collection](https://claude.ai/artifact/RCdHrWMCwiwTtRJLg8yDxE)
+
+Kaynak HTML ve tam liste: [artifacts/README.md](artifacts/README.md).
+
 ## Konular
 
-01 Built-in types · 02 Typedefs · 03 Class modifiers · 04 Libraries ve metadata · 05 Koleksiyonlar ·
-06 Event loop ve Future · 07 Streams · 08 package:async · 09 Isolates
+01 Built-in types · 02 Typedefs · 03 Class tasarımı (modifier, annotation, library) · 04 Collection ·
+05 Event loop ve Future · 06 Streams · 07 package:async · 08 Isolates
 
 ## Kurulum
 
