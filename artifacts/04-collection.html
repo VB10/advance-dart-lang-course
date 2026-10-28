@@ -1,0 +1,457 @@
+<title>dartadvance 04 Collection</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Düzen: bölüm sayfası. Üstte bölüm adı ve dart.dev'e göre gruplu içindekiler; her kart aynı kalıp: senaryo, girdi, bozuk ekran | düzgün ekran, neden, iki prompt. */
+:root {
+  --bg: #F3F5F8;
+  --surface: #FFFFFF;
+  --surface-2: #EAEFF4;
+  --ink: #0F1E2B;
+  --muted: #53636F;
+  --line: #D3DBE3;
+  --accent: #0468B1;
+  --accent-soft: #DCEBF7;
+  --on-accent: #FFFFFF;
+  --bad: #A8321D;
+  --bad-bg: #FBE6E1;
+  --good: #166C3C;
+  --good-bg: #DDF2E5;
+  --off: #C9D1D8;
+  --off-ink: #7C8993;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B131B; --surface: #121D28; --surface-2: #192735; --ink: #E8EEF4; --muted: #93A3B2;
+    --line: #25333F; --accent: #4DB3F2; --accent-soft: #14304A; --on-accent: #07121B;
+    --bad: #FF9A84; --bad-bg: #3A1E19; --good: #62D493; --good-bg: #12301F;
+    --off: #2A3846; --off-ink: #6F7F8D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B131B; --surface: #121D28; --surface-2: #192735; --ink: #E8EEF4; --muted: #93A3B2;
+  --line: #25333F; --accent: #4DB3F2; --accent-soft: #14304A; --on-accent: #07121B;
+  --bad: #FF9A84; --bad-bg: #3A1E19; --good: #62D493; --good-bg: #12301F;
+  --off: #2A3846; --off-ink: #6F7F8D;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 72px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.02em; }
+p { margin: 0; }
+a { color: var(--accent); }
+code, .mono { font-family: var(--mono); font-size: 0.88em; }
+:not(pre) > code { background: var(--surface-2); padding: 1px 6px; border-radius: 4px; overflow-wrap: anywhere; }
+.label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.back { display: inline-block; margin-top: 28px; font-size: 15px; font-weight: 600; text-decoration: none; }
+.back:hover { text-decoration: underline; }
+
+header.top { padding-top: 24px; }
+header.top h1 { font-size: clamp(44px, 8vw, 92px); font-weight: 800; line-height: 0.95; letter-spacing: -0.035em; }
+header.top h1 span { color: var(--accent); font-family: var(--mono); font-weight: 700; font-size: 0.5em; letter-spacing: 0; vertical-align: 0.6em; margin-right: 12px; }
+header.top .sub { font-size: clamp(19px, 2.4vw, 24px); line-height: 1.4; max-width: 46ch; margin-top: 18px; font-family: var(--display); font-weight: 500; }
+
+.toc { margin-top: 32px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.toc div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.toc .label a { color: var(--muted); }
+.toc ol { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.toc li a { color: var(--ink); text-decoration: none; font-size: 15px; display: grid; grid-template-columns: 26px minmax(0, 1fr); }
+.toc li a:hover { color: var(--accent); }
+.toc li b { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+
+.all { margin-top: 20px; display: grid; gap: 8px; padding: 16px; border: 1px solid var(--accent); border-radius: 12px; background: var(--surface); }
+.all .hint { font-size: 15px; color: var(--muted); max-width: 70ch; }
+
+.group { padding-top: 64px; }
+.group h2 { font-size: clamp(26px, 3.6vw, 36px); font-weight: 800; line-height: 1.1; }
+.group .gl { margin-top: 6px; font-size: 15px; color: var(--muted); }
+
+.card { margin-top: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: grid; gap: 16px; scroll-margin-top: 16px; }
+.card-h { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: baseline; }
+.card-h .no { font-family: var(--mono); font-weight: 700; color: var(--accent); font-size: 15px; }
+.card-h h3 { font-size: clamp(21px, 2.6vw, 26px); font-weight: 700; line-height: 1.2; }
+.card-h .ref { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.since { font-family: var(--mono); font-size: 12px; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 999px; margin-left: 8px; vertical-align: 0.2em; }
+.scn { max-width: 70ch; }
+.inp { font-size: 15px; }
+.inp .label { margin-right: 8px; }
+
+.vs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.side { border-radius: 10px; padding: 14px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.side.bad { background: var(--bad-bg); }
+.side.good { background: var(--good-bg); }
+.side .tag { font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+.side.bad .tag, .side.bad .res { color: var(--bad); }
+.side.good .tag, .side.good .res { color: var(--good); }
+.side .line { font-family: var(--mono); font-size: 13.5px; overflow-wrap: anywhere; }
+.side .res { font-weight: 600; font-size: 15px; }
+
+/* Ekran parçaları: uygulamadaki widget'ların sadeleştirilmiş çizimi */
+.scr { background: var(--surface); border-radius: 8px; padding: 14px; display: grid; gap: 12px; font-size: 15px; min-width: 0; }
+.fld { display: grid; gap: 2px; }
+.fld .fl { font-size: 12px; color: var(--muted); }
+.fld .fv { font-size: 18px; border-bottom: 1.5px solid var(--muted); padding-bottom: 4px; overflow-wrap: anywhere; }
+.fld .fm { font-size: 12.5px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.fld.err .fl, .fld.err .fm { color: var(--bad); }
+.fld.err .fv { border-color: var(--bad); }
+.btn { justify-self: start; border-radius: 999px; padding: 8px 18px; font-weight: 600; font-size: 14px; background: var(--accent); color: var(--on-accent); }
+.btn.off { background: var(--off); color: var(--off-ink); }
+.btn.outline { background: transparent; border: 1px solid var(--off); color: var(--off-ink); }
+.row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.row > div { min-width: 0; }
+.av { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 17px; }
+.av.x { background: var(--bad-bg); color: var(--bad); font-family: var(--mono); font-size: 13px; }
+.tile .t { font-weight: 500; }
+.tile .s { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.tile .s.e { color: var(--bad); }
+.tile .tr { margin-left: auto; font-size: 13px; color: var(--accent); font-weight: 600; flex: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); border-radius: 8px; padding: 3px 10px; font-size: 14px; }
+.kv { display: flex; justify-content: space-between; gap: 12px; }
+.kv b { font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; text-align: right; }
+.req { font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhere; }
+.pin { color: var(--accent); }
+.pin.e { color: var(--bad); }
+
+.why { max-width: 75ch; }
+.why b { font-weight: 600; }
+.prompts { display: grid; gap: 8px; }
+.prompt { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 12px; align-items: start; background: var(--surface-2); border-radius: 10px; padding: 12px 12px 12px 14px; }
+.prompt .pl { font-weight: 700; font-size: 13px; padding-top: 2px; }
+.prompt .txt { font-family: var(--mono); font-size: 13.5px; line-height: 1.55; overflow-wrap: anywhere; white-space: pre-wrap; }
+.copy { background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; color: var(--ink); }
+.copy:hover { border-color: var(--accent); color: var(--accent); }
+.copy.done { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.file { font-family: var(--mono); font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+
+@media (max-width: 860px) {
+  .toc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vs { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 18px; }
+  .card-h { grid-template-columns: auto minmax(0, 1fr); }
+  .card-h .ref { grid-column: 2; white-space: normal; }
+}
+@media (max-width: 480px) {
+  .toc { grid-template-columns: minmax(0, 1fr); }
+  .prompt { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+.thumb { flex: none; width: 56px; height: 56px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); font-size: 26px; }
+.big { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.old { font-size: 13px; color: var(--muted); text-decoration: line-through; }
+.photo { height: 110px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); font-size: 40px; }
+.banner { background: var(--accent-soft); color: var(--ink); border-radius: 8px; padding: 14px; display: grid; gap: 10px; font-weight: 700; letter-spacing: 0.02em; }
+details.card { display: block; padding: 0; }
+details.card > summary { list-style: none; cursor: pointer; padding: 20px 24px; }
+details.card > summary::-webkit-details-marker { display: none; }
+details.card > summary::after { content: "▸"; color: var(--muted); font-size: 18px; justify-self: end; transition: transform .15s; }
+details.card[open] > summary::after { transform: rotate(90deg); }
+details.card[open] > summary { border-bottom: 1px solid var(--line); }
+details.card > .card-b { display: grid; gap: 16px; padding: 20px 24px 24px; }
+details.card > summary.card-h { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+@media (max-width: 720px) { details.card > summary.card-h { grid-template-columns: auto minmax(0, 1fr) auto; } details.card > summary .ref { grid-column: 2; } }
+.acc-tools { margin-top: 20px; display: flex; gap: 8px; }
+</style>
+
+<div class="wrap">
+
+<a class="back" href="https://claude.ai/artifact/Tg9xgzVDeNbGvGjv4NA3yU">← Kurs haritası</a>
+
+<header class="top">
+  <h1><span>04</span>Collection</h1>
+  <p class="sub"><code>package:collection</code> ve <code>fast_immutable_collections</code>: Flutter projesinde en çok işe yarayan 7 araç. Her biri gerçek bir ekranda, bozuk ve düzgün yan yana.</p>
+</header>
+
+<nav class="toc" aria-label="Kartlar">
+  <div>
+    <p class="label"><a href="https://pub.dev/documentation/collection/latest/collection-library.html">Arama ve gruplama</a></p>
+    <ol>
+      <li><a href="#k1"><b>1</b>firstWhereOrNull</a></li>
+      <li><a href="#k2"><b>2</b>groupBy</a></li>
+    </ol>
+  </div>
+  <div>
+    <p class="label"><a href="https://pub.dev/documentation/collection/latest/collection/Equality-class.html">Eşitlik ve bölme</a></p>
+    <ol>
+      <li><a href="#k3"><b>3</b>SetEquality</a></li>
+      <li><a href="#k4"><b>4</b>slices</a></li>
+    </ol>
+  </div>
+  <div>
+    <p class="label"><a href="https://pub.dev/documentation/collection/latest/collection/IterableExtension/sortedBy.html">Sıralama ve kuyruk</a></p>
+    <ol>
+      <li><a href="#k5"><b>5</b>sortedBy</a></li>
+      <li><a href="#k6"><b>6</b>PriorityQueue</a></li>
+    </ol>
+  </div>
+  <div>
+    <p class="label"><a href="https://pub.dev/packages/fast_immutable_collections">Değiştirilemez</a></p>
+    <ol>
+      <li><a href="#k7"><b>7</b>IList: geri al</a></li>
+    </ol>
+  </div>
+</nav>
+
+<div class="all">
+  <p class="label">Bölümün hepsini kendi projende tara</p>
+  <p class="hint">Önce bulduklarını dosya:satır olarak listeler, sen onaylayınca düzeltir. Bir kuralı bulamazsa "bulunamadı" der.</p>
+  <div class="prompts"><div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemi Bölüm 04 (Collection) kurallarıyla tara: eşleşme olmayabilecek firstWhere, elle gruplama, koleksiyonları == ile karşılaştırma, sublist ile satır/sayfa bölme, çıkarma ya da toInt'li sort karşılaştırıcısı, her eklemede sort edilen öncelik kuyruğu, state'te yerinde değiştirilen List/Set/Map. Her kural için bulduğun yerleri dosya:satır ile listele, bulamadığını "bulunamadı" diye yaz. Düzeltmeye geçmeden önce listeyi göster.</div><button class="copy" type="button">Kopyala</button></div></div>
+</div>
+
+<section class="group">
+  <h2>Arama ve gruplama</h2>
+  <p class="gl">Boş sonuçta çökmeyen arama ve sıraya güvenmeyen gruplama. <a href="https://pub.dev/packages/collection">pub.dev · collection</a></p>
+
+  <details class="card" id="k1" name="kart">
+    <summary class="card-h"><span class="no">1</span><h3>Varsayılan adres: firstWhere değil firstWhereOrNull</h3><a class="ref" href="https://pub.dev/documentation/collection/latest/collection/IterableExtension/firstWhereOrNull.html">package:collection · firstWhereOrNull</a></summary>
+    <div class="card-b">    <p class="scn">Ödeme ekranı: teslimat adresi kullanıcının varsayılan adresi. Yeni kullanıcının varsayılanı yok.</p>
+    <p class="inp"><span class="label">Girdi</span>[Address('İş'), Address('Annemler')]</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">addresses.firstWhere((a) => a.isDefault)</code>
+        <div class="scr"><div class="row tile"><span class="pin e">⚠</span><div><span class="t">Ödeme ekranı açılamadı</span><br><span class="s e">StateError: No element</span></div></div></div>
+        <p class="res">Eşleşme yok, ekran çöktü.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">addresses.firstWhereOrNull((a) => a.isDefault)</code>
+        <div class="scr"><div class="row tile"><span class="pin">📍</span><div><span class="t">Varsayılan teslimat adresin yok</span></div></div><span class="btn outline">+ Adres ekle</span></div>
+        <p class="res">null döndü, boş durum çizildi.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>firstWhere</code> eşleşme yoksa <code>StateError</code> atar; <code>orElse</code> nullable olmayan tip ister. <code>firstWhereOrNull</code> null döner, ekran boş durumu çizer. Koşulsuz olanlar (<code>firstOrNull</code>, <code>lastOrNull</code>, <code>elementAtOrNull</code>) Dart 3.0'dan beri <code>dart:core</code>'da, paket gerekmez.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde firstWhere, singleWhere, lastWhere ve boş olabilecek listede first/last kullanan yerleri bul. firstWhereOrNull (koşulsuzsa dart:core firstOrNull) ile düzelt, boş durum için test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana ödeme ekranı için varsayılan teslimat adresini seçen bir sınıf yaz; adres yoksa null dönsün, ekran "Adres ekle" göstersin.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/04_collection/model/address_book.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k2" name="kart">
+    <summary class="card-h"><span class="no">2</span><h3>Ay başlıkları: groupBy</h3><a class="ref" href="https://pub.dev/documentation/collection/latest/collection/groupBy.html">package:collection · groupBy</a></summary>
+    <div class="card-b">    <p class="scn">Sipariş geçmişi: siparişler ay başlıkları altında. API listeyi duruma göre sıralı gönderiyor, tarihe göre değil.</p>
+    <p class="inp"><span class="label">Girdi</span>#1042 Ekim, #0987 Eylül, #1051 Ekim</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">ay değişince yeni başlık</code>
+        <div class="scr"><span class="t">Ekim</span><div class="row tile"><span class="pin">🧾</span><span class="s">Sipariş #1042</span></div><span class="t">Eylül</span><div class="row tile"><span class="pin">🧾</span><span class="s">Sipariş #0987</span></div><span class="t">Ekim</span><div class="row tile"><span class="pin">🧾</span><span class="s">Sipariş #1051</span></div></div>
+        <p class="res">"Ekim" iki kez çıktı.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">groupBy(orders, (o) =&gt; o.month)</code>
+        <div class="scr"><span class="t">Ekim</span><div class="row tile"><span class="pin">🧾</span><span class="s">Sipariş #1042</span></div><div class="row tile"><span class="pin">🧾</span><span class="s">Sipariş #1051</span></div><span class="t">Eylül</span><div class="row tile"><span class="pin">🧾</span><span class="s">Sipariş #0987</span></div></div>
+        <p class="res">Her ay bir kez.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> Elle gruplama listenin sıralı geldiğini varsayar. <code>groupBy</code> anahtara göre <code>Map&lt;K, List&lt;V&gt;&gt;</code> kurar; sıra bozuk gelse de her ay bir kez. İlk görülen anahtarın sırası korunur.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde listeyi tarih, kategori ya da durum başlıkları altında gösteren ve gruplamayı elle (önceki elemanla karşılaştırarak ya da Map kurarak) yapan yerleri bul. groupBy ile düzelt, sırasız girdiyle test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana sipariş geçmişini ay başlıkları altında gösteren bir bölüm listesi kuran sınıf yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/04_collection/model/order_history.dart</p>
+</div>
+  </details>
+
+</section>
+
+<section class="group">
+  <h2>Eşitlik ve bölme</h2>
+  <p class="gl">Koleksiyonun == 'i nesneye bakar; içerik için Equality sınıfları. Listeyi parçalara bölmek için slices.</p>
+
+  <details class="card" id="k3" name="kart">
+    <summary class="card-h"><span class="no">3</span><h3>Değişiklik yokken 'Uygula': SetEquality</h3><a class="ref" href="https://pub.dev/documentation/collection/latest/collection/SetEquality-class.html">package:collection · SetEquality</a></summary>
+    <div class="card-b">    <p class="scn">Filtre sheet'i: uygulanan seçimle taslak farklıysa "Uygula" açılır. Kullanıcı Kitap'ı kaldırıp geri seçti.</p>
+    <p class="inp"><span class="label">Girdi</span>applied {'Kitap', 'Elektronik'} · draft {'Elektronik', 'Kitap'}</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">applied != draft</code>
+        <div class="scr"><div class="chips"><span class="chip" style="background:var(--accent-soft)">✓ Elektronik</span><span class="chip" style="background:var(--accent-soft)">✓ Kitap</span><span class="chip">Oyuncak</span></div><span class="btn">Uygula</span></div>
+        <p class="res">Hiçbir şey değişmedi ama "Uygula" açık.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">const SetEquality().equals(applied, draft)</code>
+        <div class="scr"><div class="chips"><span class="chip" style="background:var(--accent-soft)">✓ Elektronik</span><span class="chip" style="background:var(--accent-soft)">✓ Kitap</span><span class="chip">Oyuncak</span></div><span class="btn off">Uygula</span></div>
+        <p class="res">İçerik aynı, "Uygula" kapalı.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>List</code>, <code>Set</code> ve <code>Map</code>'in <code>==</code>'i içeriğe değil nesneye bakar: <code>{'a'} == {'a'}</code> false. <code>ListEquality</code>, <code>SetEquality</code>, <code>MapEquality</code> ve iç içe yapılar için <code>DeepCollectionEquality</code> içeriği karşılaştırır. State sınıfının <code>==</code>'i de bunlarla yazılır.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde iki List, Set ya da Map'i == veya != ile karşılaştıran yerleri ve koleksiyon alanı olan sınıfların == metotlarını bul. ListEquality, SetEquality ya da DeepCollectionEquality ile düzelt, aynı içerikli iki ayrı nesneyle test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana filtre sheet'i için uygulanan ve taslak seçimi karşılaştıran, değişiklik yoksa "Uygula"yı kapatan bir sınıf yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/04_collection/model/filter_draft.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k4" name="kart">
+    <summary class="card-h"><span class="no">4</span><h3>Satırda 3 ürün: sublist değil slices</h3><a class="ref" href="https://pub.dev/documentation/collection/latest/collection/IterableExtension/slices.html">package:collection · slices</a></summary>
+    <div class="card-b">    <p class="scn">Ürün listesi: her satırda 3 ürün. 7 ürün var.</p>
+    <p class="inp"><span class="label">Girdi</span>['Masa', 'Sandalye', 'Lamba', 'Halı', 'Raf', 'Ayna', 'Vazo']</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">products.sublist(i, i + 3)</code>
+        <div class="scr"><div class="row tile"><span class="pin e">⚠</span><div><span class="t">Ürünler yüklenemedi</span><br><span class="s e">RangeError: Invalid value: 9</span></div></div></div>
+        <p class="res">Son satırda listenin dışına taştı.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">products.slices(3)</code>
+        <div class="scr"><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"><span class="chip" style="text-align:center">Masa</span><span class="chip" style="text-align:center">Sandalye</span><span class="chip" style="text-align:center">Lamba</span><span class="chip" style="text-align:center">Halı</span><span class="chip" style="text-align:center">Raf</span><span class="chip" style="text-align:center">Ayna</span><span class="chip" style="text-align:center">Vazo</span></div></div>
+        <p class="res">3, 3, 1.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>sublist(i, i + 3)</code> son satırda uzunluğu aşar ve <code>RangeError</code> atar; elle <code>min</code> yazmak gerekir. <code>slices(n)</code> listeyi n'lik parçalara böler, son parça kalan kadardır. Iterable için aynısı <code>slices</code> (extension), sayfalama için de kullanılır.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde listeyi satırlara, sayfalara ya da n'lik paketlere bölen ve sublist / elle indeks hesabı kullanan yerleri bul. slices ile düzelt, n'e tam bölünmeyen uzunlukla test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana ürünleri her satırda 3 tane olacak şekilde satırlara bölen bir sınıf yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/04_collection/model/product_grid.dart</p>
+</div>
+  </details>
+
+</section>
+
+<section class="group">
+  <h2>Sıralama ve kuyruk</h2>
+  <p class="gl">Kaynağa dokunmayan sıralama ve önceliğe göre çalışan kuyruk.</p>
+
+  <details class="card" id="k5" name="kart">
+    <summary class="card-h"><span class="no">5</span><h3>Fiyata göre artan: sortedBy</h3><a class="ref" href="https://pub.dev/documentation/collection/latest/collection/IterableExtension/sortedBy.html">package:collection · sortedBy</a></summary>
+    <div class="card-b">    <p class="scn">Ürün listesi "Fiyat: artan" ile sıralanıyor.</p>
+    <p class="inp"><span class="label">Girdi</span>Kupa 19,90 · Defter 19,50 · Kalem 12,00</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">sort((a, b) =&gt; (a.price - b.price).toInt())</code>
+        <div class="scr"><span class="chip">↑ Fiyat: artan</span><div class="kv"><span>Kalem</span><b>12,00 ₺</b></div><div class="kv"><span>Kupa</span><b>19,90 ₺</b></div><div class="kv"><span>Defter</span><b>19,50 ₺</b></div></div>
+        <p class="res">19,90, 19,50'den önce.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">products.sortedBy&lt;num&gt;((p) =&gt; p.price)</code>
+        <div class="scr"><span class="chip">↑ Fiyat: artan</span><div class="kv"><span>Kalem</span><b>12,00 ₺</b></div><div class="kv"><span>Defter</span><b>19,50 ₺</b></div><div class="kv"><span>Kupa</span><b>19,90 ₺</b></div></div>
+        <p class="res">Doğru sıra, kaynak liste değişmedi.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> Karşılaştırıcı <code>int</code> döndürmeli; <code>(a - b).toInt()</code> 0,4 farkı 0 yapar, iki fiyat eşit sayılır. <code>sortedBy</code> anahtarı <code>compareTo</code> ile karşılaştırır ve yeni liste döndürür (kaynağa dokunmaz). Birden çok anahtar için <code>sortedByCompare</code> ya da <code>compareTo</code> zinciri.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde sort karşılaştırıcısında çıkarma (a - b), toInt ya da round kullanan yerleri ve kaynağı yerinde sıralayan sort çağrılarını bul. sortedBy / compareTo ile düzelt, yakın fiyatlarla test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana ürün listesini fiyata göre artan ve azalan sıralayan, kaynak listeyi değiştirmeyen bir sınıf yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/04_collection/model/price_sort.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k6" name="kart">
+    <summary class="card-h"><span class="no">6</span><h3>Önce kimlik: PriorityQueue</h3><a class="ref" href="https://pub.dev/documentation/collection/latest/collection/PriorityQueue-class.html">package:collection · PriorityQueue</a></summary>
+    <div class="card-b">    <p class="scn">Satıcı başvurusu: kimlik fotoğrafı onay için önce yüklenmeli, ürün fotoğrafları sonra. Kullanıcı kimliği en son seçti.</p>
+    <p class="inp"><span class="label">Girdi</span>3 ürün fotoğrafı (öncelik 2), kimlik ön yüz (öncelik 0)</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">List: eklenme sırası</code>
+        <div class="scr"><div class="row tile"><span class="av">1</span><span class="t">Ürün fotoğrafı 1</span><span class="tr">⬆</span></div><div class="row tile"><span class="av">2</span><span class="t">Ürün fotoğrafı 2</span><span class="tr">Sırada</span></div><div class="row tile"><span class="av">3</span><span class="t">Ürün fotoğrafı 3</span><span class="tr">Sırada</span></div><div class="row tile"><span class="av">4</span><span class="t">Kimlik ön yüz</span><span class="tr">Sırada</span></div></div>
+        <p class="res">Kimlik 4. sırada bekliyor.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">PriorityQueue((a, b) =&gt; a.priority.compareTo(b.priority))</code>
+        <div class="scr"><div class="row tile"><span class="av">1</span><span class="t">Kimlik ön yüz</span><span class="tr">⬆</span></div><div class="row tile"><span class="av">2</span><span class="t">Ürün fotoğrafı 1</span><span class="tr">Sırada</span></div><div class="row tile"><span class="av">3</span><span class="t">Ürün fotoğrafı 2</span><span class="tr">Sırada</span></div><div class="row tile"><span class="av">4</span><span class="t">Ürün fotoğrafı 3</span><span class="tr">Sırada</span></div></div>
+        <p class="res">Kimlik ilk gidiyor.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> Liste ya da <code>Queue</code> eklenme sırasıyla verir; her eklemede yeniden sıralamak O(n log n). <code>PriorityQueue</code> heap'tir: ekleme ve <code>removeFirst</code> O(log n), en öncelikli eleman hep başta. Eşit öncelikte ekleniş sırası garanti değil; gerekiyorsa ikinci anahtar (zaman) ekle.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde öncelikli iş kuyruğu (yükleme, bildirim, senkronizasyon) tutup her eklemede sort çağıran ya da öncelik yerine eklenme sırasını kullanan yerleri bul. PriorityQueue ile düzelt, sona eklenen yüksek öncelikli işle test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana belge yükleme kuyruğu yaz: kimlik gibi öncelikli belgeler, sonradan eklense de önce yüklensin.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/04_collection/model/upload_queue.dart</p>
+</div>
+  </details>
+
+</section>
+
+<section class="group">
+  <h2>Değiştirilemez koleksiyon</h2>
+  <p class="gl">State yerinde değişmez; her değişiklik yeni koleksiyon. <a href="https://pub.dev/packages/fast_immutable_collections">pub.dev · fast_immutable_collections</a></p>
+
+  <details class="card" id="k7" name="kart">
+    <summary class="card-h"><span class="no">7</span><h3>Sepette 'Geri al': List değil IList</h3><a class="ref" href="https://pub.dev/packages/fast_immutable_collections">pub.dev · fast_immutable_collections</a></summary>
+    <div class="card-b">    <p class="scn">Sepet: her ekleme yeni state, "Geri al" bir öncekine döner. Sepete Termos eklendi, kullanıcı geri aldı.</p>
+    <p class="inp"><span class="label">Girdi</span>['Kahve', 'Kupa'] + 'Termos'</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">items..add(item)  (önceki state aynı liste)</code>
+        <div class="scr"><span class="t">Termos eklendi</span><span class="s">Sepet: Kahve, Kupa, Termos</span><hr style="border:0;border-top:1px solid var(--line);width:100%"><span class="t">'Geri al' sonrası</span><span class="s">Sepet: Kahve, Kupa, Termos</span></div>
+        <p class="res">Geri al hiçbir şey yapmadı: önceki state de değişmişti.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">items.add(item)  (IList, yeni liste döner)</code>
+        <div class="scr"><span class="t">Termos eklendi</span><span class="s">Sepet: Kahve, Kupa, Termos</span><hr style="border:0;border-top:1px solid var(--line);width:100%"><span class="t">'Geri al' sonrası</span><span class="s">Sepet: Kahve, Kupa</span></div>
+        <p class="res">Önceki state olduğu gibi duruyor.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>List.add</code> listeyi yerinde değiştirir; eski state aynı listeyi tuttuğu için o da değişir, <code>==</code> de aynı nesneyi gördüğünden ekran yenilenmeyebilir. <code>IList</code> (<code>fast_immutable_collections</code>) değiştirilemez: <code>add</code> yeni liste döndürür, eşitlik içeriğe bakar. <code>[...]</code> ile kopyalamaktan farkı: büyük listede yapısal paylaşımla hızlı, unutulamaz. Yalnız dışarıya açmamak yetiyorsa <code>UnmodifiableListView</code> (<code>dart:collection</code>) da var.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde state sınıflarında List/Set/Map alanlarını yerinde değiştiren (add, remove, ..add, []=) yerleri bul. IList/ISet/IMap'e geç ya da yeni koleksiyon üret; önceki state'in değişmediğini test et.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana 'Geri al' destekli sepet state'i yaz: her ekleme yeni state üretsin, öncekiler değişmesin. fast_immutable_collections kullan.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/04_collection/model/cart_history.dart</p>
+</div>
+  </details>
+
+</section>
+
+</div>
+
+<script>
+document.querySelectorAll('.copy').forEach(b => {
+  b.addEventListener('click', async () => {
+    const txt = b.parentElement.querySelector('.txt');
+    let ok = false;
+    try { await navigator.clipboard.writeText(txt.textContent); ok = true; } catch (_) {}
+    if (!ok) {
+      const r = document.createRange(); r.selectNodeContents(txt);
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    }
+    b.textContent = ok ? 'Kopyalandı' : 'Seçildi, Cmd+C';
+    b.classList.add('done');
+    setTimeout(() => { b.textContent = 'Kopyala'; b.classList.remove('done'); }, 1600);
+  });
+});
+</script>
+<script>
+(() => {
+  const cards = [...document.querySelectorAll('details.card')];
+  const openHash = () => {
+    const el = location.hash && document.querySelector(location.hash);
+    if (el && el.matches('details.card')) { el.open = true; el.scrollIntoView({ block: 'start' }); }
+  };
+  window.addEventListener('hashchange', openHash);
+  openHash();
+  document.querySelectorAll('.card-h .ref').forEach(a => a.addEventListener('click', e => e.stopPropagation()));
+})();
+</script>

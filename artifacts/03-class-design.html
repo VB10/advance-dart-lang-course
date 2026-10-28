@@ -1,0 +1,340 @@
+<title>dartadvance 03 Class Design</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Düzen: bölüm sayfası. Üstte bölüm adı ve dart.dev'e göre gruplu içindekiler; her kart aynı kalıp: senaryo, girdi, bozuk ekran | düzgün ekran, neden, iki prompt. */
+:root {
+  --bg: #F3F5F8;
+  --surface: #FFFFFF;
+  --surface-2: #EAEFF4;
+  --ink: #0F1E2B;
+  --muted: #53636F;
+  --line: #D3DBE3;
+  --accent: #0468B1;
+  --accent-soft: #DCEBF7;
+  --on-accent: #FFFFFF;
+  --bad: #A8321D;
+  --bad-bg: #FBE6E1;
+  --good: #166C3C;
+  --good-bg: #DDF2E5;
+  --off: #C9D1D8;
+  --off-ink: #7C8993;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B131B; --surface: #121D28; --surface-2: #192735; --ink: #E8EEF4; --muted: #93A3B2;
+    --line: #25333F; --accent: #4DB3F2; --accent-soft: #14304A; --on-accent: #07121B;
+    --bad: #FF9A84; --bad-bg: #3A1E19; --good: #62D493; --good-bg: #12301F;
+    --off: #2A3846; --off-ink: #6F7F8D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B131B; --surface: #121D28; --surface-2: #192735; --ink: #E8EEF4; --muted: #93A3B2;
+  --line: #25333F; --accent: #4DB3F2; --accent-soft: #14304A; --on-accent: #07121B;
+  --bad: #FF9A84; --bad-bg: #3A1E19; --good: #62D493; --good-bg: #12301F;
+  --off: #2A3846; --off-ink: #6F7F8D;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 72px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.02em; }
+p { margin: 0; }
+a { color: var(--accent); }
+code, .mono { font-family: var(--mono); font-size: 0.88em; }
+:not(pre) > code { background: var(--surface-2); padding: 1px 6px; border-radius: 4px; overflow-wrap: anywhere; }
+.label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.back { display: inline-block; margin-top: 28px; font-size: 15px; font-weight: 600; text-decoration: none; }
+.back:hover { text-decoration: underline; }
+
+header.top { padding-top: 24px; }
+header.top h1 { font-size: clamp(44px, 8vw, 92px); font-weight: 800; line-height: 0.95; letter-spacing: -0.035em; }
+header.top h1 span { color: var(--accent); font-family: var(--mono); font-weight: 700; font-size: 0.5em; letter-spacing: 0; vertical-align: 0.6em; margin-right: 12px; }
+header.top .sub { font-size: clamp(19px, 2.4vw, 24px); line-height: 1.4; max-width: 46ch; margin-top: 18px; font-family: var(--display); font-weight: 500; }
+
+.toc { margin-top: 32px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.toc div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.toc .label a { color: var(--muted); }
+.toc ol { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.toc li a { color: var(--ink); text-decoration: none; font-size: 15px; display: grid; grid-template-columns: 26px minmax(0, 1fr); }
+.toc li a:hover { color: var(--accent); }
+.toc li b { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+
+.all { margin-top: 20px; display: grid; gap: 8px; padding: 16px; border: 1px solid var(--accent); border-radius: 12px; background: var(--surface); }
+.all .hint { font-size: 15px; color: var(--muted); max-width: 70ch; }
+
+.group { padding-top: 64px; }
+.group h2 { font-size: clamp(26px, 3.6vw, 36px); font-weight: 800; line-height: 1.1; }
+.group .gl { margin-top: 6px; font-size: 15px; color: var(--muted); }
+
+.card { margin-top: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: grid; gap: 16px; scroll-margin-top: 16px; }
+.card-h { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: baseline; }
+.card-h .no { font-family: var(--mono); font-weight: 700; color: var(--accent); font-size: 15px; }
+.card-h h3 { font-size: clamp(21px, 2.6vw, 26px); font-weight: 700; line-height: 1.2; }
+.card-h .ref { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.since { font-family: var(--mono); font-size: 12px; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 999px; margin-left: 8px; vertical-align: 0.2em; }
+.scn { max-width: 70ch; }
+.inp { font-size: 15px; }
+.inp .label { margin-right: 8px; }
+
+.vs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.side { border-radius: 10px; padding: 14px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.side.bad { background: var(--bad-bg); }
+.side.good { background: var(--good-bg); }
+.side .tag { font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+.side.bad .tag, .side.bad .res { color: var(--bad); }
+.side.good .tag, .side.good .res { color: var(--good); }
+.side .line { font-family: var(--mono); font-size: 13.5px; overflow-wrap: anywhere; }
+.side .res { font-weight: 600; font-size: 15px; }
+
+/* Ekran parçaları: uygulamadaki widget'ların sadeleştirilmiş çizimi */
+.scr { background: var(--surface); border-radius: 8px; padding: 14px; display: grid; gap: 12px; font-size: 15px; min-width: 0; }
+.fld { display: grid; gap: 2px; }
+.fld .fl { font-size: 12px; color: var(--muted); }
+.fld .fv { font-size: 18px; border-bottom: 1.5px solid var(--muted); padding-bottom: 4px; overflow-wrap: anywhere; }
+.fld .fm { font-size: 12.5px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.fld.err .fl, .fld.err .fm { color: var(--bad); }
+.fld.err .fv { border-color: var(--bad); }
+.btn { justify-self: start; border-radius: 999px; padding: 8px 18px; font-weight: 600; font-size: 14px; background: var(--accent); color: var(--on-accent); }
+.btn.off { background: var(--off); color: var(--off-ink); }
+.btn.outline { background: transparent; border: 1px solid var(--off); color: var(--off-ink); }
+.row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.row > div { min-width: 0; }
+.av { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 17px; }
+.av.x { background: var(--bad-bg); color: var(--bad); font-family: var(--mono); font-size: 13px; }
+.tile .t { font-weight: 500; }
+.tile .s { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.tile .s.e { color: var(--bad); }
+.tile .tr { margin-left: auto; font-size: 13px; color: var(--accent); font-weight: 600; flex: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); border-radius: 8px; padding: 3px 10px; font-size: 14px; }
+.kv { display: flex; justify-content: space-between; gap: 12px; }
+.kv b { font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; text-align: right; }
+.req { font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhere; }
+.pin { color: var(--accent); }
+.pin.e { color: var(--bad); }
+
+.why { max-width: 75ch; }
+.why b { font-weight: 600; }
+.prompts { display: grid; gap: 8px; }
+.prompt { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 12px; align-items: start; background: var(--surface-2); border-radius: 10px; padding: 12px 12px 12px 14px; }
+.prompt .pl { font-weight: 700; font-size: 13px; padding-top: 2px; }
+.prompt .txt { font-family: var(--mono); font-size: 13.5px; line-height: 1.55; overflow-wrap: anywhere; white-space: pre-wrap; }
+.copy { background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; color: var(--ink); }
+.copy:hover { border-color: var(--accent); color: var(--accent); }
+.copy.done { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.file { font-family: var(--mono); font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+
+@media (max-width: 860px) {
+  .toc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vs { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 18px; }
+  .card-h { grid-template-columns: auto minmax(0, 1fr); }
+  .card-h .ref { grid-column: 2; white-space: normal; }
+}
+@media (max-width: 480px) {
+  .toc { grid-template-columns: minmax(0, 1fr); }
+  .prompt { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+.thumb { flex: none; width: 56px; height: 56px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); font-size: 26px; }
+.big { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.old { font-size: 13px; color: var(--muted); text-decoration: line-through; }
+.photo { height: 110px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); font-size: 40px; }
+.banner { background: var(--accent-soft); color: var(--ink); border-radius: 8px; padding: 14px; display: grid; gap: 10px; font-weight: 700; letter-spacing: 0.02em; }
+details.card { display: block; padding: 0; }
+details.card > summary { list-style: none; cursor: pointer; padding: 20px 24px; }
+details.card > summary::-webkit-details-marker { display: none; }
+details.card > summary::after { content: "▸"; color: var(--muted); font-size: 18px; justify-self: end; transition: transform .15s; }
+details.card[open] > summary::after { transform: rotate(90deg); }
+details.card[open] > summary { border-bottom: 1px solid var(--line); }
+details.card > .card-b { display: grid; gap: 16px; padding: 20px 24px 24px; }
+details.card > summary.card-h { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+@media (max-width: 720px) { details.card > summary.card-h { grid-template-columns: auto minmax(0, 1fr) auto; } details.card > summary .ref { grid-column: 2; } }
+.acc-tools { margin-top: 20px; display: flex; gap: 8px; }
+</style>
+
+<div class="wrap">
+
+<a class="back" href="https://claude.ai/artifact/Tg9xgzVDeNbGvGjv4NA3yU">← Kurs haritası</a>
+
+<header class="top">
+  <h1><span>03</span>Class tasarımı</h1>
+  <p class="sub">Bir sınıfın dışarıya nasıl açıldığı: modifier (1–4, hazırlanıyor), <code>package:meta</code> annotation'ları (5–8) ve library sınırı. Annotation çalışma anında bir şey yapmaz; analyzer'a, ekranda görünecek hatayı yazarken yakalatır. Her kartta hatalı satırın yanında bastırılan uyarının adı yazıyor.</p>
+</header>
+
+<nav class="toc" aria-label="Kartlar">
+  <div>
+    <p class="label"><a href="https://pub.dev/documentation/meta/latest/meta/meta-library.html">package:meta</a></p>
+    <ol>
+      <li><a href="#k5"><b>5</b>@immutable</a></li>
+      <li><a href="#k6"><b>6</b>@useResult</a></li>
+      <li><a href="#k7"><b>7</b>@protected</a></li>
+      <li><a href="#k8"><b>8</b>@mustCallSuper</a></li>
+    </ol>
+  </div>
+</nav>
+
+<div class="all">
+  <p class="label">Bölümün hepsini kendi projende tara</p>
+  <p class="hint">Önce bulduklarını dosya:satır olarak listeler, sen onaylayınca düzeltir. Bir kuralı bulamazsa "bulunamadı" der.</p>
+  <div class="prompts"><div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemi Bölüm 03 (Class tasarımı) annotation kurallarıyla tara: final olmayan alanlı state ve değer nesneleri (@immutable), sonucu atılan copyWith/withX/add çağrıları (@useResult), ekrandan doğrudan çağrılan emit/setState (@protected), super çağırmayan dispose/close override'ları (@mustCallSuper). Her kural için bulduğun yerleri dosya:satır ile listele, bulamadığını "bulunamadı" diye yaz. Düzeltmeye geçmeden önce listeyi göster.</div><button class="copy" type="button">Kopyala</button></div></div>
+</div>
+
+<section class="group">
+  <h2>Annotation (package:meta)</h2>
+  <p class="gl">Annotation analyzer uyarısıdır; derlemeyi durdurmaz ama hatayı ekrana çıkmadan önce gösterir. <a href="https://pub.dev/packages/meta">pub.dev · meta</a></p>
+
+  <details class="card" id="k5" name="kart">
+    <summary class="card-h"><span class="no">5</span><h3>@immutable: adet + ekrana yansımıyor</h3><a class="ref" href="https://pub.dev/documentation/meta/latest/meta/immutable-constant.html">package:meta · immutable</a></summary>
+    <div class="card-b">    <p class="scn">Sepet satırı: kullanıcı '+'ya bastı. Store, ValueNotifier gibi yalnız farklı nesne gelince ekranı yeniler.</p>
+    <p class="inp"><span class="label">Girdi</span>CartLine('Termos', 1) · '+' 1 kez</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">store.line.quantity++; store.line = store.line;</code>
+        <div class="scr"><div class="row tile"><span class="pin">☕</span><div><span class="t">Termos</span><br><span class="s">'+' 1 kez basıldı</span></div><span class="tr big">−&nbsp;&nbsp;1&nbsp;&nbsp;+</span></div></div>
+        <p class="res">Bellekte 2, ekranda 1: aynı nesne yayınlandı, yenilenmedi.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">store.line = store.line.copyWith(quantity: 2);</code>
+        <div class="scr"><div class="row tile"><span class="pin">☕</span><div><span class="t">Termos</span><br><span class="s">'+' 1 kez basıldı</span></div><span class="tr big">−&nbsp;&nbsp;2&nbsp;&nbsp;+</span></div></div>
+        <p class="res">Yeni nesne, ekran 2 gösterir.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>@immutable</code> final olmayan alanı <code>must_be_immutable</code> ile raporlar; alan değiştirilemeyince değişiklik <code>copyWith</code> ile yeni nesne olur. <code>ValueNotifier</code>, <code>Bloc</code>, <code>StateNotifier</code> aynı nesneyi tekrar alınca dinleyicileri çağırmaz.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde state ve değer nesnesi sınıflarında final olmayan alanları ve bu alanları yerinde değiştirip aynı nesneyi yeniden yayınlayan yerleri bul. @immutable ve copyWith ile düzelt, yeni nesnenin yayınlandığını test et.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana sepet satırı için @immutable bir state sınıfı ve adet artıran, her değişiklikte yeni nesne yayınlayan bir store yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/03_class_design/model/cart_line.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k6" name="kart">
+    <summary class="card-h"><span class="no">6</span><h3>@useResult: kupon uygulandı, toplam aynı</h3><a class="ref" href="https://pub.dev/documentation/meta/latest/meta/useResult-constant.html">package:meta · useResult</a></summary>
+    <div class="card-b">    <p class="scn">Ödeme ekranı: 250,00 ₺ sepete 50,00 ₺ kupon uygulanıyor. Toplam değiştirilemez nesne, indirim yeni toplam döndürür.</p>
+    <p class="inp"><span class="label">Girdi</span>CheckoutTotal(25000).withDiscount(5000)</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">total.withDiscount(5000);  // ignore: unused_result</code>
+        <div class="scr"><div class="row tile"><span class="pin">✓</span><div><span class="t">'YAZ50' kuponu uygulandı</span><br><span class="s">50,00 ₺ indirim</span></div></div><div class="kv"><span>Ödenecek tutar</span><b>250,00 ₺</b></div></div>
+        <p class="res">"Uygulandı" yazıyor, tutar aynı.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">total = total.withDiscount(5000);</code>
+        <div class="scr"><div class="row tile"><span class="pin">✓</span><div><span class="t">'YAZ50' kuponu uygulandı</span><br><span class="s">50,00 ₺ indirim</span></div></div><div class="kv"><span>Ödenecek tutar</span><b>200,00 ₺</b></div></div>
+        <p class="res">İndirim yansıdı.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> Yeni değer döndüren metot orijinali değiştirmez; sonucu atmak sessizce hiçbir şey yapmaz. <code>@useResult</code> bu çağrıyı <code>unused_result</code> uyarısıyla yakalar. <code>copyWith</code>, <code>withX</code>, <code>add</code> gibi her metotta olmalı.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde yeni değer döndüren (copyWith, withX, add, apply) metotları ve sonucunu atan çağrıları bul. @useResult ekle, atılan sonuçları düzelt, toplamın değiştiğini test et.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana sepet toplamı için kupon indirimini uygulayıp yeni toplam döndüren bir sınıf yaz; sonucu atılırsa analyzer uyarsın.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/03_class_design/model/coupon_total.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k7" name="kart">
+    <summary class="card-h"><span class="no">7</span><h3>@protected: reddedilen kart "Ödendi"</h3><a class="ref" href="https://pub.dev/documentation/meta/latest/meta/protected-constant.html">package:meta · protected</a></summary>
+    <div class="card-b">    <p class="scn">Ödeme: store durumu emit ile değiştirir, pay kartı doğrular. Ekran kestirmeden emit çağırıyor.</p>
+    <p class="inp"><span class="label">Girdi</span>Kart reddedilecek (yetersiz bakiye)</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">store.emit(PaymentStatus.paid);  // ignore: invalid_use_of_protected_member</code>
+        <div class="scr"><div class="row tile"><span class="pin">💳</span><div><span class="t">•••• 4242</span><br><span class="s">Banka: yetersiz bakiye</span></div></div><div class="row tile"><span class="pin">✓</span><div><span class="t">Ödendi · Sipariş hazırlanıyor</span></div></div></div>
+        <p class="res">Doğrulama atlandı: para çekilmeden sipariş hazırlanıyor.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">store.pay(cardAccepted: false);</code>
+        <div class="scr"><div class="row tile"><span class="pin">💳</span><div><span class="t">•••• 4242</span><br><span class="s">Banka: yetersiz bakiye</span></div></div><div class="row tile"><span class="pin e">⚠</span><div><span class="t">Kart reddedildi</span></div></div></div>
+        <p class="res">Doğru durum.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>@protected</code> üyeyi alt sınıflara ayırır; başka library'den çağrı <code>invalid_use_of_protected_member</code> uyarısı verir. Store'un <code>emit</code>'i korunur, ekran iş metodunu çağırır. Uyarıdır, derlemeyi durdurmaz; gerçek gizlilik için <code>_</code>.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde ekran, widget ya da başka bir library'den store'un emit / setState / value = metodunu doğrudan çağıran yerleri bul. Taban metoda @protected ekle, ekranın iş metodunu (pay, submit) çağırdığını test et.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana ödeme durumu tutan bir store yaz: durumu yalnız pay metodu değiştirsin, kart reddedilirse "reddedildi" olsun.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/03_class_design/model/order_store.dart · pay_button.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k8" name="kart">
+    <summary class="card-h"><span class="no">8</span><h3>@mustCallSuper: kapalı sohbet mesajı okuyor</h3><a class="ref" href="https://pub.dev/documentation/meta/latest/meta/mustCallSuper-constant.html">package:meta · mustCallSuper</a></summary>
+    <div class="card-b">    <p class="scn">Sohbet: taban controller açıkken gelen mesajı "okundu" işaretler, dispose dinlemeyi kapatır. Alt sınıf dispose'u override ediyor.</p>
+    <p class="inp"><span class="label">Girdi</span>Sohbetten çıkış, sonra 3 mesaj</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">void dispose() => typingCleared = true;  // ignore: must_call_super</code>
+        <div class="scr"><span class="s">Sohbetten çıkıldı, 3 yeni mesaj geldi</span><div class="row tile"><span class="av">S</span><div><span class="t">Selin</span><br><span class="s">Görüldü</span></div><span class="tr">✓✓</span></div></div>
+        <p class="res">Kullanıcı görmeden 3 mesaj "görüldü" oldu; rozet yok.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">void dispose() { typingCleared = true; super.dispose(); }</code>
+        <div class="scr"><span class="s">Sohbetten çıkıldı, 3 yeni mesaj geldi</span><div class="row tile"><span class="av">S</span><div><span class="t">Selin</span><br><span class="s">Yeni mesaj</span></div><span class="tr"><span class='av' style='width:24px;height:24px;font-size:13px;background:var(--bad);color:var(--surface)'>3</span></span></div></div>
+        <p class="res">Dinleme kapandı, 3 okunmamış.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>@mustCallSuper</code> override'ın <code>super</code> çağırmasını zorlar, eksikse <code>must_call_super</code> uyarısı verir. Taban <code>dispose</code> abonelik, timer, listener kapatır; unutulursa ekran kapandıktan sonra da çalışırlar.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde dispose, close, cancel gibi temizlik yapan taban sınıf metotlarını ve override edip super çağırmayan alt sınıfları bul. Tabana @mustCallSuper ekle, ekrandan çıkınca dinleyicinin kapandığını test et.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana gelen mesajları dinleyen bir sohbet controller'ı yaz; taban sınıf dispose'da aboneliği kapatsın, alt sınıflar super.dispose() çağırmak zorunda olsun.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/03_class_design/model/chat_controller.dart</p>
+</div>
+  </details>
+
+</section>
+
+</div>
+
+<script>
+document.querySelectorAll('.copy').forEach(b => {
+  b.addEventListener('click', async () => {
+    const txt = b.parentElement.querySelector('.txt');
+    let ok = false;
+    try { await navigator.clipboard.writeText(txt.textContent); ok = true; } catch (_) {}
+    if (!ok) {
+      const r = document.createRange(); r.selectNodeContents(txt);
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    }
+    b.textContent = ok ? 'Kopyalandı' : 'Seçildi, Cmd+C';
+    b.classList.add('done');
+    setTimeout(() => { b.textContent = 'Kopyala'; b.classList.remove('done'); }, 1600);
+  });
+});
+</script>
+<script>
+(() => {
+  const cards = [...document.querySelectorAll('details.card')];
+  const openHash = () => {
+    const el = location.hash && document.querySelector(location.hash);
+    if (el && el.matches('details.card')) { el.open = true; el.scrollIntoView({ block: 'start' }); }
+  };
+  window.addEventListener('hashchange', openHash);
+  openHash();
+  document.querySelectorAll('.card-h .ref').forEach(a => a.addEventListener('click', e => e.stopPropagation()));
+})();
+</script>

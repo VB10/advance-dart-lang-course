@@ -1,0 +1,659 @@
+<title>dartadvance 01 Built-in Types</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Düzen: bölüm sayfası. Üstte bölüm adı ve dart.dev'e göre gruplu içindekiler; her kart aynı kalıp: senaryo, girdi, bozuk ekran | düzgün ekran, neden, iki prompt. */
+:root {
+  --bg: #F3F5F8;
+  --surface: #FFFFFF;
+  --surface-2: #EAEFF4;
+  --ink: #0F1E2B;
+  --muted: #53636F;
+  --line: #D3DBE3;
+  --accent: #0468B1;
+  --accent-soft: #DCEBF7;
+  --on-accent: #FFFFFF;
+  --bad: #A8321D;
+  --bad-bg: #FBE6E1;
+  --good: #166C3C;
+  --good-bg: #DDF2E5;
+  --off: #C9D1D8;
+  --off-ink: #7C8993;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B131B; --surface: #121D28; --surface-2: #192735; --ink: #E8EEF4; --muted: #93A3B2;
+    --line: #25333F; --accent: #4DB3F2; --accent-soft: #14304A; --on-accent: #07121B;
+    --bad: #FF9A84; --bad-bg: #3A1E19; --good: #62D493; --good-bg: #12301F;
+    --off: #2A3846; --off-ink: #6F7F8D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B131B; --surface: #121D28; --surface-2: #192735; --ink: #E8EEF4; --muted: #93A3B2;
+  --line: #25333F; --accent: #4DB3F2; --accent-soft: #14304A; --on-accent: #07121B;
+  --bad: #FF9A84; --bad-bg: #3A1E19; --good: #62D493; --good-bg: #12301F;
+  --off: #2A3846; --off-ink: #6F7F8D;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 72px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.02em; }
+p { margin: 0; }
+a { color: var(--accent); }
+code, .mono { font-family: var(--mono); font-size: 0.88em; }
+:not(pre) > code { background: var(--surface-2); padding: 1px 6px; border-radius: 4px; overflow-wrap: anywhere; }
+.label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.back { display: inline-block; margin-top: 28px; font-size: 15px; font-weight: 600; text-decoration: none; }
+.back:hover { text-decoration: underline; }
+
+header.top { padding-top: 24px; }
+header.top h1 { font-size: clamp(44px, 8vw, 92px); font-weight: 800; line-height: 0.95; letter-spacing: -0.035em; }
+header.top h1 span { color: var(--accent); font-family: var(--mono); font-weight: 700; font-size: 0.5em; letter-spacing: 0; vertical-align: 0.6em; margin-right: 12px; }
+header.top .sub { font-size: clamp(19px, 2.4vw, 24px); line-height: 1.4; max-width: 46ch; margin-top: 18px; font-family: var(--display); font-weight: 500; }
+
+.toc { margin-top: 32px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.toc div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.toc .label a { color: var(--muted); }
+.toc ol { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.toc li a { color: var(--ink); text-decoration: none; font-size: 15px; display: grid; grid-template-columns: 26px minmax(0, 1fr); }
+.toc li a:hover { color: var(--accent); }
+.toc li b { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+
+.all { margin-top: 20px; display: grid; gap: 8px; padding: 16px; border: 1px solid var(--accent); border-radius: 12px; background: var(--surface); }
+.all .hint { font-size: 15px; color: var(--muted); max-width: 70ch; }
+
+.group { padding-top: 64px; }
+.group h2 { font-size: clamp(26px, 3.6vw, 36px); font-weight: 800; line-height: 1.1; }
+.group .gl { margin-top: 6px; font-size: 15px; color: var(--muted); }
+
+.card { margin-top: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: grid; gap: 16px; scroll-margin-top: 16px; }
+.card-h { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: baseline; }
+.card-h .no { font-family: var(--mono); font-weight: 700; color: var(--accent); font-size: 15px; }
+.card-h h3 { font-size: clamp(21px, 2.6vw, 26px); font-weight: 700; line-height: 1.2; }
+.card-h .ref { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.since { font-family: var(--mono); font-size: 12px; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 999px; margin-left: 8px; vertical-align: 0.2em; }
+.scn { max-width: 70ch; }
+.inp { font-size: 15px; }
+.inp .label { margin-right: 8px; }
+
+.vs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.side { border-radius: 10px; padding: 14px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.side.bad { background: var(--bad-bg); }
+.side.good { background: var(--good-bg); }
+.side .tag { font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+.side.bad .tag, .side.bad .res { color: var(--bad); }
+.side.good .tag, .side.good .res { color: var(--good); }
+.side .line { font-family: var(--mono); font-size: 13.5px; overflow-wrap: anywhere; }
+.side .res { font-weight: 600; font-size: 15px; }
+
+/* Ekran parçaları: uygulamadaki widget'ların sadeleştirilmiş çizimi */
+.scr { background: var(--surface); border-radius: 8px; padding: 14px; display: grid; gap: 12px; font-size: 15px; min-width: 0; }
+.fld { display: grid; gap: 2px; }
+.fld .fl { font-size: 12px; color: var(--muted); }
+.fld .fv { font-size: 18px; border-bottom: 1.5px solid var(--muted); padding-bottom: 4px; overflow-wrap: anywhere; }
+.fld .fm { font-size: 12.5px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.fld.err .fl, .fld.err .fm { color: var(--bad); }
+.fld.err .fv { border-color: var(--bad); }
+.btn { justify-self: start; border-radius: 999px; padding: 8px 18px; font-weight: 600; font-size: 14px; background: var(--accent); color: var(--on-accent); }
+.btn.off { background: var(--off); color: var(--off-ink); }
+.btn.outline { background: transparent; border: 1px solid var(--off); color: var(--off-ink); }
+.row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.row > div { min-width: 0; }
+.av { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 17px; }
+.av.x { background: var(--bad-bg); color: var(--bad); font-family: var(--mono); font-size: 13px; }
+.tile .t { font-weight: 500; }
+.tile .s { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.tile .s.e { color: var(--bad); }
+.tile .tr { margin-left: auto; font-size: 13px; color: var(--accent); font-weight: 600; flex: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); border-radius: 8px; padding: 3px 10px; font-size: 14px; }
+.kv { display: flex; justify-content: space-between; gap: 12px; }
+.kv b { font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; text-align: right; }
+.req { font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhere; }
+.pin { color: var(--accent); }
+.pin.e { color: var(--bad); }
+
+.why { max-width: 75ch; }
+.why b { font-weight: 600; }
+.prompts { display: grid; gap: 8px; }
+.prompt { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 12px; align-items: start; background: var(--surface-2); border-radius: 10px; padding: 12px 12px 12px 14px; }
+.prompt .pl { font-weight: 700; font-size: 13px; padding-top: 2px; }
+.prompt .txt { font-family: var(--mono); font-size: 13.5px; line-height: 1.55; overflow-wrap: anywhere; white-space: pre-wrap; }
+.copy { background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; color: var(--ink); }
+.copy:hover { border-color: var(--accent); color: var(--accent); }
+.copy.done { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.file { font-family: var(--mono); font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+
+@media (max-width: 860px) {
+  .toc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vs { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 18px; }
+  .card-h { grid-template-columns: auto minmax(0, 1fr); }
+  .card-h .ref { grid-column: 2; white-space: normal; }
+}
+@media (max-width: 480px) {
+  .toc { grid-template-columns: minmax(0, 1fr); }
+  .prompt { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+.thumb { flex: none; width: 56px; height: 56px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); font-size: 26px; }
+.big { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.old { font-size: 13px; color: var(--muted); text-decoration: line-through; }
+.photo { height: 110px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); font-size: 40px; }
+.banner { background: var(--accent-soft); color: var(--ink); border-radius: 8px; padding: 14px; display: grid; gap: 10px; font-weight: 700; letter-spacing: 0.02em; }
+details.card { display: block; padding: 0; }
+details.card > summary { list-style: none; cursor: pointer; padding: 20px 24px; }
+details.card > summary::-webkit-details-marker { display: none; }
+details.card > summary::after { content: "▸"; color: var(--muted); font-size: 18px; justify-self: end; transition: transform .15s; }
+details.card[open] > summary::after { transform: rotate(90deg); }
+details.card[open] > summary { border-bottom: 1px solid var(--line); }
+details.card > .card-b { display: grid; gap: 16px; padding: 20px 24px 24px; }
+details.card > summary.card-h { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+@media (max-width: 720px) { details.card > summary.card-h { grid-template-columns: auto minmax(0, 1fr) auto; } details.card > summary .ref { grid-column: 2; } }
+.acc-tools { margin-top: 20px; display: flex; gap: 8px; }
+</style>
+
+<div class="wrap">
+
+<a class="back" href="https://claude.ai/artifact/Tg9xgzVDeNbGvGjv4NA3yU">← Kurs haritası</a>
+
+<header class="top">
+  <h1><span>01</span>Built-in types</h1>
+  <p class="sub">Bildiğini sandığın tipler. Sayı, metin, record ve tarih: Dart'ın ve <code>package:characters</code>'ın Flutter ekranına kattığı 13 şey. Her biri gerçek bir ekranda, bozuk ve düzgün yan yana.</p>
+</header>
+
+<nav class="toc" aria-label="Kartlar">
+  <div>
+    <p class="label"><a href="https://dart.dev/language/built-in-types#numbers">Sayılar</a></p>
+    <ol>
+      <li><a href="#k1"><b>1</b>Fiyat: kuruş int</a></li>
+      <li><a href="#k2"><b>2</b>Geri: % ile sar</a></li>
+      <li><a href="#k3"><b>3</b>Geri sayım: ~/ ve %</a></li>
+      <li><a href="#k4"><b>4</b>JSON: num</a></li>
+      <li><a href="#k5"><b>5</b>tryParse</a></li>
+    </ol>
+  </div>
+  <div>
+    <p class="label"><a href="https://dart.dev/language/built-in-types#strings">Metin (String)</a></p>
+    <ol>
+      <li><a href="#k6"><b>6</b>Önizleme: characters</a></li>
+      <li><a href="#k7"><b>7</b>Link: Türkçe harf</a></li>
+    </ol>
+  </div>
+  <div>
+    <p class="label"><a href="https://dart.dev/language/records">Record ve DateTime</a></p>
+    <ol>
+      <li><a href="#k8"><b>8</b>Önbellek: record</a></li>
+      <li><a href="#k9"><b>9</b>UTC: toLocal</a></li>
+    </ol>
+  </div>
+  <div>
+    <p class="label"><a href="https://dart.dev/language/variables#late-variables">Değişken ve getter</a></p>
+    <ol>
+      <li><a href="#k10"><b>10</b>late final</a></li>
+      <li><a href="#k11"><b>11</b>Getter</a></li>
+    </ol>
+  </div>
+  <div>
+    <p class="label"><a href="https://dart.dev/language/operators#cascade-notation">Operatör</a></p>
+    <ol>
+      <li><a href="#k12"><b>12</b>Cascade: ..sort</a></li>
+      <li><a href="#k13"><b>13</b>Null-aware: ?..</a></li>
+    </ol>
+  </div>
+</nav>
+
+<div class="all">
+  <p class="label">Bölümün hepsini kendi projende tara</p>
+  <p class="hint">Önce bulduklarını dosya:satır olarak listeler, sen onaylayınca düzeltir. Bir kuralı bulamazsa "bulunamadı" der.</p>
+  <div class="prompts"><div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemi Bölüm 01 (Built-in types) kurallarıyla tara: double fiyat ve toString ile fiyat yazımı, remainder ile indeks sarma, ~/ ve % ile süre, JSON'da as double, parse yerine tryParse, substring ile metin kesme, Türkçe harfi silen slug/RegExp, List'i Map anahtarı yapma, toLocal'siz UTC saat, kaynağı değişen late final, iş yapan getter, kaynağı yerinde değiştiren cascade, nullable kontrolcüde ! yerine ?.. . Her kural için bulduğun yerleri dosya:satır ile listele, bulamadığını "bulunamadı" diye yaz. Düzeltmeye geçmeden önce listeyi göster.</div><button class="copy" type="button">Kopyala</button></div></div>
+</div>
+
+<section class="group">
+  <h2>Sayılar</h2>
+  <p class="gl">int ve double ayrı tiplerdir, ikisi de num'un alt tipi. Para, süre ve indeks int ile tam kalır. <a href="https://dart.dev/language/built-in-types#numbers">dart.dev · Numbers</a></p>
+
+  <details class="card" id="k1" name="kart">
+    <summary class="card-h"><span class="no">1</span><h3>Fiyat: double değil kuruş int</h3><a class="ref" href="https://dart.dev/language/built-in-types#numbers">dart.dev · Numbers</a></summary>
+    <div class="card-b">    <p class="scn">Ürün kartı: satış fiyatı ve üstü çizili eski fiyat.</p>
+    <p class="inp"><span class="label">Girdi</span>24.999,90 ₺ ve 29.999,00 ₺</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">'$price ₺'  (double)</code>
+        <div class="scr"><div class="row"><span class="thumb">🛋️</span><div><div class="tile"><span class="t">Üçlü kanepe</span></div><div class="big">24999.9 ₺</div><div class="old">29999.0 ₺</div></div></div></div>
+        <p class="res">Ham sayı: binlik ayraç yok, kuruş tek hane, eski fiyatta .0.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">'${c ~/ 100}' · (c % 100).padLeft(2, '0')</code>
+        <div class="scr"><div class="row"><span class="thumb">🛋️</span><div><div class="tile"><span class="t">Üçlü kanepe</span></div><div class="big">24.999,90 ₺</div><div class="old">29.999,00 ₺</div></div></div></div>
+        <p class="res">Mağazadaki gibi: 24.999,90 ₺.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>double.toString</code> ekran için değil; <code>.0</code> ve tek haneli kuruş bırakır, toplamada da kuruş kaçırır. Fiyat kuruş olarak <code>int</code> tutulur: <code>~/ 100</code> lira, <code>% 100</code> kuruş, <code>replaceAllMapped</code> binlik nokta. <code>intl</code> paketi gerekmez.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde fiyatı double tutan ya da ekrana $price, toString veya toStringAsFixed ile yazan yerleri bul. Kuruş int'e çevir, ~/ 100, % 100 ve binlik nokta ile yazdır, 2499990 girdisiyle test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana ürün kartı için fiyat etiketi yaz: kuruş int alsın, 24.999,90 ₺ biçiminde yazsın, eski fiyatı da göstersin.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/01_builtin_types/model/product_price.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k2" name="kart">
+    <summary class="card-h"><span class="no">2</span><h3>İlk fotoğraftan geri: remainder değil %</h3><a class="ref" href="https://api.dart.dev/dart-core/num/operator_modulo.html">api.dart.dev · operator %</a></summary>
+    <div class="card-b">    <p class="scn">Ürün galerisi, 5 fotoğraf. Kullanıcı ilk fotoğraftayken "geri"ye basıyor; son fotoğrafa dönmeli.</p>
+    <p class="inp"><span class="label">Girdi</span>index 0, count 5</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">(index - 1).remainder(count)</code>
+        <div class="scr"><div class="row tile"><span class="pin e">⚠</span><div><span class="t">Galeri açılamadı</span><br><span class="s e">RangeError: Invalid value: -1</span></div></div></div>
+        <p class="res">Sonuç −1, <code>photos[-1]</code> RangeError.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">(index - 1) % count</code>
+        <div class="scr"><div class="photo">💡</div><span class="s" style="text-align:center">5 / 5</span></div>
+        <p class="res">Son fotoğraf açıldı.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>remainder</code> bölünenin işaretini alır: −1. Dart'ın <code>%</code> operatörü ise her zaman 0 ile count − 1 arasında sonuç verir (Öklid kalanı). Döngüsel gezinme, haftanın günü, carousel için hazır.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde sayfa, sekme ya da gün indeksini remainder ile veya if (i < 0) i = len - 1 gibi elle saran yerleri bul. % ile düzelt, index 0 için test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana ürün galerisi için ileri/geri gezinen bir sınıf yaz: ilk fotoğraftan geri son fotoğrafa, sondan ileri ilk fotoğrafa dönsün.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/01_builtin_types/model/photo_gallery.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k3" name="kart">
+    <summary class="card-h"><span class="no">3</span><h3>Geri sayım: ~/ ve %</h3><a class="ref" href="https://dart.dev/language/operators#arithmetic-operators">dart.dev · Arithmetic operators</a></summary>
+    <div class="card-b">    <p class="scn">Doğrulama kodu ekranı: kalan süre "Kodu tekrar gönder" butonunda yazıyor.</p>
+    <p class="inp"><span class="label">Girdi</span>150 sn ve 125 sn kaldı</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">'${(s / 60).round()}:${s % 60}'</code>
+        <div class="scr">
+          <span class="btn outline">Kodu tekrar gönder (3:30)</span>
+          <span class="btn outline">Kodu tekrar gönder (2:5)</span>
+        </div>
+        <p class="res">2,5 dakika 3 oldu; 5 saniye tek hane kaldı.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">'${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}'</code>
+        <div class="scr">
+          <span class="btn outline">Kodu tekrar gönder (2:30)</span>
+          <span class="btn outline">Kodu tekrar gönder (2:05)</span>
+        </div>
+        <p class="res">2:30 ve 2:05.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>/</code> her zaman double verir; <code>round</code> 2,5 dakikayı 3'e yuvarlar. <code>~/ 60</code> tam dakikayı, <code>% 60</code> kalan saniyeyi verir; <code>padLeft(2, '0')</code> 5'i 05 yapar.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde süreyi dakika:saniye ya da saat:dakika yazan yerleri bul. / ile bölüp round/toInt yapanları ve padLeft'siz % kullananları ~/, % ve padLeft(2, '0') ile düzelt, 125 sn girdisiyle test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana doğrulama kodu ekranı için "Kodu tekrar gönder (m:ss)" metnini üreten bir geri sayım sınıfı yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/01_builtin_types/model/resend_countdown.dart</p>
+</div>
+  </details>
+  <details class="card" id="k4" name="kart">
+    <summary class="card-h"><span class="no">4</span><h3>JSON sayısı: as double değil num</h3><a class="ref" href="https://dart.dev/language/built-in-types#numbers">dart.dev · Numbers</a></summary>
+    <div class="card-b">    <p class="scn">Mağazalar haritası: API konumu sayı olarak gönderiyor; enlem tam 41 olunca ondalık kısmı yok.</p>
+    <p class="inp"><span class="label">Girdi</span><code>{"latitude": 41, "longitude": 29.0}</code></p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">json['latitude'] as double</code>
+        <div class="scr">
+          <div class="row tile"><span class="pin e" aria-hidden="true">⦸</span><div><div class="t">Mağazalar yüklenemedi</div><div class="s e">type 'int' is not a subtype of type 'double' in type cast</div></div></div>
+        </div>
+        <p class="res">Cast çalışma anında patladı, pin yok.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">(json['latitude'] as num).toDouble()</code>
+        <div class="scr">
+          <div class="row tile"><span class="pin" aria-hidden="true">●</span><div><div class="t">Kadıköy Mağazası</div><div class="s">41.0, 29.0</div></div><span class="tr">Yol tarifi</span></div>
+        </div>
+        <p class="res">Pin 41.0, 29.0 konumunda.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>jsonDecode</code> 41'i <code>int</code>, 29.0'ı <code>double</code> olarak çözer. <code>int</code>, <code>double</code>'ın alt tipi değildir; ikisi de <code>num</code>'un alt tipidir. <code>as double</code> derlenir ama çalışma anında patlar. <code>as num</code> sonra <code>toDouble()</code> ikisini de kabul eder.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde JSON'dan okunan sayıları as double ile cast eden yerleri bul (konum, fiyat, puan, oran). (x as num).toDouble() ile düzelt, tam sayı gelen JSON ile test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana API'den gelen mağaza listesini (ad, enlem, boylam, puan) okuyan bir fromJson yaz; sayılar int de gelebilir.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/01_builtin_types/model/store_location.dart</p>
+</div>
+  </details>
+  <details class="card" id="k5" name="kart">
+    <summary class="card-h"><span class="no">5</span><h3>Kullanıcı girdisi: parse değil tryParse</h3><a class="ref" href="https://dart.dev/language/built-in-types#numbers">dart.dev · Numbers</a></summary>
+    <div class="card-b">    <p class="scn">Ürün ölçüsü formu: kullanıcı Türkçe klavyede genişliği yazıp Kaydet'e basıyor.</p>
+    <p class="inp"><span class="label">Girdi</span><code>'12,5'</code> ve <code>'12a'</code></p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">double.parse(text)</code>
+        <div class="scr">
+          <div class="fld err"><span class="fl">Genişlik (cm)</span><span class="fv">12,5</span><span class="fm">Yakalanmamış hata: Invalid double</span></div>
+          <div class="fld err"><span class="fl">Genişlik (cm)</span><span class="fv">12a</span><span class="fm">Yakalanmamış hata: Invalid double</span></div>
+        </div>
+        <p class="res">İki girdi de <code>FormatException</code> fırlattı, Kaydet çöktü.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">double.tryParse(text.replaceAll(',', '.'))</code>
+        <div class="scr">
+          <div class="fld"><span class="fl">Genişlik (cm)</span><span class="fv">12,5</span><span class="fm">Kaydedildi: 12.5</span></div>
+          <div class="fld err"><span class="fl">Genişlik (cm)</span><span class="fv">12a</span><span class="fm">Geçerli bir ölçü girin</span></div>
+        </div>
+        <p class="res">12.5 kaydedildi, '12a' için alan hatası.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>double.parse</code> yalnız noktayı tanır; başka her şeyde <code>FormatException</code> fırlatır. Kullanıcı ya da sunucu metni <code>tryParse</code> ile okunur: hata yerine <code>null</code> döner, ekran alanın altına hata yazar. Virgül önce noktaya çevrilir.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde kullanıcı girdisini ya da sunucudan gelen metni int.parse / double.parse ile okuyan yerleri bul. tryParse ile düzelt, virgüllü ve hatalı girdide alan hatası göster, test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana ürün ölçüsü formu yaz: genişlik ve yükseklik cm, Türkçe klavyede virgülle girilebilsin, hatalı girdide alanın altında hata yazsın.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/01_builtin_types/model/dimension_field.dart</p>
+</div>
+  </details>
+</section>
+
+<section class="group">
+  <h2>Metin (String)</h2>
+  <p class="gl">String UTF-16 birimi dizisidir ve dil bilmez; ekrandaki karakter için characters, Türkçe harf için elle çeviri. <a href="https://dart.dev/language/built-in-types#strings">dart.dev · Strings</a></p>
+
+  <details class="card" id="k6" name="kart">
+    <summary class="card-h"><span class="no">6</span><h3>Mesaj önizlemesi: substring değil characters</h3><a class="ref" href="https://dart.dev/language/built-in-types#runes-and-grapheme-clusters">dart.dev · grapheme clusters</a></summary>
+    <div class="card-b">    <p class="scn">Sohbet listesi: son mesaj 22 karakterde kesilip "…" ekleniyor.</p>
+    <p class="inp"><span class="label">Girdi</span>'Pazar kahvaltısı 👨‍👩‍👧 sizde mi?'</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">message.substring(0, 22)</code>
+        <div class="scr"><div class="row tile"><span class="av">A</span><div><span class="t">Aile</span><br><span class="s">Pazar kahvaltısı 👨 👩 …</span></div></div><div class="row tile"><span class="av">S</span><div><span class="t">Selin</span><br><span class="s">Tamam, yarın görüşürüz</span></div></div></div>
+        <p class="res">Aile emojisi ikiye bölündü: iki ayrı kişi kaldı.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">message.characters.take(22)</code>
+        <div class="scr"><div class="row tile"><span class="av">A</span><div><span class="t">Aile</span><br><span class="s">Pazar kahvaltısı 👨‍👩‍👧 siz…</span></div></div><div class="row tile"><span class="av">S</span><div><span class="t">Selin</span><br><span class="s">Tamam, yarın görüşürüz</span></div></div></div>
+        <p class="res">Emoji bütün, kesim kelimede.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>String</code> UTF-16 birimi dizisidir; 👨‍👩‍👧 tek karakter görünür ama 8 birimdir. <code>substring</code> birimle keser, emojiyi ortadan böler; yarım surrogate'ta <code>Text</code> hata bile verir. <code>package:characters</code> ekranda görünen karakterle (grapheme) çalışır; <code>TextField(maxLength)</code> da bunu kullanır.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde kullanıcıya görünen metni length, substring ya da [0] ile sayan, kesen veya baş harfini alan yerleri bul (önizleme, sayaç, avatar). characters ile düzelt, emojili girdiyle test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana sohbet listesi için son mesaj önizlemesi yaz: 22 karakterde kessin, emojiyi bölmesin.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/01_builtin_types/model/chat_preview.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k7" name="kart">
+    <summary class="card-h"><span class="no">7</span><h3>Paylaşım linki: Türkçe harfi silme, çevir</h3><a class="ref" href="https://dart.dev/language/built-in-types#strings">dart.dev · Strings</a></summary>
+    <div class="card-b">    <p class="scn">Kategori sayfası: başlıktan paylaşım linki ya da analytics olay adı üretiliyor.</p>
+    <p class="inp"><span class="label">Girdi</span>'Öne Çıkan Ürünler'</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">replaceAll(RegExp(r'[^a-z0-9]+'), '-')</code>
+        <div class="scr"><div class="row tile"><span class="pin">⤴</span><div><span class="t">Öne Çıkan Ürünler</span><br><span class="s req">magaza.app/kategori/ne-kan-r-nler</span></div></div></div>
+        <p class="res">ö, ç, ı, ü özel karakter sayıldı ve silindi.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">ç→c, ğ→g, ı→i, ö→o, ş→s, ü→u · sonra RegExp</code>
+        <div class="scr"><div class="row tile"><span class="pin">⤴</span><div><span class="t">Öne Çıkan Ürünler</span><br><span class="s req">magaza.app/kategori/one-cikan-urunler</span></div></div></div>
+        <p class="res">Okunur link.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>[^a-z0-9]</code> ve <code>\w</code> yalnız İngilizce harfleri tanır; Türkçe harfler "özel karakter" olup silinir. Önce harfler Latin karşılığına çevrilir (<code>replaceAllMapped</code>), sonra temizlenir. Desen raw string (<code>r'...'</code>) ile yazılır, ters bölü olduğu gibi RegExp'e gider.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde slug, dosya adı, analytics olay adı ya da snake_case anahtar üreten ve [^a-z0-9], [^\w] gibi desenle özel karakter silen yerleri bul. Türkçe harfleri önce Latin karşılığına çevir, 'Öne Çıkan Ürünler' girdisiyle test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana kategori başlığından paylaşım linki parçası üreten bir sınıf yaz: Türkçe harfleri çevirsin, boşluk ve özel karakterleri tire yapsın.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/01_builtin_types/model/category_slug.dart</p>
+</div>
+  </details>
+
+</section>
+
+<section class="group">
+  <h2>Record ve DateTime</h2>
+  <p class="gl">Record içerik eşitliğiyle gelir; DateTime UTC ile yerel saati ayrı tutar. <a href="https://dart.dev/language/records">dart.dev · Records</a></p>
+
+  <details class="card" id="k8" name="kart">
+    <summary class="card-h"><span class="no">8</span><h3>Önbellek anahtarı: List değil record<span class="since">Dart 3.0</span></h3><a class="ref" href="https://dart.dev/language/records#record-equality">dart.dev · Record equality</a></summary>
+    <div class="card-b">    <p class="scn">Harita: pine dokununca adres sunucudan alınıp önbelleğe konuyor.</p>
+    <p class="inp"><span class="label">Girdi</span>Aynı pine 3 dokunuş (40.9903, 29.0277)</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">Map&lt;List&lt;double&gt;, String&gt; · cache[[lat, lng]]</code>
+        <div class="scr"><div class="row tile"><span class="pin">📍</span><div><span class="t">Caferağa Mah., Kadıköy</span><br><span class="s">Pine 3 kez dokunuldu · <b>3 sunucu isteği</b></span></div></div></div>
+        <p class="res">Önbellek hiç tutmadı, her dokunuş istek.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">Map&lt;(double, double), String&gt; · cache[(lat, lng)]</code>
+        <div class="scr"><div class="row tile"><span class="pin">📍</span><div><span class="t">Caferağa Mah., Kadıköy</span><br><span class="s">Pine 3 kez dokunuldu · <b>1 sunucu isteği</b></span></div></div></div>
+        <p class="res">İlk dokunuşta istek, sonra önbellek.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>List</code> eşitliği referansa bakar: her <code>[lat, lng]</code> yeni nesne, <code>[1, 2] == [1, 2]</code> false. Record ise içerik eşitliği ve <code>hashCode</code> ile gelir; <code>(lat, lng)</code> Map anahtarı, Set elemanı ve tuple dönüşü olarak hazır.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde Map anahtarı ya da Set elemanı olarak List, ya da '$a-$b' gibi birleştirilmiş String kullanan yerleri bul. Record ile düzelt, aynı anahtarla iki çağrıda tek istek gittiğini test et.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana haritada pin adresini (lat, lng) anahtarlı önbellekte tutan bir sınıf yaz; aynı pine ikinci dokunuşta sunucuya gitmesin.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/01_builtin_types/model/pin_address_cache.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k9" name="kart">
+    <summary class="card-h"><span class="no">9</span><h3>API saati UTC: toLocal'i unutma</h3><a class="ref" href="https://api.dart.dev/dart-core/DateTime/toLocal.html">api.dart.dev · DateTime.toLocal</a></summary>
+    <div class="card-b">    <p class="scn">Etkinlik detayı: API başlangıcı UTC gönderiyor, kullanıcı Türkiye'de.</p>
+    <p class="inp"><span class="label">Girdi</span>'2026-11-02T17:30:00Z'</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">DateTime.parse(iso)</code>
+        <div class="scr"><div class="row tile"><span class="pin">📅</span><div><span class="t">Açık hava konseri · Harbiye</span><br><span class="s">2 Kasım Pazartesi</span></div><span class="tr big">17:30</span></div></div>
+        <p class="res">3 saat erken: kullanıcı konseri kaçırır.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">DateTime.parse(iso).toLocal()</code>
+        <div class="scr"><div class="row tile"><span class="pin">📅</span><div><span class="t">Açık hava konseri · Harbiye</span><br><span class="s">2 Kasım Pazartesi</span></div><span class="tr big">20:30</span></div></div>
+        <p class="res">Cihazın saatiyle 20:30.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>Z</code> ile biten metni <code>DateTime.parse</code> UTC olarak tutar (<code>isUtc</code> true); <code>hour</code> UTC saatini verir. Ekrana yazmadan önce <code>toLocal()</code>; sunucuya gönderirken <code>toUtc().toIso8601String()</code>.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde API'den gelen tarihi DateTime.parse ile okuyup toLocal olmadan ekrana yazan yerleri bul. toLocal ekle, Z'li girdiyle isUtc kontrolü yapan test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana etkinlik başlangıcını API'nin UTC metninden okuyup cihaz saatinde HH:mm yazan bir sınıf yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/01_builtin_types/model/event_time.dart</p>
+</div>
+  </details>
+
+</section>
+
+<section class="group">
+  <h2>Değişken ve getter</h2>
+  <p class="gl">late final bir kez kurar, getter her okumada hesaplar; ikisi de alan gibi okunur. <a href="https://dart.dev/language/variables#late-variables">dart.dev · Late variables</a></p>
+
+  <details class="card" id="k10" name="kart">
+    <summary class="card-h"><span class="no">10</span><h3>Dil değişti: late final eski değeri tutar</h3><a class="ref" href="https://dart.dev/language/variables#late-variables">dart.dev · Late variables</a></summary>
+    <div class="card-b">    <p class="scn">Etkinlik filtre sheet'i bir kez açıldı; kullanıcı sonra dili İngilizceye çevirdi.</p>
+    <p class="inp"><span class="label">Girdi</span>Dil <code>'tr'</code> → <code>'en'</code></p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">late final titles = _titles[language]!</code>
+        <div class="scr">
+          <b>Filter events</b>
+          <div class="chips"><span class="chip">Bekleyen</span><span class="chip">Onaylanan</span><span class="chip">Reddedilen</span></div>
+        </div>
+        <p class="res">Dil İngilizce, çipler hâlâ Türkçe.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">List&lt;String&gt; get titles =&gt; _titles[language]!</code>
+        <div class="scr">
+          <b>Filter events</b>
+          <div class="chips"><span class="chip">Pending</span><span class="chip">Approved</span><span class="chip">Declined</span></div>
+        </div>
+        <p class="res">Çipler o anki dilde.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>late final</code> ilk okumada bir kez kurulur ve bir daha kaynağa bakmaz. Kaynağı değişebilen değer (dil, kullanıcı, filtre) getter ile ya da değiştiği yerde yeniden kurulur.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde late final alanları bul. Kaynağı sonradan değişebilenleri (dil, tema, kullanıcı, filtre) getter'a ya da değiştiği yerde yeniden kurmaya çevir, kaynağı değiştiren bir testle kanıtla.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana uygulama dili değişince seçenek başlıkları da değişen bir filtre sheet'i state'i yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/01_builtin_types/model/event_filter_sheet.dart</p>
+</div>
+  </details>
+  <details class="card" id="k11" name="kart">
+    <summary class="card-h"><span class="no">11</span><h3>Grid: getter her hücrede yeniden sıralar</h3><a class="ref" href="https://dart.dev/language/methods#getters-and-setters">dart.dev · Getters and setters</a></summary>
+    <div class="card-b">    <p class="scn">Markalar sayfası: görünür markalar sıralanıp grid'de gösteriliyor; itemCount ve itemBuilder listeyi her hücrede okuyor.</p>
+    <p class="inp"><span class="label">Girdi</span>4 marka, biri gizli</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">List&lt;Brand&gt; get visible =&gt; brands.where(...)..sort(...)</code>
+        <div class="scr">
+          <div class="chips"><span class="chip">Arda</span><span class="chip">Mavi</span><span class="chip">Nova</span></div>
+          <span class="s">Bu build sırasında liste <b>7</b> kez süzülüp sıralandı</span>
+        </div>
+        <p class="res">1 build, 7 sıralama.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">late final List&lt;Brand&gt; visible = ...</code>
+        <div class="scr">
+          <div class="chips"><span class="chip">Arda</span><span class="chip">Mavi</span><span class="chip">Nova</span></div>
+          <span class="s">Bu build sırasında liste <b>1</b> kez süzülüp sıralandı</span>
+        </div>
+        <p class="res">1 build, 1 sıralama.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> Getter alan gibi okunur ama her okumada gövdesi çalışır; burada her seferinde <code>where</code> ve <code>sort</code>. Kaynak değişmiyorsa <code>late final</code> bir kez hesaplar. Kaynak değişiyorsa 8a geçerlidir: hesaplanan değer değiştiği yerde yenilenir.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde where, sort, map, fold gibi iş yapan getter'ları bul. build veya itemBuilder içinde tekrar tekrar okunanları, kaynak değişmiyorsa late final'a ya da kaynak değiştiğinde yenilenen bir alana çevir; çağrı sayısını testle ölç.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana görünür markaları sıraya göre listeleyen bir sayfa state'i yaz; liste build başına bir kez hesaplansın.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/01_builtin_types/model/brand_page.dart</p>
+</div>
+  </details>
+</section>
+
+<section class="group">
+  <h2>Operatör</h2>
+  <p class="gl">Cascade alıcının kendisini döndürür; yerinde değiştiren metotla birleşince kaynak da değişir. <a href="https://dart.dev/language/operators#cascade-notation">dart.dev · Cascade notation</a></p>
+
+  <details class="card" id="k12" name="kart">
+    <summary class="card-h"><span class="no">12</span><h3>Cascade: ..sort aynı listeyi sıralar</h3><a class="ref" href="https://dart.dev/language/operators#cascade-notation">dart.dev · Cascade notation</a></summary>
+    <div class="card-b">    <p class="scn">Ürünler ekranı: "Önerilen" sunucu sırasıyla, "A–Z" sekmesi aynı listeden sıralı.</p>
+    <p class="inp"><span class="label">Girdi</span>['Zeytinyağı', 'Bal', 'Peynir', 'Ekmek']</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">final az = products..sort();</code>
+        <div class="scr"><span class="t">Önerilen</span><div class="chips"><span class="chip">Bal</span><span class="chip">Ekmek</span><span class="chip">Peynir</span><span class="chip">Zeytinyağı</span></div><span class="t">A–Z</span><div class="chips"><span class="chip">Bal</span><span class="chip">Ekmek</span><span class="chip">Peynir</span><span class="chip">Zeytinyağı</span></div></div>
+        <p class="res">"Önerilen" da alfabetik oldu; sunucu sırası kayboldu.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">final az = [...products]..sort();</code>
+        <div class="scr"><span class="t">Önerilen</span><div class="chips"><span class="chip">Zeytinyağı</span><span class="chip">Bal</span><span class="chip">Peynir</span><span class="chip">Ekmek</span></div><span class="t">A–Z</span><div class="chips"><span class="chip">Bal</span><span class="chip">Ekmek</span><span class="chip">Peynir</span><span class="chip">Zeytinyağı</span></div></div>
+        <p class="res">İki bölüm kendi sırasında.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> Cascade <code>..</code> metodun sonucunu değil, alıcının kendisini döndürür. <code>products..sort()</code> yeni liste gibi görünür ama listeyi yerinde sıralar; aynı listeyi kullanan her yer değişir. Önce kopya (<code>[...products]</code>), sonra cascade. <code>package:collection</code>'da <code>sorted()</code> aynı işi tek çağrıda yapar.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde ..sort, ..shuffle, ..removeWhere, ..add gibi listeyi yerinde değiştiren cascade'leri ve sonucunu yeni bir değişkene atayan yerleri bul. Kaynak başka yerde de kullanılıyorsa kopya üzerinde çalıştır, kaynağın değişmediğini test et.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana ürünler ekranı için sunucu sırasını bozmadan A–Z, fiyata göre artan ve azalan sıralı listeler üreten bir sınıf yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/01_builtin_types/model/product_sort.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k13" name="kart">
+    <summary class="card-h"><span class="no">13</span><h3>Harita hazır değil: ! değil ?..</h3><a class="ref" href="https://dart.dev/language/operators#cascade-notation">dart.dev · Cascade notation</a></summary>
+    <div class="card-b">    <p class="scn">Harita ekranı: kontrolcü <code>onMapCreated</code> ile gelir, o ana kadar null. Kullanıcı harita yüklenmeden "Konumum"a basıyor.</p>
+    <p class="inp"><span class="label">Girdi</span>camera null → sonra hazır · 'Kadıköy'</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">camera!..moveTo(place)..showPin(place)</code>
+        <div class="scr"><div class="row tile"><span class="pin e">⚠</span><div><span class="t">Harita ekranı çöktü</span><br><span class="s e">Null check operator used on a null value</span></div></div></div>
+        <p class="res">Erken dokunuşta TypeError.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">camera?..moveTo(place)..showPin(place)</code>
+        <div class="scr"><div class="photo" style="font-size:15px;position:relative">Harita yükleniyor…<span style="position:absolute;right:8px;bottom:6px">◎</span></div><div class="photo" style="font-size:15px;position:relative">📍 Kadıköy<span style="position:absolute;right:8px;bottom:6px">◎</span></div></div>
+        <p class="res">Hazır değilken hiçbir şey olmaz; hazır olunca kamera gider, pin düşer.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>?..</code> (null-aware cascade) alıcı null ise zincirin tamamını atlar; ilk adımda bir kez yazılır, sonraki <code>..</code>'lar da korunur. <code>!</code> "burada null olamaz" sözüdür; geç gelen kontrolcülerde (harita, kamera, video, WebView) bu söz tutmaz.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde geç gelen nullable kontrolcüleri (harita, kamera, video, animasyon) ! ile ya da if (x != null) { x.a(); x.b(); } bloklarıyla kullanan yerleri bul. ?.. cascade ile düzelt, null durumda çağrının çökmediğini test et.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana harita ekranı için "Konumum" butonu yaz: kontrolcü onMapCreated ile gelsin, hazır değilken dokunuş çökmesin, hazır olunca kamerayı taşıyıp pin koysun.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/01_builtin_types/model/locate_button.dart</p>
+</div>
+  </details>
+
+</section>
+
+</div>
+
+<script>
+document.querySelectorAll('.copy').forEach(b => {
+  b.addEventListener('click', async () => {
+    const txt = b.parentElement.querySelector('.txt');
+    let ok = false;
+    try { await navigator.clipboard.writeText(txt.textContent); ok = true; } catch (_) {}
+    if (!ok) {
+      const r = document.createRange(); r.selectNodeContents(txt);
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    }
+    b.textContent = ok ? 'Kopyalandı' : 'Seçildi, Cmd+C';
+    b.classList.add('done');
+    setTimeout(() => { b.textContent = 'Kopyala'; b.classList.remove('done'); }, 1600);
+  });
+});
+</script>
+<script>
+(() => {
+  const cards = [...document.querySelectorAll('details.card')];
+  const openHash = () => {
+    const el = location.hash && document.querySelector(location.hash);
+    if (el && el.matches('details.card')) { el.open = true; el.scrollIntoView({ block: 'start' }); }
+  };
+  window.addEventListener('hashchange', openHash);
+  openHash();
+  document.querySelectorAll('.card-h .ref').forEach(a => a.addEventListener('click', e => e.stopPropagation()));
+})();
+</script>
