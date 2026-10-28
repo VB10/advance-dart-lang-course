@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "dart_advance_example",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "examples/dart_advance_example",
+      "program": "lib/main.dart"
+    },
+    {
+      "name": "dart_advance_example (profile)",
+      "type": "dart",
+      "request": "launch",
+      "cwd": "examples/dart_advance_example",
+      "program": "lib/main.dart",
+      "flutterMode": "profile"
+    }
+  ]
+}
