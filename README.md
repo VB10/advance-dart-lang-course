@@ -22,6 +22,7 @@ Her özellik için **tek bir Dart dosyası** (ekranda gösterilir), kısa bir **
 
 - [Kurs haritası](https://claude.ai/artifact/Tg9xgzVDeNbGvGjv4NA3yU)
 - [01 · Built-in types](https://claude.ai/artifact/1ftjaakLwccfcG1NVHanh3)
+- [02 · Typedefs](https://claude.ai/artifact/61B94mB1hg7siYg4YJcgtb)
 - [03 · Class tasarımı](https://claude.ai/artifact/L7uxuQD7VqgRJgjVHA61rM)
 - [04 · Collection](https://claude.ai/artifact/RCdHrWMCwiwTtRJLg8yDxE)
 

@@ -1,0 +1,446 @@
+<title>dartadvance 02 Typedefs</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Düzen: bölüm sayfası. Üstte bölüm adı ve dart.dev'e göre gruplu içindekiler; her kart aynı kalıp: senaryo, girdi, bozuk ekran | düzgün ekran, neden, iki prompt. */
+:root {
+  --bg: #F3F5F8;
+  --surface: #FFFFFF;
+  --surface-2: #EAEFF4;
+  --ink: #0F1E2B;
+  --muted: #53636F;
+  --line: #D3DBE3;
+  --accent: #0468B1;
+  --accent-soft: #DCEBF7;
+  --on-accent: #FFFFFF;
+  --bad: #A8321D;
+  --bad-bg: #FBE6E1;
+  --good: #166C3C;
+  --good-bg: #DDF2E5;
+  --off: #C9D1D8;
+  --off-ink: #7C8993;
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B131B; --surface: #121D28; --surface-2: #192735; --ink: #E8EEF4; --muted: #93A3B2;
+    --line: #25333F; --accent: #4DB3F2; --accent-soft: #14304A; --on-accent: #07121B;
+    --bad: #FF9A84; --bad-bg: #3A1E19; --good: #62D493; --good-bg: #12301F;
+    --off: #2A3846; --off-ink: #6F7F8D;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B131B; --surface: #121D28; --surface-2: #192735; --ink: #E8EEF4; --muted: #93A3B2;
+  --line: #25333F; --accent: #4DB3F2; --accent-soft: #14304A; --on-accent: #07121B;
+  --bad: #FF9A84; --bad-bg: #3A1E19; --good: #62D493; --good-bg: #12301F;
+  --off: #2A3846; --off-ink: #6F7F8D;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 72px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -0.02em; }
+p { margin: 0; }
+a { color: var(--accent); }
+code, .mono { font-family: var(--mono); font-size: 0.88em; }
+:not(pre) > code { background: var(--surface-2); padding: 1px 6px; border-radius: 4px; overflow-wrap: anywhere; }
+.label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.back { display: inline-block; margin-top: 28px; font-size: 15px; font-weight: 600; text-decoration: none; }
+.back:hover { text-decoration: underline; }
+
+header.top { padding-top: 24px; }
+header.top h1 { font-size: clamp(44px, 8vw, 92px); font-weight: 800; line-height: 0.95; letter-spacing: -0.035em; }
+header.top h1 span { color: var(--accent); font-family: var(--mono); font-weight: 700; font-size: 0.5em; letter-spacing: 0; vertical-align: 0.6em; margin-right: 12px; }
+header.top .sub { font-size: clamp(19px, 2.4vw, 24px); line-height: 1.4; max-width: 46ch; margin-top: 18px; font-family: var(--display); font-weight: 500; }
+
+.toc { margin-top: 32px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.toc div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.toc .label a { color: var(--muted); }
+.toc ol { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.toc li a { color: var(--ink); text-decoration: none; font-size: 15px; display: grid; grid-template-columns: 26px minmax(0, 1fr); }
+.toc li a:hover { color: var(--accent); }
+.toc li b { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+
+.all { margin-top: 20px; display: grid; gap: 8px; padding: 16px; border: 1px solid var(--accent); border-radius: 12px; background: var(--surface); }
+.all .hint { font-size: 15px; color: var(--muted); max-width: 70ch; }
+
+.group { padding-top: 64px; }
+.group h2 { font-size: clamp(26px, 3.6vw, 36px); font-weight: 800; line-height: 1.1; }
+.group .gl { margin-top: 6px; font-size: 15px; color: var(--muted); }
+
+.card { margin-top: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px; display: grid; gap: 16px; scroll-margin-top: 16px; }
+.card-h { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: baseline; }
+.card-h .no { font-family: var(--mono); font-weight: 700; color: var(--accent); font-size: 15px; }
+.card-h h3 { font-size: clamp(21px, 2.6vw, 26px); font-weight: 700; line-height: 1.2; }
+.card-h .ref { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.since { font-family: var(--mono); font-size: 12px; background: var(--accent-soft); color: var(--accent); padding: 2px 8px; border-radius: 999px; margin-left: 8px; vertical-align: 0.2em; }
+.scn { max-width: 70ch; }
+.inp { font-size: 15px; }
+.inp .label { margin-right: 8px; }
+
+.vs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.side { border-radius: 10px; padding: 14px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.side.bad { background: var(--bad-bg); }
+.side.good { background: var(--good-bg); }
+.side .tag { font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+.side.bad .tag, .side.bad .res { color: var(--bad); }
+.side.good .tag, .side.good .res { color: var(--good); }
+.side .line { font-family: var(--mono); font-size: 13.5px; overflow-wrap: anywhere; }
+.side .res { font-weight: 600; font-size: 15px; }
+
+/* Ekran parçaları: uygulamadaki widget'ların sadeleştirilmiş çizimi */
+.scr { background: var(--surface); border-radius: 8px; padding: 14px; display: grid; gap: 12px; font-size: 15px; min-width: 0; }
+.fld { display: grid; gap: 2px; }
+.fld .fl { font-size: 12px; color: var(--muted); }
+.fld .fv { font-size: 18px; border-bottom: 1.5px solid var(--muted); padding-bottom: 4px; overflow-wrap: anywhere; }
+.fld .fm { font-size: 12.5px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.fld.err .fl, .fld.err .fm { color: var(--bad); }
+.fld.err .fv { border-color: var(--bad); }
+.btn { justify-self: start; border-radius: 999px; padding: 8px 18px; font-weight: 600; font-size: 14px; background: var(--accent); color: var(--on-accent); }
+.btn.off { background: var(--off); color: var(--off-ink); }
+.btn.outline { background: transparent; border: 1px solid var(--off); color: var(--off-ink); }
+.row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.row > div { min-width: 0; }
+.av { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 17px; }
+.av.x { background: var(--bad-bg); color: var(--bad); font-family: var(--mono); font-size: 13px; }
+.tile .t { font-weight: 500; }
+.tile .s { font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+.tile .s.e { color: var(--bad); }
+.tile .tr { margin-left: auto; font-size: 13px; color: var(--accent); font-weight: 600; flex: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { border: 1px solid var(--line); border-radius: 8px; padding: 3px 10px; font-size: 14px; }
+.kv { display: flex; justify-content: space-between; gap: 12px; }
+.kv b { font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; text-align: right; }
+.req { font-family: var(--mono); font-size: 12.5px; overflow-wrap: anywhere; }
+.pin { color: var(--accent); }
+.pin.e { color: var(--bad); }
+
+.why { max-width: 75ch; }
+.why b { font-weight: 600; }
+.prompts { display: grid; gap: 8px; }
+.prompt { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 12px; align-items: start; background: var(--surface-2); border-radius: 10px; padding: 12px 12px 12px 14px; }
+.prompt .pl { font-weight: 700; font-size: 13px; padding-top: 2px; }
+.prompt .txt { font-family: var(--mono); font-size: 13.5px; line-height: 1.55; overflow-wrap: anywhere; white-space: pre-wrap; }
+.copy { background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; color: var(--ink); }
+.copy:hover { border-color: var(--accent); color: var(--accent); }
+.copy.done { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.file { font-family: var(--mono); font-size: 12.5px; color: var(--muted); overflow-wrap: anywhere; }
+
+@media (max-width: 860px) {
+  .toc { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vs { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 18px; }
+  .card-h { grid-template-columns: auto minmax(0, 1fr); }
+  .card-h .ref { grid-column: 2; white-space: normal; }
+}
+@media (max-width: 480px) {
+  .toc { grid-template-columns: minmax(0, 1fr); }
+  .prompt { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+.thumb { flex: none; width: 56px; height: 56px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); font-size: 26px; }
+.big { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.old { font-size: 13px; color: var(--muted); text-decoration: line-through; }
+.photo { height: 110px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); font-size: 40px; }
+.banner { background: var(--accent-soft); color: var(--ink); border-radius: 8px; padding: 14px; display: grid; gap: 10px; font-weight: 700; letter-spacing: 0.02em; }
+details.card { display: block; padding: 0; }
+details.card > summary { list-style: none; cursor: pointer; padding: 20px 24px; }
+details.card > summary::-webkit-details-marker { display: none; }
+details.card > summary::after { content: "▸"; color: var(--muted); font-size: 18px; justify-self: end; transition: transform .15s; }
+details.card[open] > summary::after { transform: rotate(90deg); }
+details.card[open] > summary { border-bottom: 1px solid var(--line); }
+details.card > .card-b { display: grid; gap: 16px; padding: 20px 24px 24px; }
+details.card > summary.card-h { grid-template-columns: auto minmax(0, 1fr) auto auto; }
+@media (max-width: 720px) { details.card > summary.card-h { grid-template-columns: auto minmax(0, 1fr) auto; } details.card > summary .ref { grid-column: 2; } }
+.acc-tools { margin-top: 20px; display: flex; gap: 8px; }
+</style>
+
+<div class="wrap">
+
+<a class="back" href="https://claude.ai/artifact/Tg9xgzVDeNbGvGjv4NA3yU">← Kurs haritası</a>
+
+<header class="top">
+  <h1><span>02</span>Typedefs</h1>
+  <p class="sub">Typedef bir tipe yeni bir isim verir, yeni tip yaratmaz. Flutter projesinde en çok işe yarayan 7 kullanım. Her biri gerçek bir ekranda, bozuk ve düzgün yan yana.</p>
+</header>
+
+<nav class="toc" aria-label="Kartlar">
+  <div>
+    <p class="label">Fonksiyon tipleri</p>
+    <ol>
+      <li><a href="#k1"><b>1</b>Sipariş formu</a></li>
+      <li><a href="#k5"><b>5</b>Havale</a></li>
+    </ol>
+  </div>
+  <div>
+    <p class="label">Alias ve yeni tip</p>
+    <ol>
+      <li><a href="#k2"><b>2</b>Fatura toplamı</a></li>
+      <li><a href="#k3"><b>3</b>Alias yeni tip değil</a></li>
+      <li><a href="#k6"><b>6</b>Stok ve fiyat</a></li>
+    </ol>
+  </div>
+  <div>
+    <p class="label">Record</p>
+    <ol>
+      <li><a href="#k4"><b>4</b>Mağaza konumu</a></li>
+      <li><a href="#k7"><b>7</b>Sepet satırı</a></li>
+    </ol>
+  </div>
+</nav>
+
+<div class="all">
+  <p class="label">Bölümün hepsini kendi projende tara</p>
+  <p class="hint">Önce bulduklarını dosya:satır olarak listeler, sen onaylayınca düzeltir. Bir kuralı bulamazsa "bulunamadı" der.</p>
+  <div class="prompts"><div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemi Bölüm 02 (Typedefs) kurallarıyla tara: aynı imzayı tekrar eden callback ve validator tipleri, Map&lt;String, dynamic&gt; JSON tipleri, typedef ile tanımlanmış int ID/birimler, konumsal record konum tipleri, aynı türden konumsal parametreli function tipleri, Future&lt;Result&lt;T&gt;&gt; imzaları, 3&#x27;ten fazla alanlı record alias&#x27;lar. Her kural için bulduğun yerleri dosya:satır olarak listele, ben onaylayınca düzelt; bulamazsan &#x27;bulunamadı&#x27; de.</div><button class="copy" type="button">Kopyala</button></div></div>
+</div>
+
+<section class="group">
+  <h2>Fonksiyon tipleri</h2>
+  <p class="gl">İmzaya isim vermek ve isimli parametre ile sırayı korumak.</p>
+
+  <details class="card" id="k1" name="kart">
+    <summary class="card-h"><span class="no">1</span><h3>Sipariş formu: fonksiyon typedef&#x27;i</h3><a class="ref" href="https://dart.dev/language/typedefs">dart.dev · typedefs</a></summary>
+    <div class="card-b">    <p class="scn">Sipariş formu: ürün adı, adet ve fiyat alanları aynı imzalı doğrulayıcılarla kontrol ediliyor.</p>
+    <p class="inp"><span class="label">Girdi</span>ad: &#x27;&#x27;, adet: 0, fiyat: 12.5</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">String? Function(int?) her parametrede</code>
+        <div class="scr"><div class="row tile"><span class="pin">⚠</span><div><span class="t">Üç doğrulayıcı, üç ayrı imza</span><br><span class="s">String? Function(String?) · String? Function(int?) · String? Function(double?)</span></div></div></div>
+        <p class="res">Aynı sonuç, imza her yerde elle yazılıyor.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">Validator<int> quantityRule</code>
+        <div class="scr"><div class="row tile"><span class="pin">✔</span><div><span class="t">Hatalar: Ürün adı boş, Adet en az 1</span></div></div></div>
+        <p class="res">Aynı sonuç, imza bir kez adlandırıldı.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> Typedef imzaya isim verir, yeni tip yaratmaz. Eski sözdizimi (<code>typedef T Name(S s)</code>) yasak; <code>typedef Validator&lt;T&gt; = String? Function(T? value);</code> yaz. Tek yerde geçen fonksiyon tipini inline bırak.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde aynı fonksiyon imzasını birçok yerde tekrar eden callback ve validator tiplerini bul, `typedef` ile adlandır, test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana ürün adı, adet ve fiyat alanlarını aynı imzalı doğrulayıcılarla kontrol eden bir sipariş formu yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/02_typedefs/model/order_form.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k5" name="kart">
+    <summary class="card-h"><span class="no">5</span><h3>Havale: isimli parametre</h3><a class="ref" href="https://dart.dev/language/typedefs">dart.dev · typedefs</a></summary>
+    <div class="card-b">    <p class="scn">Havale ekranı: gönderen, alıcı ve tutar callback ile geliyor. Biri parametre sırasını ters yazmış.</p>
+    <p class="inp"><span class="label">Girdi</span>ali → veli, 5000 kuruş</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">String Function(String, String, int)</code>
+        <div class="scr"><div class="row tile"><span class="pin e">⚠</span><div><span class="t">veli → ali: 5000 kuruş</span><br><span class="s e">Para ters yöne gitti</span></div></div></div>
+        <p class="res">Sırası ters fonksiyon da typedef&#x27;e uyar.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">Function({required String from, required String to, required int cents})</code>
+        <div class="scr"><div class="row tile"><span class="pin">💸</span><div><span class="t">ali → veli: 5000 kuruş</span></div></div></div>
+        <p class="res">Fonksiyon from/to/cents adlarıyla eşleşmek zorunda.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> Aynı türden iki ya da daha fazla parametre varsa typedef'te isimli (<code>required</code>) yaz. Sırası ters fonksiyonu analyzer reddeder. Tek parametreli kısa callback'te gerekmez.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde aynı türden konumsal parametreleri olan callback ve typedef tiplerini bul, parametrelere isim ver (`required` isimli), test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana havale ekranı için gönderen, alıcı ve kuruş alan isimli bir typedef ve onu kullanan bir fonksiyon yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/02_typedefs/model/transfer.dart</p>
+</div>
+  </details>
+
+</section>
+
+<section class="group">
+  <h2>Alias ve yeni tip</h2>
+  <p class="gl">Alias yalnızca isimdir; Json, ID ve sonuç tipleri.</p>
+
+  <details class="card" id="k2" name="kart">
+    <summary class="card-h"><span class="no">2</span><h3>Fatura toplamı: Json alias</h3><a class="ref" href="https://dart.dev/language/typedefs">dart.dev · typedefs</a></summary>
+    <div class="card-b">    <p class="scn">Fatura ekranı: API&#x27;den gelen satırların fiyatları toplanıyor. İlk satırın fiyatı tam sayı geldi.</p>
+    <p class="inp"><span class="label">Girdi</span>[{name: Kalem, price: 4}, {name: Defter, price: 12.5}]</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">row['price']! as double</code>
+        <div class="scr"><div class="row tile"><span class="pin e">⚠</span><div><span class="t">Fatura açılamadı</span><br><span class="s e">TypeError: type int is not a subtype of double</span></div></div></div>
+        <p class="res">JSON&#x27;daki 4, int geldi; as double patladı.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">typedef Json = Map&lt;String, Object?&gt;; + as num</code>
+        <div class="scr"><div class="row tile"><span class="pin">🧾</span><div><span class="t">Toplam 16.5</span></div></div></div>
+        <p class="res">4 + 12.5, ikisi de kabul edildi.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>Json</code> alias'ı <code>Map&lt;String, Object?&gt;</code> ile birebir aynıdır; <code>dynamic</code> değil <code>Object?</code> kullan. JSON sayısı <code>int</code> de gelebilir: <code>(x as num).toDouble()</code>. Domain'e <code>Json</code> sızdırma, entity döndür.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde `Map&lt;String, dynamic&gt;` tipini tekrar eden Data katmanı yerlerini bul, `typedef` alias ile düzelt, test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana API&#x27;den gelen fatura satırları JSON listesini okuyup tekrar JSON&#x27;a çeviren bir Data sınıfı yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/02_typedefs/model/invoice_lines.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k3" name="kart">
+    <summary class="card-h"><span class="no">3</span><h3>Sipariş no ile müşteri no: alias yeni tip değildir</h3><a class="ref" href="https://dart.dev/language/extension-types">dart.dev · extension types</a></summary>
+    <div class="card-b">    <p class="scn">Fatura başlığı: sipariş numarası 7, müşteri numarası 1042. İki numara aynı türde.</p>
+    <p class="inp"><span class="label">Girdi</span>sipariş 7, müşteri 1042</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">typedef OrderIdAlias = int; typedef CustomerIdAlias = int;</code>
+        <div class="scr"><div class="row tile"><span class="pin e">⚠</span><div><span class="t">Sipariş #1042, müşteri #7</span><br><span class="s e">Sıra ters verildi, yine de derlendi</span></div></div></div>
+        <p class="res">İki ID de int; yer değişince de derlenir.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">extension type const OrderId(int value)</code>
+        <div class="scr"><div class="row tile"><span class="pin">🧾</span><div><span class="t">Sipariş #7, müşteri #1042</span></div></div></div>
+        <p class="res">Ayrı tipler; ters sırayı analyzer reddeder.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> <code>typedef X = int</code> yalnızca isimdir, <code>int</code> kabul eden her yer onu kabul eder. Karışmaması gereken ID ve birimler için <code>extension type</code> (Dart 3.3) sıfır maliyetli ayrı tip verir.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde `typedef X = int` gibi alias&#x27;la ID ya da birim tipi tanımlayan yerleri bul, `extension type` ile dönüştür, test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana sipariş numarası ile müşteri numarasının karışmasını derleme anında engelleyen bir fatura servisi yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/02_typedefs/model/invoice_service.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k6" name="kart">
+    <summary class="card-h"><span class="no">6</span><h3>Stok ve fiyat: AsyncResult</h3><a class="ref" href="https://dart.dev/language/typedefs">dart.dev · typedefs</a></summary>
+    <div class="card-b">    <p class="scn">Ürün sayfası: stok ve fiyat sorgulayan servis, hata fırlatmayıp sonuç dönüyor.</p>
+    <p class="inp"><span class="label">Girdi</span>sku: kalem</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">Future&lt;Result&lt;int&gt;&gt; her metotta</code>
+        <div class="scr"><div class="row tile"><span class="pin">📦</span><div><span class="t">Stok: 12</span><br><span class="s">Future&lt;Result&lt;int&gt;&gt; · Future&lt;Result&lt;double&gt;&gt; elle yazıldı</span></div></div></div>
+        <p class="res">Aynı sonuç, imza her metotta yeniden yazıldı.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">typedef AsyncResult&lt;T&gt; = Future&lt;Result&lt;T&gt;&gt;;</code>
+        <div class="scr"><div class="row tile"><span class="pin">📦</span><div><span class="t">Stok: 12</span><br><span class="s">AsyncResult&lt;int&gt; · AsyncResult&lt;double&gt;</span></div></div></div>
+        <p class="res">Aynı sonuç, imza tek yerden değişir.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> Alias yeni tip değildir: <code>AsyncResult&lt;int&gt; == Future&lt;Result&lt;int&gt;&gt;</code>. Kazanç okunabilirlik ve imzayı tek yerden değiştirebilmek. Tek metotluk serviste inline yaz. İki ekran da aynı çıktıyı verir; fark koddadır.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde `Future&lt;Result&lt;T&gt;&gt;` imzasını her repository metodunda tekrar eden yerleri bul, `typedef AsyncResult&lt;T&gt;` ile adlandır, test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana stok ve fiyat sorgulayan, hata fırlatmayıp sonuç dönen bir repository yaz; dönüş tipi tek bir typedef olsun.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/02_typedefs/model/stock_service.dart</p>
+</div>
+  </details>
+
+</section>
+
+<section class="group">
+  <h2>Record</h2>
+  <p class="gl">Konumsal record&#x27;un sessiz hatası ve class&#x27;a geçiş eşiği.</p>
+
+  <details class="card" id="k4" name="kart">
+    <summary class="card-h"><span class="no">4</span><h3>Mağaza konumu: record alias</h3><a class="ref" href="https://dart.dev/language/records">dart.dev · records</a></summary>
+    <div class="card-b">    <p class="scn">Mağaza seçme ekranı: seçilen mağazanın konumu haritaya gidiyor. Boylam yanlışlıkla başa yazıldı.</p>
+    <p class="inp"><span class="label">Girdi</span>lat 41.0, lng 29.0</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">(double, double) storeWrong() =&gt; (29.0, 41.0)</code>
+        <div class="scr"><div class="row tile"><span class="pin e">📍</span><div><span class="t">Enlem 29.0</span><br><span class="s e">.$1 enlem diye boylamı okudu</span></div></div></div>
+        <p class="res">Konumsal record&#x27;da sıra hatası derlenir.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">typedef Point = ({double lat, double lng});</code>
+        <div class="scr"><div class="row tile"><span class="pin">📍</span><div><span class="t">Enlem 41.0, boylam 29.0</span></div></div></div>
+        <p class="res">İsim anlamı belirler, sıra değil.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> Alan isimli record alias'ı <code>p.lat</code> okutur; <code>typedef OnPicked = void Function(Point point);</code> callback şeklini de adlandırır. Tek yerde geçen küçük record için alias yazma. <b>Ne zaman hangisi:</b> birkaç değer tek parça dolaşıyorsa ya da fonksiyondan birden fazla değer dönüyorsa isimli record; davranış ya da 3'ten fazla alan varsa class (kart 7); tek değer ve karışmaması gerekiyorsa extension type (kart 3); çağrıda okunurluk için named parametre (kart 5).</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde konum, boyut ya da aralık için `(double, double)` gibi konumsal record kullanan yerleri bul, isimli alanlı `typedef` ile düzelt, test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana mağaza seçme ekranı için konumu ve seçim callback&#x27;ini typedef ile adlandıran bir harita sınıfı yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/02_typedefs/model/record_point.dart</p>
+</div>
+  </details>
+
+  <details class="card" id="k7" name="kart">
+    <summary class="card-h"><span class="no">7</span><h3>Sepet satırı: record mu class mı</h3><a class="ref" href="https://dart.dev/language/records">dart.dev · records</a></summary>
+    <div class="card-b">    <p class="scn">Sepet ekranı: kalem 3 adet, 450 kuruş, 50 kuruş indirim. Satır (ad, adet, kuruş, indirim) record&#x27;u ile tutuluyor.</p>
+    <p class="inp"><span class="label">Girdi</span>(&#x27;Kalem&#x27;, 3, 450, 50)</p>
+    <div class="vs">
+      <div class="side bad">
+        <span class="tag">Olumsuz</span>
+        <code class="line">line.$2 * line.$4</code>
+        <div class="scr"><div class="row tile"><span class="pin e">⚠</span><div><span class="t">Satır toplamı 150 kuruş</span><br><span class="s e">Adet ile indirim çarpıldı, ikisi de int</span></div></div></div>
+        <p class="res">Derlendi; analyzer yanlışı göremez.</p>
+      </div>
+      <div class="side good">
+        <span class="tag">Olumlu</span>
+        <code class="line">CartLine(...).total</code>
+        <div class="scr"><div class="row tile"><span class="pin">🛒</span><div><span class="t">Satır toplamı 1300 kuruş</span><br><span class="s">3 × 450 − 50</span></div></div></div>
+        <p class="res">Alanlar isimli, toplam davranış olarak yazıldı.</p>
+      </div>
+    </div>
+    <p class="why"><b>Neden:</b> Alias okunabilirliği çözer, anlamı çözmez. Aynı türden 3'ten fazla alan ya da türetilmiş değer gerekince record yerine class kullan. İki üç farklı türlü kısa değer için record yeterli.</p>
+    <div class="prompts">
+      <div class="prompt"><div class="pl">Düzelt</div><div class="txt">/dartadvance Projemde 3&#x27;ten fazla alanlı ya da aynı türden alanları olan record alias&#x27;larını bul, sınıfa çevir, alanları isimlendir, test yaz.</div><button class="copy" type="button">Kopyala</button></div>
+      <div class="prompt"><div class="pl">Üret</div><div class="txt">/dartadvance Bana sepet satırını (ad, adet, kuruş, indirim) tutan ve satır toplamını hesaplayan bir sınıf yaz.</div><button class="copy" type="button">Kopyala</button></div>
+    </div>
+    <p class="file">lib/features/02_typedefs/model/cart_line.dart</p>
+</div>
+  </details>
+
+</section>
+
+</div>
+
+<script>
+document.querySelectorAll('.copy').forEach(b => {
+  b.addEventListener('click', async () => {
+    const txt = b.parentElement.querySelector('.txt');
+    let ok = false;
+    try { await navigator.clipboard.writeText(txt.textContent); ok = true; } catch (_) {}
+    if (!ok) {
+      const r = document.createRange(); r.selectNodeContents(txt);
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    }
+    b.textContent = ok ? 'Kopyalandı' : 'Seçildi, Cmd+C';
+    b.classList.add('done');
+    setTimeout(() => { b.textContent = 'Kopyala'; b.classList.remove('done'); }, 1600);
+  });
+});
+</script>
+<script>
+(() => {
+  const cards = [...document.querySelectorAll('details.card')];
+  const openHash = () => {
+    const el = location.hash && document.querySelector(location.hash);
+    if (el && el.matches('details.card')) { el.open = true; el.scrollIntoView({ block: 'start' }); }
+  };
+  window.addEventListener('hashchange', openHash);
+  openHash();
+  document.querySelectorAll('.card-h .ref').forEach(a => a.addEventListener('click', e => e.stopPropagation()));
+})();
+</script>

@@ -2,7 +2,11 @@ import 'package:test/test.dart';
 
 import 'package:dartadvance_examples/02_typedefs/alias_not_new_type.dart';
 import 'package:dartadvance_examples/02_typedefs/function_typedefs.dart';
+import 'package:dartadvance_examples/02_typedefs/async_result.dart';
 import 'package:dartadvance_examples/02_typedefs/json_alias.dart';
+import 'package:dartadvance_examples/02_typedefs/named_params.dart';
+import 'package:dartadvance_examples/02_typedefs/record_alias.dart';
+import 'package:dartadvance_examples/02_typedefs/record_vs_class.dart';
 
 void main() {
   group('function_typedefs', () {
@@ -69,6 +73,60 @@ void main() {
     test('the extension type wraps the int behind its own name', () {
       expect(loadWithTyped(), 'user #7');
       expect(const UserId(7).value, 7);
+    });
+  });
+
+  group('record_alias', () {
+    test('a positional record lets lng sit where lat belongs', () {
+      expect(latWrong(), 29.0);
+    });
+
+    test('the named record keeps lat and lng apart', () {
+      expect(store().lat, 41.0);
+      expect(pinLabel(store()), '41.0, 29.0');
+    });
+
+    test('the OnPicked callback receives the named point', () {
+      Point? picked;
+      MapScreen(onPicked: (point) => picked = point).tapStore();
+      expect(picked, (lat: 41.0, lng: 29.0));
+    });
+  });
+
+  group('named_params', () {
+    test('the positional typedef accepts a function with swapped parameters', () {
+      expect(sendWrong(moveWrong), 'veli -> ali: 5000');
+    });
+
+    test('the named typedef passes from, to and cents by name', () {
+      expect(send(transfer), 'ali -> veli: 5000');
+    });
+  });
+
+  group('async_result', () {
+    test('AsyncResult is the same type as Future<Result<T>>', () {
+      expect(AsyncResult<int>, Future<Result<int>>);
+    });
+
+    test('inline and aliased signatures give the same result', () async {
+      expect(describe(await stockWrong('a')), 'Stok: 12');
+      expect(describe(await stock('a')), 'Stok: 12');
+      expect(describe(await stock('x')), 'Hata: Stok yok');
+    });
+
+    test('price returns an Ok with a double', () async {
+      expect(((await price('a')) as Ok<double>).value, 24.5);
+    });
+  });
+
+  group('record_vs_class', () {
+    test('three ints in a record are easy to mix up', () {
+      expect(totalWrong(wrongLine()), 150);
+    });
+
+    test('CartLine names every field', () {
+      const line = CartLine(name: 'Kalem', qty: 3, cents: 450, discount: 50);
+      expect(line.total, 1300);
     });
   });
 }
