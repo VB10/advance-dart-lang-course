@@ -28,6 +28,10 @@ Her özellik için **tek bir Dart dosyası** (ekranda gösterilir), kısa bir **
 
 Kaynak HTML ve tam liste: [artifacts/README.md](artifacts/README.md).
 
+## Videolar
+
+1. [Bölüm 01 · Built-in types](https://www.youtube.com/watch?v=xmNuHtmYhDY)
+
 ## Konular
 
 01 Built-in types · 02 Typedefs · 03 Class tasarımı (modifier, annotation, library) · 04 Collection ·
