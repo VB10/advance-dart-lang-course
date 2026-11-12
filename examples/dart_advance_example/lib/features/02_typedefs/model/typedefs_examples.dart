@@ -3,10 +3,20 @@ import 'package:flutter/widgets.dart';
 import 'package:dart_advance_example/features/02_typedefs/model/invoice_lines.dart';
 import 'package:dart_advance_example/features/02_typedefs/model/invoice_service.dart';
 import 'package:dart_advance_example/features/02_typedefs/model/order_form.dart';
+import 'package:dart_advance_example/features/02_typedefs/model/record_point.dart';
+import 'package:dart_advance_example/features/02_typedefs/model/transfer.dart';
+import 'package:dart_advance_example/features/02_typedefs/model/stock_service.dart';
+import 'package:dart_advance_example/features/02_typedefs/model/cart_line.dart';
 
 /// Builds the cards shown on the typedefs page.
 final class TypedefsExamples {
   List<TopicExample> build() {
+    final map = StoreMap();
+    final transferScreen = TransferScreen();
+    final stockService = StockService();
+    const line = CartLine(name: 'Kalem', qty: 3, cents: 450, discount: 50);
+    const wrongLine = ('Kalem', 3, 450, 50);
+
     const form = OrderForm(name: '', quantity: 0, price: 12.5);
     String? nameRule(String? v) =>
         (v == null || v.isEmpty) ? 'Ürün adı boş' : null;
@@ -50,6 +60,34 @@ final class TypedefsExamples {
         positive: Text(
           service.invoice(OrderId(orderNo), CustomerId(customerNo)),
         ),
+      ),
+      TopicExample(
+        title: '4) Record alias',
+        negative: Text('Enlem ${map.storeWrong().$1}'),
+        positive: Text('Enlem ${map.store().lat}, boylam ${map.store().lng}'),
+      ),
+      TopicExample(
+        title: '5) İsimli parametre',
+        negative: Text(transferScreen.sendWrong(transferScreen.moveWrong)),
+        positive: Text(transferScreen.send(transferScreen.transfer)),
+      ),
+      TopicExample(
+        title: '6) AsyncResult',
+        negative: FutureBuilder<Result<int>>(
+          future: stockService.stockWrong('kalem'),
+          builder: (_, snap) =>
+              Text(snap.hasData ? stockService.describe(snap.data!) : '…'),
+        ),
+        positive: FutureBuilder<Result<int>>(
+          future: stockService.stock('kalem'),
+          builder: (_, snap) =>
+              Text(snap.hasData ? stockService.describe(snap.data!) : '…'),
+        ),
+      ),
+      TopicExample(
+        title: '7) Record mu class mı',
+        negative: Text('Satır toplamı ${CartLine.totalWrong(wrongLine)} kuruş'),
+        positive: Text('Satır toplamı ${line.total} kuruş'),
       ),
     ];
   }

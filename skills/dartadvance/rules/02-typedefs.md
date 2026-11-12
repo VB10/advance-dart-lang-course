@@ -121,6 +121,141 @@ String loadWithTyped() => describeTyped(const UserId(7)); // user #7
 **Üret (yeni kod):** > "/dartadvance Bana sipariş numarası ile müşteri numarasının karışmasını derleme anında engelleyen bir fatura servisi yaz."
 **Kabul:** Test eski alias'ın `int`'e eşit olduğunu ve yanlış değerin kabul edildiğini gösterir; extension type `.value` ile sarılı değeri verir; yanlış ID için derleme hatasının analyzer tarafından verildiği yorumda yazılıdır.
 
+## 4. Record alias: isimli alanlı typedef (3.0)
+**Ne:** Bir record tipine isim verir; alanlar isimliyse `p.lat` okunur, sıra karışması anlam karıştırmaz.
+**Ne zaman:** Aynı birkaç değer birden çok imzada ya da callback'te tek parça dolaşıyorsa; fonksiyondan birden fazla değer dönerken. Davranış ya da 3'ten fazla alan varsa class (kart 7), tek değer ve karışmaması gerekiyorsa extension type (kart 3), çağrıda okunurluk için named parametre (kart 5).
+**Gerekmez:** Tek yerde geçen küçük record için alias yazma.
+<!-- snippet: 02_typedefs/record_alias -->
+```dart
+// Düzelt: /dartadvance Projemde konum, boyut ya da aralık için `(double, double)` gibi
+//    konumsal record kullanan yerleri bul, isimli alanlı `typedef` ile düzelt, test yaz.
+// Üret: /dartadvance Bana mağaza seçme ekranı için konumu ve seçim callback'ini typedef ile
+//    adlandıran bir harita sınıfı yaz.
+typedef Point = ({double lat, double lng});
+typedef OnPicked = void Function(Point point);
+
+(double, double) storeWrong() => (29.0, 41.0); // lng first by mistake: still compiles
+double latWrong() => storeWrong().$1; // 29.0: not a latitude
+
+Point store() => (lng: 29.0, lat: 41.0); // Names, not order, decide the meaning.
+String pinLabel(Point point) => '${point.lat}, ${point.lng}'; // 41.0, 29.0
+
+class MapScreen {
+  MapScreen({required this.onPicked});
+  final OnPicked onPicked; // One name for the callback shape.
+
+  void tapStore() => onPicked(store());
+}
+```
+**Tuzak:** Konumsal `(double, double)` içinde `lng`, `lat` yerine yazılsa da derlenir; `.$1` enlem diye boylamı okur.
+**Düzelt (mevcut proje):** > "/dartadvance Projemde konum, boyut ya da aralık için `(double, double)` gibi konumsal record kullanan yerleri bul, isimli alanlı `typedef` ile düzelt, test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana mağaza seçme ekranı için konumu ve seçim callback'ini typedef ile adlandıran bir harita sınıfı yaz."
+**Kabul:** Konumsal record kalmaz; `store().lat == 41.0`; `OnPicked` callback'i `Point` alır; `dart analyze` temiz.
+
+## 5. Fonksiyon typedef'inde isimli parametre
+**Ne:** Aynı türden parametreleri olan typedef'te parametreleri isimli (`required`) yaz; çağıran da fonksiyon da adıyla eşleşir.
+**Ne zaman:** Aynı türden iki ya da daha fazla parametre varsa (`String from, String to`).
+**Gerekmez:** Tek parametreli ya da farklı türlü kısa callback'te gerekmez.
+<!-- snippet: 02_typedefs/named_params -->
+```dart
+// Düzelt: /dartadvance Projemde aynı türden konumsal parametreleri olan callback ve typedef
+//    tiplerini bul, parametrelere isim ver (`required` isimli), test yaz.
+// Üret: /dartadvance Bana havale ekranı için gönderen, alıcı ve kuruş alan isimli bir
+//    typedef ve onu kullanan bir fonksiyon yaz.
+typedef TransferWrong = String Function(String, String, int);
+typedef Transfer = String Function({required String from, required String to, required int cents});
+
+String moveWrong(String to, String from, int cents) => '$from -> $to: $cents'; // Order swapped
+String sendWrong(TransferWrong run) => run('ali', 'veli', 5000); // veli -> ali: wrong way
+
+String transfer({required String from, required String to, required int cents}) =>
+    '$from -> $to: $cents';
+String send(Transfer run) => run(from: 'ali', to: 'veli', cents: 5000); // ali -> veli
+
+// send(moveWrong) is rejected by the analyzer: its parameters are not named from/to/cents.
+```
+**Tuzak:** `String Function(String, String, int)` sırası ters yazılmış bir fonksiyonu da kabul eder; havale ters yönde gider. İsimli typedef bunu analyzer'a reddettirir.
+**Düzelt (mevcut proje):** > "/dartadvance Projemde aynı türden konumsal parametreleri olan callback ve typedef tiplerini bul, parametrelere isim ver (`required` isimli), test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana havale ekranı için gönderen, alıcı ve kuruş alan isimli bir typedef ve onu kullanan bir fonksiyon yaz."
+**Kabul:** Typedef'te aynı türden konumsal parametre kalmaz; `send(transfer) == 'ali -> veli: 5000'`; sırası ters fonksiyon analyzer'da reddedilir.
+
+## 6. AsyncResult: Future<Result<T>> için alias
+**Ne:** `typedef AsyncResult<T> = Future<Result<T>>` her repository imzasında tekrar eden tipi bir isme indirir.
+**Ne zaman:** Repository ve servis katmanında hata fırlatmayan metotlar çoğunluktaysa.
+**Gerekmez:** Tek metotluk serviste inline yaz.
+<!-- snippet: 02_typedefs/async_result -->
+```dart
+// Düzelt: /dartadvance Projemde `Future<Result<T>>` imzasını her repository metodunda tekrar
+//    eden yerleri bul, `typedef AsyncResult<T>` ile adlandır, test yaz.
+// Üret: /dartadvance Bana stok ve fiyat sorgulayan, hata fırlatmayıp sonuç dönen bir
+//    repository yaz; dönüş tipi tek bir typedef olsun.
+sealed class Result<T> {
+  const Result();
+}
+
+final class Ok<T> extends Result<T> {
+  const Ok(this.value);
+  final T value;
+}
+
+final class Err<T> extends Result<T> {
+  const Err(this.message);
+  final String message;
+}
+
+typedef AsyncResult<T> = Future<Result<T>>; // Named once, reused in every signature.
+
+Future<Result<int>> stockWrong(String sku) async => // Signature spelled out each time.
+    sku == 'x' ? const Err('Stok yok') : const Ok(12);
+
+AsyncResult<int> stock(String sku) async => sku == 'x' ? const Err('Stok yok') : const Ok(12);
+AsyncResult<double> price(String sku) async => const Ok(24.5);
+
+String describe(Result<int> result) => switch (result) {
+  Ok(:final value) => 'Stok: $value',
+  Err(:final message) => 'Hata: $message',
+};
+```
+**Tuzak:** Alias yeni tip değildir: `AsyncResult<int> == Future<Result<int>>`, sonuç aynıdır; kazanç imzayı tek yerden değiştirebilmektir.
+**Düzelt (mevcut proje):** > "/dartadvance Projemde `Future<Result<T>>` imzasını her repository metodunda tekrar eden yerleri bul, `typedef AsyncResult<T>` ile adlandır, test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana stok ve fiyat sorgulayan, hata fırlatmayıp sonuç dönen bir repository yaz; dönüş tipi tek bir typedef olsun."
+**Kabul:** Repository imzalarında `Future<Result<` kalmaz; `AsyncResult<int> == Future<Result<int>>`; `switch` ile `Ok`/`Err` ayrılır; `dart analyze` temiz.
+
+## 7. Record alias ne zaman class olur
+**Ne:** Alias okunabilirliği çözer, anlamı çözmez; aynı türden 3'ten fazla alan ya da davranış gerekiyorsa class kullan.
+**Ne zaman:** Alan sayısı arttıkça ya da toplam gibi türetilmiş değer gerekince.
+**Gerekmez:** İki üç farklı türlü kısa, geçici değer için record yeterlidir.
+<!-- snippet: 02_typedefs/record_vs_class -->
+```dart
+// Düzelt: /dartadvance Projemde 3'ten fazla alanlı ya da aynı türden alanları olan record
+//    alias'larını bul, sınıfa çevir, alanları isimlendir, test yaz.
+// Üret: /dartadvance Bana sepet satırını (ad, adet, kuruş, indirim) tutan ve satır toplamını
+//    hesaplayan bir sınıf yaz.
+typedef LineWrong = (String, int, int, int); // name, qty, cents, discount: three ints in a row
+
+LineWrong wrongLine() => ('Kalem', 3, 450, 50);
+int totalWrong(LineWrong line) => line.$2 * line.$4; // qty * discount: 150, not 1300
+
+final class CartLine {
+  const CartLine({
+    required this.name,
+    required this.qty,
+    required this.cents,
+    required this.discount,
+  });
+  final String name;
+  final int qty;
+  final int cents;
+  final int discount;
+
+  int get total => qty * cents - discount; // 3 * 450 - 50 = 1300
+}
+```
+**Tuzak:** `(String, int, int, int)` içinde `$2 * $4` adet ile indirimi çarpar; derlenir, toplam `150` çıkar, doğrusu `1300`.
+**Düzelt (mevcut proje):** > "/dartadvance Projemde 3'ten fazla alanlı ya da aynı türden alanları olan record alias'larını bul, sınıfa çevir, alanları isimlendir, test yaz."
+**Üret (yeni kod):** > "/dartadvance Bana sepet satırını (ad, adet, kuruş, indirim) tutan ve satır toplamını hesaplayan bir sınıf yaz."
+**Kabul:** Aynı türden art arda alan içeren record alias kalmaz; `CartLine(...).total == 1300`; `dart analyze` temiz.
+
 ## Flutter'da kanıt
 - `ValueChanged<T> = void Function(T value)`: framework'ün temel callback sözleşmesi, [basic_types.dart#L17](https://github.com/flutter/flutter/blob/3.47.5/packages/flutter/lib/src/foundation/basic_types.dart#L17).
 - `FormFieldValidator<T> = String? Function(T? value)`: `null` = geçerli, [form.dart#L477](https://github.com/flutter/flutter/blob/3.47.5/packages/flutter/lib/src/widgets/form.dart#L477).
@@ -133,6 +268,8 @@ String loadWithTyped() => describeTyped(const UserId(7)); // user #7
 - [ ] Eski sözdizimi (`typedef R Name(args)`) yok.
 - [ ] JSON alias'ı `Object?` ile, `dynamic` ile değil.
 - [ ] `Json` Domain'e sızmıyor, entity döndürülüyor.
+- [ ] Aynı türden parametreli function typedef'te parametreler isimli.
+- [ ] Konumsal record alias yok; 3'ten fazla alan ya da davranış varsa class.
 
 ## Pekiştirme
 - **Kolay:** `typedef Celsius = double; typedef Fahrenheit = double;` ile `toFahrenheit(Celsius)` yaz; testte bir `Fahrenheit`'ı ona vermenin derlendiğini ve `Celsius == Fahrenheit` olduğunu göster. Bitti = test yeşil.

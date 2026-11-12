@@ -143,6 +143,38 @@ Bölüm sonunda kural dosyasındaki **Pekiştirme** iki alıştırmasını ver; 
 - **Üret:** "/dartadvance Bana sipariş numarası ile müşteri numarasının karışmasını derleme anında engelleyen bir fatura servisi yaz."
 - **Kıyasla:** Test eski alias'ın `int`'e eşit olduğunu ve yanlış değerin kabul edildiğini gösterir; extension type `.value` ile sarılı değeri verir; yanlış ID için derleme hatasının analyzer tarafından verildiği yorumda yazılıdır.
 
+### 4. Record alias: isimli alanlı typedef (3.0)
+- **Aç:** `examples/lib/02_typedefs/record_alias.dart`
+- **Söyle:** Bir record tipine isim verir; alanlar isimliyse `p.lat` okunur, sıra karışması anlam karıştırmaz.
+- **Tuzak:** Konumsal `(double, double)` içinde `lng`, `lat` yerine yazılsa da derlenir; `.$1` enlem diye boylamı okur.
+- **Düzelt:** "/dartadvance Projemde konum, boyut ya da aralık için `(double, double)` gibi konumsal record kullanan yerleri bul, isimli alanlı `typedef` ile düzelt, test yaz."
+- **Üret:** "/dartadvance Bana mağaza seçme ekranı için konumu ve seçim callback'ini typedef ile adlandıran bir harita sınıfı yaz."
+- **Kıyasla:** Konumsal record kalmaz; `store().lat == 41.0`; `OnPicked` callback'i `Point` alır; `dart analyze` temiz.
+
+### 5. Fonksiyon typedef'inde isimli parametre
+- **Aç:** `examples/lib/02_typedefs/named_params.dart`
+- **Söyle:** Aynı türden parametreleri olan typedef'te parametreleri isimli (`required`) yaz; çağıran da fonksiyon da adıyla eşleşir.
+- **Tuzak:** `String Function(String, String, int)` sırası ters yazılmış bir fonksiyonu da kabul eder; havale ters yönde gider. İsimli typedef bunu analyzer'a reddettirir.
+- **Düzelt:** "/dartadvance Projemde aynı türden konumsal parametreleri olan callback ve typedef tiplerini bul, parametrelere isim ver (`required` isimli), test yaz."
+- **Üret:** "/dartadvance Bana havale ekranı için gönderen, alıcı ve kuruş alan isimli bir typedef ve onu kullanan bir fonksiyon yaz."
+- **Kıyasla:** Typedef'te aynı türden konumsal parametre kalmaz; `send(transfer) == 'ali -> veli: 5000'`; sırası ters fonksiyon analyzer'da reddedilir.
+
+### 6. AsyncResult: Future<Result<T>> için alias
+- **Aç:** `examples/lib/02_typedefs/async_result.dart`
+- **Söyle:** `typedef AsyncResult<T> = Future<Result<T>>` her repository imzasında tekrar eden tipi bir isme indirir.
+- **Tuzak:** Alias yeni tip değildir: `AsyncResult<int> == Future<Result<int>>`, sonuç aynıdır; kazanç imzayı tek yerden değiştirebilmektir.
+- **Düzelt:** "/dartadvance Projemde `Future<Result<T>>` imzasını her repository metodunda tekrar eden yerleri bul, `typedef AsyncResult<T>` ile adlandır, test yaz."
+- **Üret:** "/dartadvance Bana stok ve fiyat sorgulayan, hata fırlatmayıp sonuç dönen bir repository yaz; dönüş tipi tek bir typedef olsun."
+- **Kıyasla:** Repository imzalarında `Future<Result<` kalmaz; `AsyncResult<int> == Future<Result<int>>`; `switch` ile `Ok`/`Err` ayrılır; `dart analyze` temiz.
+
+### 7. Record alias ne zaman class olur
+- **Aç:** `examples/lib/02_typedefs/record_vs_class.dart`
+- **Söyle:** Alias okunabilirliği çözer, anlamı çözmez; aynı türden 3'ten fazla alan ya da davranış gerekiyorsa class kullan.
+- **Tuzak:** `(String, int, int, int)` içinde `$2 * $4` adet ile indirimi çarpar; derlenir, toplam `150` çıkar, doğrusu `1300`.
+- **Düzelt:** "/dartadvance Projemde 3'ten fazla alanlı ya da aynı türden alanları olan record alias'larını bul, sınıfa çevir, alanları isimlendir, test yaz."
+- **Üret:** "/dartadvance Bana sepet satırını (ad, adet, kuruş, indirim) tutan ve satır toplamını hesaplayan bir sınıf yaz."
+- **Kıyasla:** Aynı türden art arda alan içeren record alias kalmaz; `CartLine(...).total == 1300`; `dart analyze` temiz.
+
 
 ---
 

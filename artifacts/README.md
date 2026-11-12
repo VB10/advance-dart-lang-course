@@ -6,6 +6,7 @@ Kurs sayfalarının kaynağı. Her dosya claude.ai'de bir artifact olarak yayın
 | --- | --- | --- |
 | [landing.html](landing.html) | Kurs haritası (bölüm ızgarası) | https://claude.ai/artifact/Tg9xgzVDeNbGvGjv4NA3yU |
 | [01-built-in-types.html](01-built-in-types.html) | Bölüm 01 · Built-in types (13 kart) | https://claude.ai/artifact/1ftjaakLwccfcG1NVHanh3 |
+| [02-typedefs.html](02-typedefs.html) | Bölüm 02 · Typedefs (7 kart; aynı içerik [02-typedefs.md](02-typedefs.md) olarak da durur) | https://claude.ai/artifact/61B94mB1hg7siYg4YJcgtb |
 | [03-class-design.html](03-class-design.html) | Bölüm 03 · Class tasarımı (annotation kartları 5–8) | https://claude.ai/artifact/L7uxuQD7VqgRJgjVHA61rM |
 | [04-collection.html](04-collection.html) | Bölüm 04 · Collection (7 kart) | https://claude.ai/artifact/RCdHrWMCwiwTtRJLg8yDxE |
 
